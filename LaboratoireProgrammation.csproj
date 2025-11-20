@@ -1,0 +1,244 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\Steam.png" />
+      <Resource Include="Assets\Steam.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (1).jpg" />
+      <Resource Include="Assets\Games\Game (1).jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (1).png" />
+      <Resource Include="Assets\Games\Game (1).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (1).webp" />
+      <Resource Include="Assets\Games\Game (1).webp">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (2).jpg" />
+      <Resource Include="Assets\Games\Game (2).jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (2).png" />
+      <Resource Include="Assets\Games\Game (2).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (2).webp" />
+      <Resource Include="Assets\Games\Game (2).webp">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (3).jpg" />
+      <Resource Include="Assets\Games\Game (3).jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (3).png" />
+      <Resource Include="Assets\Games\Game (3).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (4).jpg" />
+      <Resource Include="Assets\Games\Game (4).jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (4).png" />
+      <Resource Include="Assets\Games\Game (4).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (5).jpg" />
+      <Resource Include="Assets\Games\Game (5).jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (5).png" />
+      <Resource Include="Assets\Games\Game (5).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (6).jpg" />
+      <Resource Include="Assets\Games\Game (6).jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (6).png" />
+      <Resource Include="Assets\Games\Game (6).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (7).jpg" />
+      <Resource Include="Assets\Games\Game (7).jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (7).png" />
+      <Resource Include="Assets\Games\Game (7).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (8).png" />
+      <Resource Include="Assets\Games\Game (8).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (9).png" />
+      <Resource Include="Assets\Games\Game (9).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (10).png" />
+      <Resource Include="Assets\Games\Game (10).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (11).png" />
+      <Resource Include="Assets\Games\Game (11).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (12).png" />
+      <Resource Include="Assets\Games\Game (12).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (13).png" />
+      <Resource Include="Assets\Games\Game (13).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (14).png" />
+      <Resource Include="Assets\Games\Game (14).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (15).png" />
+      <Resource Include="Assets\Games\Game (15).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (16).png" />
+      <Resource Include="Assets\Games\Game (16).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (17).png" />
+      <Resource Include="Assets\Games\Game (17).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (18).png" />
+      <Resource Include="Assets\Games\Game (18).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (19).png" />
+      <Resource Include="Assets\Games\Game (19).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (20).png" />
+      <Resource Include="Assets\Games\Game (20).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (21).png" />
+      <Resource Include="Assets\Games\Game (21).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (22).png" />
+      <Resource Include="Assets\Games\Game (22).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (23).png" />
+      <Resource Include="Assets\Games\Game (23).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (24).png" />
+      <Resource Include="Assets\Games\Game (24).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (25).png" />
+      <Resource Include="Assets\Games\Game (25).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (26).png" />
+      <Resource Include="Assets\Games\Game (26).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (27).png" />
+      <Resource Include="Assets\Games\Game (27).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (28).png" />
+      <Resource Include="Assets\Games\Game (28).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (29).png" />
+      <Resource Include="Assets\Games\Game (29).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (30).png" />
+      <Resource Include="Assets\Games\Game (30).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (31).png" />
+      <Resource Include="Assets\Games\Game (31).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (32).png" />
+      <Resource Include="Assets\Games\Game (32).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (33).png" />
+      <Resource Include="Assets\Games\Game (33).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (34).png" />
+      <Resource Include="Assets\Games\Game (34).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (35).png" />
+      <Resource Include="Assets\Games\Game (35).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (36).png" />
+      <Resource Include="Assets\Games\Game (36).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (37).png" />
+      <Resource Include="Assets\Games\Game (37).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (38).png" />
+      <Resource Include="Assets\Games\Game (38).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (39).png" />
+      <Resource Include="Assets\Games\Game (39).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (40).png" />
+      <Resource Include="Assets\Games\Game (40).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (41).png" />
+      <Resource Include="Assets\Games\Game (41).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (42).png" />
+      <Resource Include="Assets\Games\Game (42).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (43).png" />
+      <Resource Include="Assets\Games\Game (43).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (44).png" />
+      <Resource Include="Assets\Games\Game (44).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (45).png" />
+      <Resource Include="Assets\Games\Game (45).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Game (46).png" />
+      <Resource Include="Assets\Games\Game (46).png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Assets\Games\Test.jpg" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="HandyControl" Version="3.6.0-rc3" />
+      <PackageReference Include="WPF-UI" Version="4.0.3" />
+    </ItemGroup>
+
+</Project>

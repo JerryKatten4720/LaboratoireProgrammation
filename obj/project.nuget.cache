@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "6ICzlXnENB4=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Antoine\\RiderProjects\\LaboratoireProgrammation\\LaboratoireProgrammation.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Antoine\\.nuget\\packages\\handycontrol\\3.6.0-rc3\\handycontrol.3.6.0-rc3.nupkg.sha512",
+    "C:\\Users\\Antoine\\.nuget\\packages\\wpf-ui\\4.0.3\\wpf-ui.4.0.3.nupkg.sha512",
+    "C:\\Users\\Antoine\\.nuget\\packages\\wpf-ui.abstractions\\4.0.3\\wpf-ui.abstractions.4.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
