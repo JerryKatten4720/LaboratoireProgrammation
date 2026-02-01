@@ -24,7 +24,6 @@ public partial class MainWindow : Window {
         InitializeComponent();
         
         StateChanged += MainWindow_StateChanged;
-        this.KeyDown += new KeyEventHandler(OnButtonKeyDown);
     }
 
     private void MainWindow_StateChanged(object sender, EventArgs e) {
@@ -44,40 +43,6 @@ public partial class MainWindow : Window {
         
         GameList.LoadGames();
     }
-    private bool isFullscreen = false;
-    private void OnButtonKeyDown(object sender, KeyEventArgs e) {
-        if (e.Key == Key.F11 && !isFullscreen) {
-            WindowState = WindowState.Normal;
-            WindowStyle = WindowStyle.None;
-            WindowState = WindowState.Maximized;
-            Topmost = true;
-            isFullscreen = true;
-        } else if (e.Key == Key.F11 && isFullscreen) {
-            WindowState = WindowState.Normal;
-            WindowStyle = WindowStyle.SingleBorderWindow;
-            Topmost = false;
-            isFullscreen = false;
-        }
-
-        Game game = new Game("Title", "Desc", 3.5, x);
-
-        if (e.Key == Key.F2) {
-            if (!Game.IsDisplayed) {
-                Game.LoadGameImage();
-                return;
-            }
-            
-            if (Game.IsDisplayed) {
-                Game.UnloadGameImage();
-                return;
-            }
-        }
-        
-        if (e.Key == Key.F3) {
-            Game.UnloadGameImage();
-        }
-        
-    }
 
     // - > Top Bar Buttons [START]
     private void CloseProgram(object sender, RoutedEventArgs e) { Close(); }
@@ -85,35 +50,4 @@ public partial class MainWindow : Window {
     private void MinimizeProgram(object sender, RoutedEventArgs e) { WindowState = WindowState.Minimized; }
     // - > Top Bar Buttons [END]
     
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-     
-    
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-
-    private void GamePrevious(object sender, RoutedEventArgs e) { Game.previousGame(); }
-    private void GameNext(object sender, RoutedEventArgs e) { Game.nextGame(); }
-    
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-
-    private const string _lightModeForeground = "#1a1a1a";
-    private const string _lightModeBackground = "#F5F5F5";
-    private const string _darkModeForeground = "#F5F5F5";
-    private const string _darkModeBackground = "#1a1a1a";
-    
-    private string _currentForeground = _lightModeForeground;
-    private string _currentBackground = _lightModeBackground;
-    private void SetLightMode() {
-        Background = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString(_lightModeBackground));
-        Foreground = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString(_lightModeForeground));
-    }
-    private void SetDarkMode() {
-        Background = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString(_darkModeBackground));
-        Foreground = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString(_darkModeForeground));
-
-    }
-    
-    public void ToggleMode(object sender, RoutedEventArgs e) {
-        if (_currentBackground == _darkModeBackground && _currentForeground == _darkModeForeground) { SetLightMode(); }
-        else { SetDarkMode(); }
-    }
 }

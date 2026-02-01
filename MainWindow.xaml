@@ -101,20 +101,15 @@
     <!--         STRUCTURE          -->
     <!-- ========================== -->
     <Grid x:Name="MainGrid">
-        
+        <Image Source="Assets/Backgrounds/PNG/Launcher.png" 
+               Stretch="UniformToFill" 
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"/>
+    
         <Canvas x:Name="DisplayCanvas" IsHitTestVisible="False" />
 
-        <!-- Top bar -->
-        <Border Padding="12, 0, 0, 0" Height="40" VerticalAlignment="Top"/>
         <Button Style="{StaticResource CloseButton}" Content="" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseProgram" />
         <Button Style="{StaticResource HoverButton}" Content="" WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,40,0" Click="MaximizeProgram" />
         <Button Style="{StaticResource HoverButton}" Content="" WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,80,0" Click="MinimizeProgram" />
-        <!-- Top bar -->
-
-        <Button Style="{StaticResource SwitchButton}" Content="" HorizontalAlignment="Left" Margin="0,35,0,0" Click="GamePrevious" />
-        <Button Style="{StaticResource SwitchButton}" Content="" HorizontalAlignment="Right"  Margin="0,35,0,0" Click="GameNext"/>
-        
-        <Image Source="Assets/Steam.png" Opacity="0.05"></Image>
-        
     </Grid>
 </Window>
