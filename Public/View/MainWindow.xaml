@@ -78,7 +78,7 @@
         <DockPanel LastChildFill="True" Margin="20">
             <!-- Title Bar -->
             <Grid DockPanel.Dock="Top" Height="40">
-                <TextBlock Text="@anto.cldl - Terminal.UI | v1.0" 
+                <TextBlock x:Name="TopText" Text="@anto.cldl - Terminal.UI | v1.0" 
                            Style="{StaticResource HeaderText}"
                            VerticalAlignment="Center" 
                            HorizontalAlignment="Left"/>
@@ -99,7 +99,6 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Main Content Area -->
             <Grid Margin="0,10,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -112,7 +111,6 @@
                     <StackPanel x:Name="TerminalOutputPanel" Margin="10" />
                 </ScrollViewer>
                 
-                <!-- Output Display -->
                 <RichTextBox x:Name="OutputBox" 
                              Grid.Row="0" 
                              IsReadOnly="True" 
@@ -154,26 +152,25 @@
         
     </Grid>
     
-    <!-- CRT Screen Effect -->
     <Window.Effect>
         <wrappers:CRT x:Name="VaultShader"
                       DistortionStrength="0.2"   
-                      CurveRadius="0.0"           
+                      CurveRadius="0.04"           
                       VignetteStrength="0.1"      
-                      ScanlineIntensity="0.15"    
+                      ScanlineIntensity="0.35"    
                       ScanlineCount="400.0"       
-                      ScanlineSpeed="0.02"         
-                      PixelGridIntensity="0.1"
-                      ChromaticAberration="0.02" 
-                      BloomStrength="0.65"        
-                      TintColor="Transparent"         
-                      Brightness="1.0"
-                      Contrast="1.0"
+                      ScanlineSpeed="0.04"         
+                      PixelGridIntensity="0.2"
+                      BloomStrength="0.8"        
+                      ChromaticAberration="0.06" 
+                      TintColor="#0AFF7D0F"         
+                      Brightness="0.95"
+                      Contrast="0.98"
                       NoiseIntensity="0.02"
                       NoiseScale="0.5"
-                      FlickerIntensity="0.02"
-                      FlickerSpeed="1.0"
-                      PhosphorDecay="0.2"
+                      FlickerIntensity="0.04"
+                      FlickerSpeed="0.8"
+                      PhosphorDecay="0.5"
                       ScreenResolution="1920,1080" />
     </Window.Effect>
 </Window>

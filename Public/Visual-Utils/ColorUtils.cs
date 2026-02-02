@@ -21,7 +21,7 @@ public class ColorUtils {
     public static SolidColorBrush CriticalBrush => new SolidColorBrush(Critical);
     public static SolidColorBrush SuccessBrush => new SolidColorBrush(Success);
     
-    private static Color HexToColor(string hex) {
+    public static Color HexToColor(string hex) {
         hex = hex.Replace("#", "");
 
         if (hex.Length == 6)

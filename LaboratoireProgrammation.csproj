@@ -84,6 +84,8 @@
       <Resource Include="Assets\backgrounds\png\launcher-3.png" />
       <None Remove="Assets\shaders\effects\smoke.ps" />
       <Resource Include="Assets\shaders\effects\smoke.ps" />
+      <None Remove="Assets\fonts\overseer.ttf" />
+      <Resource Include="Assets\fonts\overseer.ttf" />
     </ItemGroup>
 
     <ItemGroup>

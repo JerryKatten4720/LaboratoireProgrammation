@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -10,12 +11,13 @@ using LaboratoireProgrammation.Utils;
 
 namespace LaboratoireProgrammation.Public.Model {
     public partial class MainWindow : Window {
+        private bool speedLoad = false;
         
         private bool _isAdjustingSize = false;
         private readonly List<string> _commandHistory = new();
         private int _historyIndex = -1;
         
-        private static readonly FontFamily TerminalFont = new FontFamily(new Uri("pack://application:,,,/"), "./Assets/Fonts/#overseer");
+        private static readonly FontFamily TerminalFont = new FontFamily(new Uri("pack://application:,,,/LaboratoireProgrammation;component/"), "./Assets/fonts/#overseer");
         private static readonly FontFamily ConsoleFont = new FontFamily("Consolas");
 
         private readonly Color _terminalGreen = Color.FromRgb(51, 255, 51);
@@ -29,10 +31,9 @@ namespace LaboratoireProgrammation.Public.Model {
             
             Loaded += (s, e) => InputBox.Focus();
             
-            AppendOutput("@anto.cldl | Console | Hello.World");
-            AppendOutput("Type 'help' for command list.");
-            AppendOutput("> - - - - - - - - - - - - - - - - - - - - <");
-            AppendOutput(" ");
+            AppendOutput("@anto.cldl | Console | Programmation.Laboratoire");
+            AppendOutput("Utilisez 'help' pour obtenir la liste des commandes.");
+            BlankSpace();
         }
         
         private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e) {
@@ -85,7 +86,7 @@ namespace LaboratoireProgrammation.Public.Model {
             string cmd = InputBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(cmd)) return;
 
-            AppendOutput($"> {cmd}", Colors.GreenYellow);
+            AppendOutput($"[User] >>> {cmd}", ColorUtils.UserInput);
 
             _commandHistory.Add(cmd);
             _historyIndex = _commandHistory.Count;
@@ -104,6 +105,9 @@ namespace LaboratoireProgrammation.Public.Model {
                     AppendOutput("  font    - Adjust terminal readability");
                     AppendOutput("  exit    - Terminate session");
                     AppendOutput("  about   - System info");
+                    BlankSpace();
+                    AppendOutput("  Lab1   - Launch Lab (1)");
+
                     break;
 
                 case "clear":
@@ -124,6 +128,10 @@ namespace LaboratoireProgrammation.Public.Model {
                 case "exit":
                     Close();
                     break;
+                
+                case "lab1":
+                    FirstLab();
+                    break;
 
                 default:
                     AppendOutput($"[ERROR] COMMAND '{cmd}' UNRECOGNIZED.", Colors.Red);
@@ -140,6 +148,13 @@ namespace LaboratoireProgrammation.Public.Model {
                 Foreground = new SolidColorBrush(color)
             };
 
+            Paragraph para = new Paragraph(run);
+            OutputBox.Document.Blocks.Add(para);
+            OutputBox.ScrollToEnd();
+        }
+
+        private void BlankSpace() {
+            Run run = new Run("");
             Paragraph para = new Paragraph(run);
             OutputBox.Document.Blocks.Add(para);
             OutputBox.ScrollToEnd();
@@ -169,32 +184,38 @@ namespace LaboratoireProgrammation.Public.Model {
 
         private async void animateLoader() {
             OutputBox.Visibility = Visibility.Collapsed;
+            TopText.Visibility = Visibility.Collapsed;
             
             double width = ActualWidth;
             double fontMult = width >= 1600 ? 1.0 : (width >= 1200 ? 0.8 : 0.6);
             
-            var inspirationBlock = CreateTitleBlock("Inspired by [Bethesda Softworks] - { Fallout Franchise }", 76 * fontMult);
+            var inspirationBlock = CreateTitleBlock("{ - Programmation <-> Laboratoire - }", 76 * fontMult, ColorUtils.FancyTextBrush);
             TerminalOutputPanel.Children.Add(inspirationBlock);
-            await Task.Delay(2000);
+            
+            if (speedLoad) await Task.Delay(200);
+            else await Task.Delay(2000);
 
-            var authorBlock = CreateTitleBlock("\nanto.cldl", 220 * fontMult);
+            var authorBlock = CreateTitleBlock("\nanto.cldl", 250 * fontMult, ColorUtils.FancyTextBrush);
             TerminalOutputPanel.Children.Add(authorBlock);
-            await Task.Delay(2000);
+            
+            if (speedLoad) await Task.Delay(200);
+            else await Task.Delay(2000);
             
             TerminalOutputPanel.Children.Clear();
             OutputBox.Visibility = Visibility.Visible;
+            TopText.Visibility = Visibility.Visible;
         }
         
         // Helpers
-        private TextBlock CreateTitleBlock(string text, double size) {
+        private TextBlock CreateTitleBlock(string text, double size, Brush color) {
             return new TextBlock {
                 Text = text,
-                FontSize = size,
+                FontSize = size * 1.5,
                 FontWeight = FontWeights.Regular,
                 FontFamily = TerminalFont,
                 TextAlignment = TextAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = ColorUtils.FancyTextBrush,
+                Foreground = color,
                 VerticalAlignment = VerticalAlignment.Center,
             };
         }
@@ -204,6 +225,38 @@ namespace LaboratoireProgrammation.Public.Model {
         private void MinimizeProgram(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void MaximizeProgram(object sender, RoutedEventArgs e) => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
         private void CloseProgram(object sender, RoutedEventArgs e) => Close();
+        
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        public async void FirstLab() {
+            OutputBox.Document.Blocks.Clear();
+            
+            OutputBox.Visibility = Visibility.Collapsed;
+            TopText.Visibility = Visibility.Collapsed;
+            
+            double width = ActualWidth;
+            double fontMult = width >= 1600 ? 1.0 : (width >= 1200 ? 0.8 : 0.6);
+            
+            var inspirationBlock = CreateTitleBlock("Laboratoire - 1", 76 * fontMult, new SolidColorBrush(ColorUtils.HexToColor("#3495eb")));
+            TerminalOutputPanel.Children.Add(inspirationBlock);
+            
+            if (speedLoad) await Task.Delay(200);
+            else await Task.Delay(2000);
+
+            var descriptionBlock = CreateTitleBlock("Travail du >>> (02.02.26)", 50 * fontMult, new SolidColorBrush(ColorUtils.HexToColor("#3495eb")));
+            TerminalOutputPanel.Children.Add(descriptionBlock);
+            
+            var authorBlock = CreateTitleBlock("anto.cldl", 200 * fontMult, new SolidColorBrush(ColorUtils.HexToColor("#deefff")));
+            TerminalOutputPanel.Children.Add(authorBlock);
+            
+            if (speedLoad) await Task.Delay(200);
+            else await Task.Delay(2000);
+            
+            TerminalOutputPanel.Children.Clear();
+            OutputBox.Visibility = Visibility.Visible;
+            TopText.Visibility = Visibility.Visible;
+        }
+        
         
     }
 }
