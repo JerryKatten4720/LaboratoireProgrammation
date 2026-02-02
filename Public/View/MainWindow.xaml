@@ -105,7 +105,13 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
+                
+                <TextBlock x:Name="Credits"/>
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden" x:Name="TerminalScroller"
+                              Margin="-10">
+                    <StackPanel x:Name="TerminalOutputPanel" Margin="10" />
+                </ScrollViewer>
+                
                 <!-- Output Display -->
                 <RichTextBox x:Name="OutputBox" 
                              Grid.Row="0" 
@@ -118,6 +124,7 @@
                              VerticalScrollBarVisibility="Hidden" 
                              IsHitTestVisible="False">
                 </RichTextBox>
+                
 
                 <!-- Input Area -->
                 <Grid Grid.Row="1" Margin="0,5,0,0">

@@ -91,15 +91,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Public\Controller\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Page Update="Public\View\MainWindow.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Public\Controller\" />
     </ItemGroup>
 
 </Project>

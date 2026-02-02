@@ -13,4 +13,11 @@ public class SizeUtils {
         if (Application.Current.MainWindow == null) return 0;
         return Application.Current.MainWindow.Width;
     }
+
+    public static async void setFullscreen(Window window) {
+        if (window.WindowState != WindowState.Maximized) {
+            window.WindowState = WindowState.Maximized;
+        } else return;
+        await Task.Delay(200);
+    }
 }
