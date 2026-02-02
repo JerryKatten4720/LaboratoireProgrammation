@@ -75,7 +75,31 @@
 
     <ItemGroup>
       <None Remove="Assets\Backgrounds\PNG\Launcher.png" />
-      <Resource Include="Assets\Backgrounds\PNG\Launcher.png" />
+      <Resource Include="Assets\backgrounds\png\launcher.png" />
+      <None Remove="Assets\shaders\effects\crt.ps" />
+      <Resource Include="Assets\shaders\effects\crt.ps" />
+      <None Remove="Assets\backgrounds\png\launcher-2.png" />
+      <Resource Include="Assets\backgrounds\png\launcher-2.png" />
+      <None Remove="Assets\backgrounds\png\launcher-3.png" />
+      <Resource Include="Assets\backgrounds\png\launcher-3.png" />
+      <None Remove="Assets\shaders\effects\smoke.ps" />
+      <Resource Include="Assets\shaders\effects\smoke.ps" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ClCompile Include="Assets\shaders\raw\smoke.fx" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Public\Controller\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Public\View\MainWindow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
 </Project>
