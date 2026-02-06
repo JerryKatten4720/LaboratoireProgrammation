@@ -5,6 +5,8 @@ namespace LaboratoireProgrammation.Public.Visual_Utils;
 public class ColorUtils {
 
     public static Color FancyText = HexToColor("#fcfe4d");
+    public static Color HomeText = HexToColor("#ff9838");
+    public static Color VisualText = HexToColor("#6fff59");
     public static Color Text = HexToColor("#ededed");
     public static Color UserInput = HexToColor("#6ee9ff");
     public static Color Information = HexToColor("#fdff6e");
@@ -15,6 +17,16 @@ public class ColorUtils {
     public static SolidColorBrush FancyTextBrush {
         get => new SolidColorBrush(FancyText);
         set => FancyText = value.Color;
+    }
+    
+    public static SolidColorBrush HomeBrush {
+        get => new SolidColorBrush(FancyText);
+        set => FancyText = value.Color;
+    }
+
+    public SolidColorBrush VisualBrush {
+        get => new SolidColorBrush(VisualText);
+        set => VisualText = value.Color;
     }
 
     public static SolidColorBrush TextBrush {
@@ -46,7 +58,8 @@ public class ColorUtils {
         get => new SolidColorBrush(Success);
         set => Success = value.Color;
     }
-    
+
+
     public static Color HexToColor(string hex) {
         hex = hex.Replace("#", "");
 

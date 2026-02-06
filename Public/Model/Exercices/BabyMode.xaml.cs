@@ -20,7 +20,6 @@ public partial class BabyMode : UserControl {
     private void Exo1B(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed; 
-            window.BackToMain.Visibility = Visibility.Hidden;
             window.FirstExo(); 
         }
     }
@@ -28,7 +27,6 @@ public partial class BabyMode : UserControl {
     private void Exo2(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed; 
-            window.BackToMain.Visibility = Visibility.Hidden;
             window.SecondExo();
         }
     }
@@ -36,7 +34,6 @@ public partial class BabyMode : UserControl {
     private void Lab1(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed; 
-            window.BackToMain.Visibility = Visibility.Hidden;
             window.FirstLab();
         }
     }
@@ -44,7 +41,6 @@ public partial class BabyMode : UserControl {
     private void MemfyAI(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            window.BackToMain.Visibility = Visibility.Hidden;
             window.MemfyAI();
         }
     }

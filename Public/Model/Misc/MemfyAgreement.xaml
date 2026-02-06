@@ -29,7 +29,7 @@
                 VerticalAlignment="Center">
 
                 <TextBlock x:Name="Label"
-                           Text="&lt;!&gt; Disclaimer &lt;!&gt; Memfy.AI will run locally, which means it is going to use your GPU ! If you don't have faith in your GPU, please forget the idea of using Memfy.AI"
+                           Text="&lt;!&gt; Disclaimer &lt;!&gt; Memfy.AI is currently in closed alpha, it will only run locally on allowed machines, you shouldn't try it if you don't have access to it (It won't run)"
                            FontFamily="#doto"
                            FontSize="32"
                            TextWrapping="Wrap"

@@ -13,7 +13,7 @@ namespace LaboratoireProgrammation.Public.Model {
         private bool _memfyMode = false;
         
         private readonly bool _speedLoad = true;
-        private readonly bool _babymode = false;
+        private bool _babymode = false;
         
         private bool _isAdjustingSize = false;
         private readonly List<string> _commandHistory = new();
@@ -39,21 +39,36 @@ namespace LaboratoireProgrammation.Public.Model {
             OutputBox.Visibility = Visibility.Visible;
             InputBox.Visibility = Visibility.Visible;
             BabyMode.Visibility = Visibility.Collapsed;
-            BackToMain.Visibility = Visibility.Collapsed;
+            Exo1.Visibility = Visibility.Collapsed;
+            Exo1B.Visibility = Visibility.Collapsed;
+            Exo2.Visibility = Visibility.Collapsed;
+            Labo1B.Visibility = Visibility.Collapsed;
+            VaultImage.Visibility = Visibility.Collapsed;
             
             Loaded += (s, e) => InputBox.Focus();
+            InputBox.Focus();
             
             OutputBox.Document.Blocks.Clear();
             AppendOutput("@anto.cldl | Console | Programmation.Laboratoire");
             AppendOutput("Utilisez 'help' pour obtenir la liste des commandes.");
             BlankSpace();
+            
+            BabyModeInit();
         }
 
         private void BabyModeInit() {
+            if (!_babymode) {
+                VisualMode.Content = "Mode Visuel [ ❌ ]";
+                OutputBox.Visibility = Visibility.Visible;
+                InputBox.Visibility = Visibility.Visible;
+                BabyMode.Visibility = Visibility.Collapsed;
+                return;
+            }
+            
+            VisualMode.Content = "Mode Visuel [ ✔ ]";
             OutputBox.Visibility = Visibility.Collapsed;
             InputBox.Visibility = Visibility.Collapsed;
             BabyMode.Visibility = Visibility.Visible;
-            BackToMain.Visibility = Visibility.Visible;
         }
         
         private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e) {
@@ -469,7 +484,18 @@ namespace LaboratoireProgrammation.Public.Model {
             InputBox.Focus();
 
             _memfyMode = true;
-        }   
-        
+        }
+
+        private void BackToMenu(object sender, RoutedEventArgs e) {
+            MainInit();
+
+        }
+
+        private void BabyModeSwitch(object sender, RoutedEventArgs e) {
+            if (_babymode) _babymode = false;
+            else _babymode = true;
+            
+            BabyModeInit();
+        }
     }
 }
