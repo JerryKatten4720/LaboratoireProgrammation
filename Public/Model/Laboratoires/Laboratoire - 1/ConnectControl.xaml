@@ -1,0 +1,118 @@
+<UserControl x:Class="LaboratoireProgrammation.Public.Model.Laboratoires.Laboratoire___1.ConnectControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Public.Visual_Utils"
+             mc:Ignorable="d" Background="Transparent"
+             d:DesignHeight="*" d:DesignWidth="1000">
+
+    <Grid Margin="20" x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Label"
+               Content="[SUCCESS] > Connexion à la base de données effectuée avec succès !" Margin="0,0,0,20"
+               Background="#1E000000" FontFamily="#alvera" FontSize="24"
+               HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="2"
+               BorderBrush="{x:Static colorhelper:ColorUtils.FancyTextBrush}" Padding="30,20,30,20"
+               Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}" Visibility="Hidden" />
+
+        <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontSize="32"
+               Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
+               HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
+               Margin="0,0,0,20">
+            Connexion à la base de données
+        </Label>
+
+
+        <Label x:Name="ServerLabel" Grid.Row="2" Grid.Column="0" FontSize="32" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
+               HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
+               Content="Serveur :" />
+
+        <TextBox Grid.Row="2" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+                 Margin="10,5,0,5" Padding="10,0,0,0"
+                 BorderBrush="{x:Static colorhelper:ColorUtils.FancyTextBrush}" BorderThickness="2"
+                 x:Name="ServerInput" />
+
+
+        <Label x:Name="DatabaseLabel" Grid.Row="3" Grid.Column="0" FontSize="32" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
+               HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
+               Content="Base de données :" />
+
+        <TextBox Grid.Row="3" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+                 Margin="10,5,0,5" Padding="10,0,0,0"
+                 BorderBrush="{x:Static colorhelper:ColorUtils.FancyTextBrush}" BorderThickness="2"
+                 x:Name="DatabaseInput" />
+
+
+        <Label x:Name="UserLabel" Grid.Row="4" Grid.Column="0" FontSize="32" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
+               HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
+               Content="Utilisateur :" />
+
+        <TextBox Grid.Row="4" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+                 Margin="10,5,0,5" Padding="10,0,0,0"
+                 BorderBrush="{x:Static colorhelper:ColorUtils.FancyTextBrush}" BorderThickness="2" x:Name="UserInput" />
+
+
+        <Label x:Name="PasswordLabel" Grid.Row="5" Grid.Column="0" FontSize="32" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
+               HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
+               Content="Mot de passe :" />
+
+        <PasswordBox Grid.Row="5" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+                     Margin="10,5,0,5" Padding="10,0,0,0"
+                     BorderBrush="{x:Static colorhelper:ColorUtils.FancyTextBrush}" BorderThickness="2"
+                     x:Name="PasswordInput" />
+
+        <Button x:Name="ConnectButton" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" FontSize="32" BorderThickness="2" Height="80"
+                Margin="0,20,0,0"
+                Content="Se connecter" Click="ConnectButton_Click">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Foreground" Value="{x:Static colorhelper:ColorUtils.FancyTextBrush}" />
+                    <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorUtils.FancyTextBrush}" />
+                    <Setter Property="Background" Value="#1E000000" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="BorderBrush" Value="White" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+
+        <ProgressBar Visibility="Hidden" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Height="20"
+                     Margin="20,10,20,10"
+                     BorderThickness="0" Minimum="0" Maximum="100" Background="#1E000000" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
+                     IsIndeterminate="True" x:Name="pbStatus" />
+        
+        <Label x:Name="RemainingTrials" Visibility="Hidden" Grid.Column="0" Grid.Row="8" FontWeight="DemiBold" FontSize="28" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}">
+            Essais restants (4)
+        </Label>
+        
+        <ProgressBar Visibility="Hidden" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="1" Height="20"
+                     Margin="20,10,20,10"
+                     BorderThickness="0" Minimum="0" Maximum="100" Background="#1E000000" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
+                     Value="100" IsIndeterminate="false"  x:Name="RemainingTrialsBar" />
+    </Grid>
+</UserControl>

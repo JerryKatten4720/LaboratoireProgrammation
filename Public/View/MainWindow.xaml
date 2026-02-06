@@ -3,11 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wrappers="clr-namespace:LaboratoireProgrammation.Assets.shaders.wrappers"
         xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Public.Visual_Utils"
-        Title="ROBCO TERMINAL" Height="600" Width="900"
-        WindowStartupLocation="CenterScreen" ResizeMode="CanResize" 
-        Background="#09090B" Foreground="{x:Static colorhelper:ColorUtils.TextBrush}"
-        WindowStyle="None" AllowsTransparency="True">
-    
+        xmlns:windowconfig="clr-namespace:LaboratoireProgrammation.Public.Model"
+        xmlns:exercices="clr-namespace:LaboratoireProgrammation.Public.Model.Exercices"
+        xmlns:laboratoire1="clr-namespace:LaboratoireProgrammation.Public.Model.Laboratoires.Laboratoire___1"
+        xmlns:misc="clr-namespace:LaboratoireProgrammation.Public.Model.Misc"
+        Title="{x:Static windowconfig:MainWindowConfiguration.Title}"
+        Height="{x:Static windowconfig:MainWindowConfiguration.Height}"
+        Width="{x:Static windowconfig:MainWindowConfiguration.Width}"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Background="#09090B"
+        Opacity="{x:Static windowconfig:MainWindowConfiguration.Opacity}"
+        Foreground="{x:Static colorhelper:ColorUtils.TextBrush}"
+        WindowStyle="None"
+        AllowsTransparency="{x:Static windowconfig:MainWindowConfiguration.AllowTransparency}">
+
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40" ResizeBorderThickness="5" />
     </WindowChrome.WindowChrome>
@@ -16,13 +26,13 @@
         <!-- Terminal Color Palette -->
         <SolidColorBrush x:Key="TerminalGreenBrush" Color="{x:Static colorhelper:ColorUtils.FancyText}" />
         <Color x:Key="TerminalBlack">#000000</Color>
-        <SolidColorBrush x:Key="TerminalBlackBrush" Color="{StaticResource TerminalBlack}"/>
-        
+        <SolidColorBrush x:Key="TerminalBlackBrush" Color="{StaticResource TerminalBlack}" />
+
         <!-- Typography Resources -->
         <FontFamily x:Key="TerminalFont">Consolas</FontFamily>
         <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="HeaderFontSize">16</sys:Double>
         <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="BodyFontSize">18</sys:Double>
-        
+
         <!-- Window Control Button Style -->
         <Style x:Key="RobcoBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
@@ -37,10 +47,10 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
+                        <Border Background="{TemplateBinding Background}"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center" />
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -59,7 +69,7 @@
             <Setter Property="Foreground" Value="{StaticResource TerminalGreenBrush}" />
             <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
         </Style>
-        
+
         <!-- Header Text Style -->
         <Style x:Key="HeaderText" TargetType="TextBlock" BasedOn="{StaticResource TerminalText}">
             <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}" />
@@ -69,101 +79,136 @@
 
         <!-- Paragraph Style -->
         <Style TargetType="{x:Type Paragraph}">
-            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Margin" Value="0" />
         </Style>
     </Window.Resources>
 
     <Grid x:Name="MainGrid">
-        
+
         <DockPanel LastChildFill="True" Margin="20">
             <!-- Title Bar -->
             <Grid DockPanel.Dock="Top" Height="40">
-                <TextBlock x:Name="TopText" Text="@anto.cldl - Terminal.UI | v1.0" 
+                <TextBlock x:Name="TopText" Text="@anto.cldl - Terminal.UI | v1.0"
                            Style="{StaticResource HeaderText}"
-                           VerticalAlignment="Center" 
-                           HorizontalAlignment="Left"/>
-                
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left" />
+
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource RobcoBtn}" 
-                            Content="[ _ ]" 
-                            Click="MinimizeProgram" 
-                            WindowChrome.IsHitTestVisibleInChrome="True"/>
-                    <Button Style="{StaticResource RobcoBtn}" 
-                            Content="[ □ ]" 
-                            Click="MaximizeProgram" 
-                            WindowChrome.IsHitTestVisibleInChrome="True"/>
-                    <Button Style="{StaticResource RobcoBtn}" 
-                            Content="[ X ]" 
-                            Click="CloseProgram" 
-                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Style="{StaticResource RobcoBtn}"
+                            Content="[ _ ]"
+                            Click="MinimizeProgram"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                    <Button Style="{StaticResource RobcoBtn}"
+                            Content="[ □ ]"
+                            Click="MaximizeProgram"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                    <Button Style="{StaticResource RobcoBtn}"
+                            Content="[ X ]"
+                            Click="CloseProgram"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
                 </StackPanel>
             </Grid>
 
             <Grid Margin="0,10,0,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                
-                <TextBlock x:Name="Credits"/>
+
+                <TextBlock x:Name="Credits" />
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden" x:Name="TerminalScroller"
                               Margin="-10">
                     <StackPanel x:Name="TerminalOutputPanel" Margin="10" />
                 </ScrollViewer>
+
+                <ScrollViewer Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" CanContentScroll="True" VerticalScrollBarVisibility="Hidden">
+                    <RichTextBox x:Name="OutputBox"
+                                 IsReadOnly="True"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{StaticResource TerminalGreenBrush}"
+                                 FontFamily="{StaticResource TerminalFont}"
+                                 FontSize="{StaticResource BodyFontSize}" IsHitTestVisible="False">
+                    </RichTextBox>
+                </ScrollViewer>
+
+                <exercices:Exo___1 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
+                                   VerticalAlignment="Top" Margin="0,100,0,0" x:Name="Exo1">
+                </exercices:Exo___1>
+
+                <exercices:Exo___1b Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
+                                    VerticalAlignment="Top" Margin="0,400,0,0" x:Name="Exo1B">
+                </exercices:Exo___1b>
+                <laboratoire1:ConnectControl Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                                             x:Name="Labo1B" />
                 
-                <RichTextBox x:Name="OutputBox" 
-                             Grid.Row="0" 
-                             IsReadOnly="True" 
-                             Background="Transparent" 
-                             BorderThickness="0"
-                             Foreground="{StaticResource TerminalGreenBrush}" 
-                             FontFamily="{StaticResource TerminalFont}" 
-                             FontSize="{StaticResource BodyFontSize}"
-                             VerticalScrollBarVisibility="Hidden" 
-                             IsHitTestVisible="False">
-                </RichTextBox>
+                <Image Visibility="Collapsed" Source="../../../../Assets/images/vault-tec.png"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" Height="auto" Panel.ZIndex="-1"
+                       Opacity="0.01" Width="auto" x:Name="VaultImage">
+                </Image>
+
+                <exercices:Exo2 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
+                                VerticalAlignment="Top" Margin="0,100,0,0" x:Name="Exo2">
+                </exercices:Exo2>
+
+                <exercices:BabyMode Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" Margin="0,0,0,0" x:Name="BabyMode">
+                </exercices:BabyMode>
                 
+                <misc:MemfyAgreement Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement">
+                </misc:MemfyAgreement>
+                
+                <exercices:BackToMain Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left"
+                                      VerticalAlignment="Top" Margin="0,0,0,0" x:Name="BackToMain">
+                </exercices:BackToMain>
 
                 <!-- Input Area -->
                 <Grid Grid.Row="1" Margin="0,5,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    
-                    <TextBlock Text="> " 
+
+                    <TextBlock Text="> "
                                Style="{StaticResource TerminalText}"
                                FontWeight="Bold"
-                               VerticalAlignment="Center"/>
-                    
-                    <TextBox x:Name="InputBox" 
-                             Grid.Column="1" 
-                             Background="#40000000" 
-                             Foreground="{StaticResource TerminalGreenBrush}" 
+                               FontSize="24"
+                               Opacity="0.8"
+                               VerticalAlignment="Center" />
+
+                    <TextBox x:Name="InputBox"
+                             Panel.ZIndex="99"
+                             Grid.Column="1"
+                             Background="#40000000"
+                             Foreground="{StaticResource TerminalGreenBrush}"
                              BorderThickness="0"
-                             CaretBrush="{StaticResource TerminalGreenBrush}" 
-                             FontFamily="{StaticResource TerminalFont}" 
-                             FontSize="{StaticResource BodyFontSize}"
+                             Height="24"
+                             CaretBrush="{StaticResource TerminalGreenBrush}"
+                             FontFamily="{StaticResource TerminalFont}"
+                             FontSize="24"
                              PreviewKeyDown="InputBox_PreviewKeyDown"
-                             KeyboardNavigation.DirectionalNavigation="None"/>
+                             KeyboardNavigation.DirectionalNavigation="None" />
                 </Grid>
             </Grid>
         </DockPanel>
-        
+
     </Grid>
-    
+
     <Window.Effect>
         <wrappers:CRT x:Name="VaultShader"
-                      DistortionStrength="0.2"   
-                      CurveRadius="0.04"           
-                      VignetteStrength="0.1"      
-                      ScanlineIntensity="0.35"    
-                      ScanlineCount="400.0"       
-                      ScanlineSpeed="0.04"         
+                      DistortionStrength="0.2"
+                      CurveRadius="0.04"
+                      VignetteStrength="0.1"
+                      ScanlineIntensity="0.35"
+                      ScanlineCount="400.0"
+                      ScanlineSpeed="0.04"
                       PixelGridIntensity="0.2"
-                      BloomStrength="0.8"        
-                      ChromaticAberration="0.06" 
-                      TintColor="#0AFF7D0F"         
+                      BloomStrength="0.8"
+                      ChromaticAberration="0.06"
+                      TintColor="#0AFF7D0F"
                       Brightness="0.95"
                       Contrast="0.98"
                       NoiseIntensity="0.02"

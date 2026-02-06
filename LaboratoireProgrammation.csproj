@@ -69,7 +69,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.1.66" />
       <PackageReference Include="HandyControl" Version="3.6.0-rc3" />
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.2" />
+      <PackageReference Include="MySqlConnector" Version="2.5.0" />
+      <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
       <PackageReference Include="WPF-UI" Version="4.0.3" />
     </ItemGroup>
 
@@ -86,6 +90,27 @@
       <Resource Include="Assets\shaders\effects\smoke.ps" />
       <None Remove="Assets\fonts\overseer.ttf" />
       <Resource Include="Assets\fonts\overseer.ttf" />
+      <None Remove="Assets\fonts\helvetica.ttf" />
+      <None Remove="Assets\images\Fallout - New Vegas.jpg" />
+      <Resource Include="Assets\images\Fallout - New Vegas.jpg" />
+      <None Remove="Assets\images\Fallout - 4.png" />
+      <Resource Include="Assets\images\Fallout - 4.png" />
+      <None Remove="Assets\fonts\alvera.ttf" />
+      <None Remove="Assets\images\vault-tec.png" />
+      <Resource Include="Assets\images\vault-tec.png" />
+      <None Remove="Assets\images\hourglass.png" />
+      <Resource Include="Assets\images\hourglass.png" />
+      <None Remove="Assets\images\folder-yellow.png" />
+      <Resource Include="Assets\images\folder-yellow.png" />
+      <None Remove="Assets\images\folder-black.png" />
+      <Resource Include="Assets\images\folder-black.png" />
+      <None Remove="Assets\fonts\alvera square.ttf" />
+      <None Remove="Assets\fonts\doto.ttf" />
+      <Resource Include="Assets\fonts\doto.ttf" />
+      <None Remove="Assets\fonts\doto-bold.ttf" />
+      <Resource Include="Assets\fonts\doto-bold.ttf" />
+      <None Remove="Assets\images\DownArrow.png" />
+      <Resource Include="Assets\images\DownArrow.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -98,10 +123,16 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Public\Controller\" />
+      <Page Update="Public\Model\Exercices\Exo - 1.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Public\Model\Exercices\Exo - 1b.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
 </Project>

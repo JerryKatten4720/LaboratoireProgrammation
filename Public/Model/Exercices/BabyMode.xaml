@@ -1,0 +1,76 @@
+<UserControl x:Class="LaboratoireProgrammation.Public.Model.Exercices.BabyMode"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Public.Visual_Utils"
+             mc:Ignorable="d" Background="Transparent"
+             d:DesignHeight="*" d:DesignWidth="*">
+    
+    <UserControl.Resources>
+        <Style x:Key="ClickableBabyMode" TargetType="Button">
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorUtils.FancyTextBrush}" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorUtils.FancyTextBrush}" />
+            <Setter Property="Background" Value="#1E000000" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="BorderBrush" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <Button x:Name="Exo1_Button" Grid.Row="0" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120" Padding="20"
+                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Style="{StaticResource ClickableBabyMode}"
+                Content="EXO - 1" Click="Exo1" Width="400">
+        </Button>
+        
+        <Button x:Name="Exo1B_Button" Grid.Row="0" Grid.Column="1" FontSize="64" BorderThickness="2" Height="120" Padding="20"
+                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Style="{StaticResource ClickableBabyMode}"
+                Content="EXO - 1B" Click="Exo1B" Width="400">
+        </Button>
+        
+        <Button x:Name="Exo2_Button" Grid.Row="1" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120" Padding="20"
+                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Style="{StaticResource ClickableBabyMode}"
+                Content="EXO - 2" Click="Exo2" Width="400">
+        </Button>
+        
+        <Button x:Name="Lab1_Button" Grid.Row="3" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120" Padding="20"
+                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Style="{StaticResource ClickableBabyMode}"
+                Content="LABO - 1" Click="Lab1" Width="400">
+        </Button>
+        
+        <Button x:Name="MemfyAI_Button" Grid.Row="4" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120" Padding="20"
+                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Style="{StaticResource ClickableBabyMode}"
+                Content="MEMFY" Click="MemfyAI" Width="400">
+        </Button>
+        
+        
+    </Grid>
+</UserControl>

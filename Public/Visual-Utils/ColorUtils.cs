@@ -12,14 +12,40 @@ public class ColorUtils {
     public static Color Critical = HexToColor("#c7312c");
     public static Color Success = HexToColor("#29e62c");
     
-    
-    public static SolidColorBrush FancyTextBrush => new SolidColorBrush(FancyText);
-    public static SolidColorBrush TextBrush => new SolidColorBrush(Text);
-    public static SolidColorBrush UserInputBrush => new SolidColorBrush(UserInput);
-    public static SolidColorBrush InformationBrush => new SolidColorBrush(Information);
-    public static SolidColorBrush WarningBrush => new SolidColorBrush(Warning);
-    public static SolidColorBrush CriticalBrush => new SolidColorBrush(Critical);
-    public static SolidColorBrush SuccessBrush => new SolidColorBrush(Success);
+    public static SolidColorBrush FancyTextBrush {
+        get => new SolidColorBrush(FancyText);
+        set => FancyText = value.Color;
+    }
+
+    public static SolidColorBrush TextBrush {
+        get => new SolidColorBrush(Text);
+        set => Text = value.Color;
+    }
+
+    public static SolidColorBrush UserInputBrush {
+        get => new SolidColorBrush(UserInput);
+        set => UserInput = value.Color;
+    }
+
+    public static SolidColorBrush InformationBrush {
+        get => new SolidColorBrush(Information);
+        set => Information = value.Color;
+    }
+
+    public static SolidColorBrush WarningBrush {
+        get => new SolidColorBrush(Warning);
+        set => Warning = value.Color;
+    }
+
+    public static SolidColorBrush CriticalBrush {
+        get => new SolidColorBrush(Critical);
+        set => Critical = value.Color;
+    }
+
+    public static SolidColorBrush SuccessBrush {
+        get => new SolidColorBrush(Success);
+        set => Success = value.Color;
+    }
     
     public static Color HexToColor(string hex) {
         hex = hex.Replace("#", "");
@@ -33,6 +59,11 @@ public class ColorUtils {
             Convert.ToByte(hex.Substring(4, 2), 16), // G
             Convert.ToByte(hex.Substring(6, 2), 16)  // B
         );
+    }
+
+    public static SolidColorBrush generateRandomColor() {
+        Random random = new Random();
+        return new SolidColorBrush(Color.FromArgb((byte)random.Next(0, 256), (byte)random.Next(0, 256), (byte)random.Next(0, 256), 0xFF));
     }
     
 }
