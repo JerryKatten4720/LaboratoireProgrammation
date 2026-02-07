@@ -8,6 +8,7 @@
              d:DesignHeight="*" d:DesignWidth="1000">
 
     <Grid Margin="20" x:Name="MainGrid">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
@@ -18,6 +19,19 @@
             <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
+        <Image x:Name="VaultImage" 
+               Source="/Assets/images/vault-tec.png"
+               Visibility="Visible" 
+               Opacity="0.025" 
+               Panel.ZIndex="-1"
+               Stretch="UniformToFill"
+               Grid.Row="0" 
+               Grid.Column="0" 
+               Grid.RowSpan="9" 
+               Grid.ColumnSpan="2" 
+               VerticalAlignment="Center" 
+               HorizontalAlignment="Center" />
+        
         <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Label"
                Content="[SUCCESS] > Connexion à la base de données effectuée avec succès !" Margin="0,0,0,20"
                Background="#1E000000" FontFamily="#alvera" FontSize="24"
@@ -115,4 +129,5 @@
                      BorderThickness="0" Minimum="0" Maximum="100" Background="#1E000000" Foreground="{x:Static colorhelper:ColorUtils.FancyTextBrush}"
                      Value="100" IsIndeterminate="false"  x:Name="RemainingTrialsBar" />
     </Grid>
+    
 </UserControl>

@@ -43,7 +43,6 @@ namespace LaboratoireProgrammation.Public.Model {
             Exo1B.Visibility = Visibility.Collapsed;
             Exo2.Visibility = Visibility.Collapsed;
             Labo1B.Visibility = Visibility.Collapsed;
-            VaultImage.Visibility = Visibility.Collapsed;
             
             Loaded += (s, e) => InputBox.Focus();
             InputBox.Focus();
@@ -434,7 +433,6 @@ namespace LaboratoireProgrammation.Public.Model {
             VaultShader.TintColor = tint;
             
             Labo1B.Visibility = Visibility.Visible;
-            VaultImage.Visibility = Visibility.Visible;
         }
         
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
