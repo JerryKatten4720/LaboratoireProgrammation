@@ -21,7 +21,7 @@ public partial class MainWindow : Window {
     private bool _babymode;
     private int _historyIndex = -1;
 
-    private bool _isAdjustingSize;
+    public bool _isAdjustingSize;
 
     private bool _memfyMode;
 
@@ -161,93 +161,15 @@ public partial class MainWindow : Window {
             return;
         }
 
-        ProcessCommand(cmd.ToLower());
+        CommandsProcessor.ProcessCommand(cmd.ToLower(), this);
         InputBox.Clear();
         BlankSpace();
-        BlankSpace();
     }
 
-    private void ProcessCommand(string cmd) {
-        switch (cmd) {
-            case "help":
-                AppendOutput("COMMAND LIST:");
-                BlankSpace();
-                AppendOutput("  help    - Display this database");
-                AppendOutput("  clear   - Purge screen buffer");
-                AppendOutput("  font    - Adjust terminal readability");
-                AppendOutput("  exit    - Terminate session");
-                AppendOutput("  about   - System info");
-                BlankSpace();
-                AppendOutput("  exo1   - Launch Exo (1+B)");
-                AppendOutput("  exo2   - Launch Exo (2)");
-                AppendOutput("  lab1   - Launch Lab (1)");
-                break;
-
-            case "info":
-                AppendOutput("ROBCO UNIFIED OPERATING SYSTEM v1.0");
-                AppendOutput("Running on WPF .NET Core.");
-                BlankSpace();
-                AppendOutput("• [exo.1+b] : UI Interactive : Contrôle de boutons et permutation d'images", Colors.Cyan);
-                AppendOutput("• [exo.2]   : Simulation de transfert de fichiers (Barres de progression)", Colors.Cyan);
-                AppendOutput("• [lab.1]   : Système de gestion de BDD (CRUD Complet) [EN DÉVELOPPEMENT]",
-                    Colors.Yellow);
-                break;
-
-            case "clear":
-                OutputBox.Document.Blocks.Clear();
-                break;
-
-            case "font":
-                _isAdjustingSize = true;
-                AppendOutput("[SYSTEM] FONT ADJUSTMENT MODE ENGAGED.", Colors.Yellow);
-                AppendOutput("Use [UP/DOWN] to scale text. Press [ENTER] to confirm.");
-                break;
-
-            case "about":
-                AppendOutput("ROBCO UNIFIED OPERATING SYSTEM v1.0");
-                AppendOutput("Running on WPF .NET Core.");
-                break;
-
-            case "exit":
-                Close();
-                break;
-
-            case "exo 1":
-            case "exo1":
-                AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [1+B]", Colors.Yellow);
-                AppendOutput("...", Colors.Yellow);
-                FirstExo();
-                break;
-
-            case "exo 2":
-            case "exo2":
-                AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [2]", Colors.Yellow);
-                AppendOutput("...", Colors.Yellow);
-                SecondExo();
-                break;
-
-            case "lab 1":
-            case "lab1":
-                AppendOutput("[SYSTEM] DÉMARRAGE >>> LABORATOIRE [1]", Colors.Yellow);
-                AppendOutput("...", Colors.Yellow);
-                FirstLab();
-                break;
-
-            case "memfy":
-            case "memfyai":
-            case "memfy ai":
-                MemfyAgreementLaunch();
-                break;
-
-            default:
-                AppendOutput($"[ERROR] COMMAND '{cmd}' UNRECOGNIZED.", Colors.Red);
-                break;
-        }
-    }
 
     // UI.Helpers
 
-    private void AppendOutput(string text, Color? hexColor = null) {
+    public void AppendOutput(string text, Color? hexColor = null) {
         var color = hexColor ?? _terminalGreen;
 
         var run = new Run($"{DateTime.Now:HH:mm:ss} | {text}") {
@@ -277,7 +199,7 @@ public partial class MainWindow : Window {
         OutputBox.ScrollToEnd();
     }
 
-    private void BlankSpace() {
+    public void BlankSpace() {
         var run = new Run("");
         var para = new Paragraph(run);
         OutputBox.Document.Blocks.Add(para);
