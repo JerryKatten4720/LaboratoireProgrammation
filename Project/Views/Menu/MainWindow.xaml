@@ -6,7 +6,7 @@
         xmlns:exercices="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Exercices"
         xmlns:viewModels1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Menu"
         xmlns:laboratoire1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.Laboratoire___1"
-        xmlns:memfy="clr-namespace:LaboratoireProgrammation.Project.Views.Miscellaneous.Memfy"
+        xmlns:memfy1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy"
         Title="{x:Static viewModels1:MainWindowConfiguration.Title}"
         Height="{x:Static viewModels1:MainWindowConfiguration.Height}"
         Width="{x:Static viewModels1:MainWindowConfiguration.Width}"
@@ -223,7 +223,7 @@
                 <viewModels1:BabyMode Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
                                       VerticalAlignment="Center" Margin="0,0,0,0" x:Name="BabyMode" />
 
-                <memfy:MemfyAgreement Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                <memfy1:MemfyAgreement Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement" />
 

@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 
-namespace LaboratoireProgrammation.Project.Views.Miscellaneous.Memfy;
+namespace LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy;
 
 public partial class MemfyAgreement : UserControl {
     public MemfyAgreement() {

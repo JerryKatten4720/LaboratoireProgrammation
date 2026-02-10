@@ -155,7 +155,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Project\Models\"/>
+      <Folder Include="Project\Models\Menu\" />
     </ItemGroup>
 
 </Project>

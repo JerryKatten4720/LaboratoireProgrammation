@@ -2,18 +2,19 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using LaboratoireProgrammation.Project.Helpers;
 
 namespace LaboratoireProgrammation.Project.Services;
 
 public class TerminalDisplay {
+    
     private static RichTextBox? _outputBox;
     private static TextBox? _inputBox;
     private static bool _initialized;
 
     private static readonly Color TerminalGreen = Color.FromArgb(255, 51, 255, 51);
 
-    private static readonly FontFamily TerminalFont =
-        new(new Uri("pack://application:,,,/LaboratoireProgrammation;component/"), "/Assets/fonts/#overseer");
+    private static readonly FontFamily TerminalFont = new(new Uri("pack://application:,,,/LaboratoireProgrammation;component/"), "/Assets/fonts/#overseer");
 
     public static void Init(RichTextBox outp, TextBox inp) {
         if (_outputBox != null && _inputBox != null) return;
@@ -23,7 +24,7 @@ public class TerminalDisplay {
     }
 
     public static void AppendOutput(string text, Color? hexColor = null) {
-        if (!!_initialized) return;
+        if (!_initialized) return;
         var color = hexColor ?? TerminalGreen;
 
         var run = new Run($"{DateTime.Now:HH:mm:ss} | {text}") {
@@ -36,7 +37,7 @@ public class TerminalDisplay {
     }
 
     public static void AppendOutputOnSameLine(string text, Color? hexColor = null) {
-        if (!!_initialized) return;
+        if (!_initialized) return;
         var color = hexColor ?? TerminalGreen;
 
         var run = new Run(text) { Foreground = new SolidColorBrush(color) };
@@ -50,7 +51,53 @@ public class TerminalDisplay {
         else {
             _outputBox.Document.Blocks.Add(para);
         }
+        _outputBox.ScrollToEnd();
+    }
 
+    public static void SeparationLine() {
+        if (!_initialized || _outputBox == null) return;
+
+        if (!_outputBox.CheckAccess()) {
+            _outputBox.Dispatcher.Invoke(SeparationLine);
+            return;
+        }
+
+        double width = _outputBox.ActualWidth;
+        if (width <= 0) {
+            _outputBox.Loaded += (s, e) => SeparationLine();
+            return;
+        }
+
+        var availableWidth = width - (_outputBox.Document.PagePadding.Left + _outputBox.Document.PagePadding.Right + 30);
+
+        var typeface = new Typeface(TerminalFont, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+        var formattedText = new FormattedText(
+            "- ",
+            System.Globalization.CultureInfo.InvariantCulture,
+            FlowDirection.LeftToRight,
+            typeface,
+            _outputBox.FontSize,
+            Brushes.Black,
+            VisualTreeHelper.GetDpi(_outputBox).PixelsPerDip
+        );
+
+        int charCount = (int)(availableWidth / formattedText.Width);
+        if (charCount <= 0) charCount = 50;
+
+        var line = "- ";
+        for (int i = 2; i < charCount - 2; i += 2) line += "- ";
+        var run = new Run(line) {
+            FontFamily = TerminalFont,
+            FontSize = _outputBox.FontSize,
+            Foreground = ColorHelper.FancyTextBrush
+        };
+
+        var para = new Paragraph(run) {
+            Margin = new Thickness(0),
+            Padding = new Thickness(0)
+        };
+        
+        _outputBox.Document.Blocks.Add(para);
         _outputBox.ScrollToEnd();
     }
 

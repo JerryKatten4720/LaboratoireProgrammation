@@ -15,10 +15,10 @@ public partial class MainWindow : Window {
     private static readonly FontFamily ConsoleFont = new("Consolas");
     private readonly List<string> _commandHistory = new();
 
-    private readonly bool _speedLoad = true;
+    private readonly bool _speedLoad = false;
+    private bool _babymode = true;
 
     private readonly Color _terminalGreen = Color.FromRgb(51, 255, 51);
-    private bool _babymode;
     private int _historyIndex = -1;
 
     public bool _isAdjustingSize;
@@ -45,13 +45,19 @@ public partial class MainWindow : Window {
         Exo2.Visibility = Visibility.Collapsed;
         Labo1B.Visibility = Visibility.Collapsed;
 
+        //IntroText();
+
         Loaded += (s, e) => InputBox.Focus();
         InputBox.Focus();
+        
+        TerminalDisplay.Init(OutputBox, InputBox);
 
         OutputBox.Document.Blocks.Clear();
-        AppendOutput("@anto.cldl | Console | Programmation.Laboratoire");
-        AppendOutput("Utilisez 'help' pour obtenir la liste des commandes.");
-        BlankSpace();
+        AppendOutput("@anto.cldl | Console | Programmation.Laboratoire", ColorHelper.FancyText);
+        AppendOutput("Utilisez 'help' pour obtenir la liste des commandes.", ColorHelper.FancyText);
+        TerminalDisplay.SeparationLine();
+        
+        
 
         BabyModeInit();
     }
@@ -165,10 +171,7 @@ public partial class MainWindow : Window {
         InputBox.Clear();
         BlankSpace();
     }
-
-
-    // UI.Helpers
-
+    
     public void AppendOutput(string text, Color? hexColor = null) {
         var color = hexColor ?? _terminalGreen;
 
@@ -182,17 +185,16 @@ public partial class MainWindow : Window {
     }
 
     private void AppendOutputOnSameLine(string text, Color? hexColor = null) {
+        
         var color = hexColor ?? _terminalGreen;
-
         var run = new Run(text) { Foreground = new SolidColorBrush(color) };
-
         var para = new Paragraph();
+        
         para.Inlines.Add(run);
         if (OutputBox.Document.Blocks.Count > 0) {
             var lastPara = OutputBox.Document.Blocks.LastBlock as Paragraph;
             if (lastPara != null) lastPara.Inlines.Add(run);
-        }
-        else {
+        } else {
             OutputBox.Document.Blocks.Add(para);
         }
 
@@ -230,21 +232,7 @@ public partial class MainWindow : Window {
     }
 
     // Helpers
-    private TextBlock CreateTitleBlock(string text, double size, Brush color) {
-        return new TextBlock {
-            Text = text,
-            FontSize = size * 1.5,
-            FontWeight = FontWeights.Regular,
-            FontFamily = TerminalFont,
-            TextAlignment = TextAlignment.Center,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Foreground = color,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-    }
-
-    // Window.Controls
-
+    
     private void MinimizeProgram(object sender, RoutedEventArgs e) {
         WindowState = WindowState.Minimized;
     }
@@ -257,6 +245,18 @@ public partial class MainWindow : Window {
         Close();
     }
 
+    public async void IntroText() {
+        var width = ActualWidth;
+        var fontMult = width >= 1600 ? 1.0 : width >= 1200 ? 0.8 : 0.6;
+        
+        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
+            new SolidColorBrush(ColorHelper.HexToColor("#deefff")));
+        TerminalOutputPanel.Children.Add(authorBlock);
+
+        if (_speedLoad) await Task.Delay(200);
+        else await Task.Delay(2000);
+    }
+    
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     public async void FirstExo() {
@@ -269,18 +269,18 @@ public partial class MainWindow : Window {
         var width = ActualWidth;
         var fontMult = width >= 1600 ? 1.0 : width >= 1200 ? 0.8 : 0.6;
 
-        var inspirationBlock = CreateTitleBlock("Exercice - 1", 76 * fontMult,
+        var inspirationBlock = TerminalDisplay.CreateTitleBlock("Exercice - 1", 76 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#3495eb")));
         TerminalOutputPanel.Children.Add(inspirationBlock);
 
-        var descriptionBlock = CreateTitleBlock("Travail du >>> (02.02.26)", 50 * fontMult,
+        var descriptionBlock = TerminalDisplay.CreateTitleBlock("Travail du >>> (02.02.26)", 50 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#3495eb")));
         TerminalOutputPanel.Children.Add(descriptionBlock);
 
         if (_speedLoad) await Task.Delay(200);
         else await Task.Delay(2000);
 
-        var authorBlock = CreateTitleBlock("anto.cldl", 200 * fontMult,
+        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#deefff")));
         TerminalOutputPanel.Children.Add(authorBlock);
 
@@ -305,18 +305,18 @@ public partial class MainWindow : Window {
         var width = ActualWidth;
         var fontMult = width >= 1600 ? 1.0 : width >= 1200 ? 0.8 : 0.6;
 
-        var inspirationBlock = CreateTitleBlock("Exercice - 2", 76 * fontMult,
+        var inspirationBlock = TerminalDisplay.CreateTitleBlock("Exercice - 2", 76 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("a834eb")));
         TerminalOutputPanel.Children.Add(inspirationBlock);
 
-        var descriptionBlock = CreateTitleBlock("Travail du >>> (03.02.26)", 50 * fontMult,
+        var descriptionBlock = TerminalDisplay.CreateTitleBlock("Travail du >>> (03.02.26)", 50 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#a834eb")));
         TerminalOutputPanel.Children.Add(descriptionBlock);
 
         if (_speedLoad) await Task.Delay(200);
         else await Task.Delay(2000);
 
-        var authorBlock = CreateTitleBlock("anto.cldl", 200 * fontMult,
+        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#fedeff")));
         TerminalOutputPanel.Children.Add(authorBlock);
 
@@ -355,18 +355,18 @@ public partial class MainWindow : Window {
         var width = ActualWidth;
         var fontMult = width >= 1600 ? 1.0 : width >= 1200 ? 0.8 : 0.6;
 
-        var inspirationBlock = CreateTitleBlock("Laboratoire - 1", 76 * fontMult,
+        var inspirationBlock = TerminalDisplay.CreateTitleBlock("Laboratoire - 1", 76 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#eb4634")));
         TerminalOutputPanel.Children.Add(inspirationBlock);
 
-        var descriptionBlock = CreateTitleBlock("< ! > LAB :// { - 03.02.26 - } :\\ < ! >", 50 * fontMult,
+        var descriptionBlock = TerminalDisplay.CreateTitleBlock("< ! > LAB :// { - 03.02.26 - } :\\ < ! >", 50 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#eb4634")));
         TerminalOutputPanel.Children.Add(descriptionBlock);
 
         if (_speedLoad) await Task.Delay(200);
         else await Task.Delay(2000);
 
-        var authorBlock = CreateTitleBlock("anto.cldl", 200 * fontMult,
+        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#fff1f0")));
         TerminalOutputPanel.Children.Add(authorBlock);
 
@@ -413,18 +413,18 @@ public partial class MainWindow : Window {
         var width = ActualWidth;
         var fontMult = width >= 1600 ? 1.0 : width >= 1200 ? 0.8 : 0.6;
 
-        var inspirationBlock = CreateTitleBlock("[ - MemfyAI - ]", 76 * fontMult,
+        var inspirationBlock = TerminalDisplay.CreateTitleBlock("[ - MemfyAI - ]", 76 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#ff96fa")));
         TerminalOutputPanel.Children.Add(inspirationBlock);
 
-        var descriptionBlock = CreateTitleBlock("< Disclaimer > Use Cautiously !", 50 * fontMult,
+        var descriptionBlock = TerminalDisplay.CreateTitleBlock("< Disclaimer > Use Cautiously !", 50 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#fcb3f9")));
         TerminalOutputPanel.Children.Add(descriptionBlock);
 
         if (_speedLoad) await Task.Delay(200);
         else await Task.Delay(2000);
 
-        var authorBlock = CreateTitleBlock("anto.cldl", 200 * fontMult,
+        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#ffffff")));
         TerminalOutputPanel.Children.Add(authorBlock);
 
