@@ -8,6 +8,8 @@ public partial class Exo1B : UserControl {
 
     public Exo1B() {
         InitializeComponent();
+        IMG1.Visibility = Visibility.Visible;
+        IMG2.Visibility = Visibility.Visible;
     }
 
     private void ButtonClickIntervert(object sender, RoutedEventArgs e) {

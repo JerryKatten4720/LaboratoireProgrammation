@@ -106,6 +106,16 @@
         <Resource Include="Assets\fonts\doto-bold.ttf"/>
         <None Remove="Assets\images\DownArrow.png"/>
         <Resource Include="Assets\images\downArrow.png"/>
+        <None Remove="Assets\images\fallout4.png" />
+        <Resource Include="Assets\images\fallout4.png" />
+        <None Remove="Assets\images\falloutNewVegas.jpg" />
+        <Resource Include="Assets\images\falloutNewVegas.jpg" />
+        <None Remove="Assets\images\folderBlack.png" />
+        <Resource Include="Assets\images\folderBlack.png" />
+        <None Remove="Assets\images\folderYellow.png" />
+        <Resource Include="Assets\images\folderYellow.png" />
+        <None Remove="Assets\images\vaultTec.png" />
+        <Resource Include="Assets\images\vaultTec.png" />
     </ItemGroup>
 
     <ItemGroup>

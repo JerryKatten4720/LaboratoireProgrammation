@@ -17,19 +17,22 @@ public partial class MainWindow : Window {
 
     private readonly bool _speedLoad = false;
     private bool _babymode = true;
+    private bool _isAnimating = false;
 
     private readonly Color _terminalGreen = Color.FromRgb(51, 255, 51);
     private int _historyIndex = -1;
 
-    public bool _isAdjustingSize;
+    public bool IsAdjustingSize;
 
     private bool _memfyMode;
 
 
     public MainWindow() {
         InitializeComponent();
-
+        
+        TerminalDisplay.Init(OutputBox, InputBox);
         SizeHelper.setFullscreen(this);
+        animateLoader();
 
         MainInit();
 
@@ -39,25 +42,19 @@ public partial class MainWindow : Window {
     public void MainInit() {
         OutputBox.Visibility = Visibility.Visible;
         InputBox.Visibility = Visibility.Visible;
-        BabyMode.Visibility = Visibility.Collapsed;
         Exo1.Visibility = Visibility.Collapsed;
         Exo1B.Visibility = Visibility.Collapsed;
         Exo2.Visibility = Visibility.Collapsed;
         Labo1B.Visibility = Visibility.Collapsed;
 
-        //IntroText();
-
-        Loaded += (s, e) => InputBox.Focus();
-        InputBox.Focus();
+        if (_babymode && !_isAnimating) { BabyMode.Visibility = Visibility.Visible; } else { BabyMode.Visibility = Visibility.Collapsed; }
         
-        TerminalDisplay.Init(OutputBox, InputBox);
+        Loaded += (s, e) => InputBox.Focus();
 
         OutputBox.Document.Blocks.Clear();
         AppendOutput("@anto.cldl | Console | Programmation.Laboratoire", ColorHelper.FancyText);
         AppendOutput("Utilisez 'help' pour obtenir la liste des commandes.", ColorHelper.FancyText);
         TerminalDisplay.SeparationLine();
-        
-        
 
         BabyModeInit();
     }
@@ -67,18 +64,17 @@ public partial class MainWindow : Window {
             VisualMode.Content = "Mode Visuel [ ❌ ]";
             OutputBox.Visibility = Visibility.Visible;
             InputBox.Visibility = Visibility.Visible;
-            BabyMode.Visibility = Visibility.Collapsed;
             return;
         }
 
         VisualMode.Content = "Mode Visuel [ ✔ ]";
         OutputBox.Visibility = Visibility.Collapsed;
         InputBox.Visibility = Visibility.Collapsed;
-        BabyMode.Visibility = Visibility.Visible;
+        TerminalDisplay.Init(OutputBox, InputBox);
     }
 
     private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e) {
-        if (_isAdjustingSize) {
+        if (IsAdjustingSize) {
             HandleFontSizeMode(e);
             return;
         }
@@ -101,7 +97,7 @@ public partial class MainWindow : Window {
                 break;
 
             case Key.Enter:
-                _isAdjustingSize = false;
+                IsAdjustingSize = false;
                 AppendOutput($"[CONFIG] FONT SIZE SAVED: {OutputBox.FontSize}");
                 InputBox.Clear();
                 e.Handled = true;
@@ -245,16 +241,34 @@ public partial class MainWindow : Window {
         Close();
     }
 
-    public async void IntroText() {
-        var width = ActualWidth;
-        var fontMult = width >= 1600 ? 1.0 : width >= 1200 ? 0.8 : 0.6;
-        
-        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
-            new SolidColorBrush(ColorHelper.HexToColor("#deefff")));
-        TerminalOutputPanel.Children.Add(authorBlock);
-
+    private async void animateLoader() {
+        _isAnimating = true;
+        OutputBox.Visibility = Visibility.Collapsed;
+        TopText.Visibility = Visibility.Collapsed;
+        BabyMode.Visibility = Visibility.Collapsed;
+            
+        double width = ActualWidth;
+        double fontMult = width >= 1600 ? 1.0 : (width >= 1200 ? 0.8 : 0.6);
+            
+        var inspirationBlock = TerminalDisplay.CreateTitleBlock("{ - Programmation <-> Laboratoire - }", 76 * fontMult, ColorHelper.FancyTextBrush, 100);
+        TerminalOutputPanel.Children.Add(inspirationBlock);
+        await Task.Delay(1000);
+            
         if (_speedLoad) await Task.Delay(200);
-        else await Task.Delay(2000);
+        else await Task.Delay(1000);
+
+        var authorBlock = TerminalDisplay.CreateTitleBlock("\nanto.cldl", 350 * fontMult, Brushes.White, - 200);
+        TerminalOutputPanel.Children.Add(authorBlock);
+        await Task.Delay(1000);
+            
+        if (_speedLoad) await Task.Delay(200);
+        else await Task.Delay(800);
+            
+        TerminalOutputPanel.Children.Clear();
+        OutputBox.Visibility = Visibility.Visible;
+        TopText.Visibility = Visibility.Visible;
+        BabyMode.Visibility = Visibility.Visible;
+        _isAnimating = false;
     }
     
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -446,9 +460,12 @@ public partial class MainWindow : Window {
     }
 
     private void BabyModeSwitch(object sender, RoutedEventArgs e) {
+        if (_isAnimating) return;
+        
         if (_babymode) _babymode = false;
         else _babymode = true;
-
-        BabyModeInit();
+        
+        BabyMode.Visibility = _babymode ? Visibility.Visible : Visibility.Collapsed;
+        VisualMode.Content = _babymode ? "Mode Visuel [ ✅ ]" : "Mode Visuel [ ❌ ]";
     }
 }

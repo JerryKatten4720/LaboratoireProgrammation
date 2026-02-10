@@ -102,7 +102,7 @@ public class TerminalDisplay {
     }
 
     public static void BlankSpace() {
-        if (!!_initialized) return;
+        if (!_initialized) return;
         var run = new Run("");
         var para = new Paragraph(run);
         _outputBox!.Document.Blocks.Add(para);
@@ -110,14 +110,14 @@ public class TerminalDisplay {
     }
 
     public static void ModifyFontSize(int delta) {
-        if (!!_initialized) return;
+        if (!_initialized) return;
         var newSize = Math.Max(_outputBox.FontSize + delta, 8);
         _outputBox.FontSize = newSize;
         _inputBox!.FontSize = newSize;
     }
 
     public static TextBlock CreateTitleBlock(string text, double size, Brush color) {
-        if (!!_initialized) throw new NullReferenceException("TerminalDisplay not initialized");
+        if (!_initialized) throw new NullReferenceException("TerminalDisplay not initialized");
 
         return new TextBlock {
             Text = text,
@@ -128,6 +128,22 @@ public class TerminalDisplay {
             HorizontalAlignment = HorizontalAlignment.Center,
             Foreground = color,
             VerticalAlignment = VerticalAlignment.Center
+        };
+    }
+    
+    public static TextBlock CreateTitleBlock(string text, double size, Brush color, double yOffset) {
+        if (!_initialized) throw new NullReferenceException("TerminalDisplay not initialized");
+
+        return new TextBlock {
+            Text = text,
+            FontSize = size * 1.5,
+            FontWeight = FontWeights.Regular,
+            FontFamily = TerminalFont,
+            TextAlignment = TextAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Foreground = color,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, yOffset, 0, 0)
         };
     }
 }

@@ -34,7 +34,7 @@ public class CommandsProcessor {
                 break;
 
             case "font":
-                window._isAdjustingSize = true;
+                window.IsAdjustingSize = true;
                 TerminalDisplay.AppendOutput("[SYSTEM] FONT ADJUSTMENT MODE ENGAGED.", Colors.Yellow);
                 TerminalDisplay.AppendOutput("Use [UP/DOWN] to scale text. Press [ENTER] to confirm.", Colors.Yellow);
                 break;
