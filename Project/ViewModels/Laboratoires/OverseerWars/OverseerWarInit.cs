@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using LaboratoireProgrammation.Project.Helpers;
+using LaboratoireProgrammation.Project.Models.Menu;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 using Brushes = System.Drawing.Brushes;
@@ -12,7 +13,7 @@ namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 public class OverseerWarInit {
 
     public static async void Introduce(MainWindow win) {
-        win._isAnimating = true;
+        win.IsAnimating = true;
         win.OutputBox.Visibility = Visibility.Collapsed;
         win.TopText.Visibility = Visibility.Collapsed;
         win.BabyMode.Visibility = Visibility.Collapsed;
@@ -27,7 +28,7 @@ public class OverseerWarInit {
 
         bool wasSl = false;
 
-        if (win._speedLoad) { win._speedLoad = false; wasSl = true; }
+        if (ConsoleBehavior.SpeedLoad) { ConsoleBehavior.SpeedLoad = false; wasSl = true; }
             
         double width = win.ActualWidth;
         double fontMult = width >= 1600 ? 1.0 : (width >= 1200 ? 0.8 : 0.6);
@@ -137,14 +138,14 @@ public class OverseerWarInit {
         await Task.Delay(2000);
         win.TerminalOutputPanel.Children.Clear();
 
-        if (wasSl) win._speedLoad = true;
+        if (wasSl) ConsoleBehavior.SpeedLoad = true;
         
         win.VaultShader.VignetteStrength -= 0.45;
         win.BethesdaLogo.Opacity = 1;
         win.TerminalOutputPanel.Children.Clear();
         win.OutputBox.Visibility = Visibility.Visible;
         win.TopText.Visibility = Visibility.Visible;
-        if (win._babymode) win.BabyMode.Visibility = Visibility.Visible;
+        if (ConsoleBehavior.Babymode) win.BabyMode.Visibility = Visibility.Visible;
         win.VisualMode.Visibility = Visibility.Visible;
         win.MainMenuButton.Visibility = Visibility.Visible;
         win.WinBtnClose.Visibility = Visibility.Visible;
@@ -152,7 +153,7 @@ public class OverseerWarInit {
         win.WinBtnMaximize.Visibility = Visibility.Visible;
         win.InputBox.Visibility = Visibility.Visible;
         win.InputBoxIndicator.Visibility = Visibility.Visible;
-        win._isAnimating = false;
+        win.IsAnimating = false;
     }
     
 }

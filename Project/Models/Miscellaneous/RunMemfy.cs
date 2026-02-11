@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.Helpers;
+using LaboratoireProgrammation.Project.Models.Menu;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 using LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy;
@@ -41,14 +42,14 @@ public class RunMemfy {
             new SolidColorBrush(ColorHelper.HexToColor("#fcb3f9")));
         win.TerminalOutputPanel.Children.Add(descriptionBlock);
 
-        if (win._speedLoad) await Task.Delay(200);
+        if (ConsoleBehavior.SpeedLoad) await Task.Delay(200);
         else await Task.Delay(2000);
 
         var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
             new SolidColorBrush(ColorHelper.HexToColor("#ffffff")));
         win.TerminalOutputPanel.Children.Add(authorBlock);
 
-        if (win._speedLoad) await Task.Delay(200);
+        if (ConsoleBehavior.SpeedLoad) await Task.Delay(200);
         else await Task.Delay(2000);
 
         win.TerminalOutputPanel.Children.Clear();
@@ -58,7 +59,7 @@ public class RunMemfy {
         win.OutputBox.Visibility = Visibility.Visible;
         win.InputBox.Focus();
 
-        win._memfyMode = true;
+        ConsoleBehavior.MemfyMode = true;
     }
 
     
