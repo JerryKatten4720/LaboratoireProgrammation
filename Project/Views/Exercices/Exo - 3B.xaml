@@ -1,0 +1,45 @@
+<UserControl x:Class="LaboratoireProgrammation.Project.Views.Exercices.Exo3B"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
+             mc:Ignorable="d"
+             d:DesignHeight="*" d:DesignWidth="600" Background="Transparent">
+    <Grid>
+        
+        <GroupBox Width="600" FontSize="24" Header=". Enregistrer un nouvel utilisateur ." Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderBrush="WhiteSmoke" BorderThickness="1" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">
+            <Grid>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Margin="10,10,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Qualité</Label>
+                <ComboBox x:Name="QualityComboBox"
+                          Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0"
+                          Margin="10,10,10,20" Foreground="#1F2329" BorderBrush="WhiteSmoke" 
+                          FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia" BorderThickness="1">
+
+                </ComboBox>
+                
+                <Label Grid.Row="2" Grid.Column="0" Margin="10,0,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Nom  |  Prénom</Label>
+                <TextBox x:Name="NameTextBox" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="3" Margin="10" Foreground="#0F1115" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia"/>
+                <Button Grid.Column="0" Grid.Row="5" Margin="10,50,10,10" Content="Confirmer" Click="ConfirmButton_Click"/>
+                <Button Grid.Column="1" Grid.Row="5" Margin="10,50,10,10" Content="Annuler" Click="CancelButton_Click"/>
+                
+            </Grid>
+        </GroupBox>
+        
+    </Grid>
+</UserControl>

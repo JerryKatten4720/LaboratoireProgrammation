@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using LaboratoireProgrammation.Project.Models.Menu;
+using LaboratoireProgrammation.Project.Models.Miscellaneous;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Menu;
 
@@ -13,35 +15,35 @@ public partial class BabyMode : UserControl {
     private void Exo1(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            window.FirstExo();
+            RunExo1.Run(window);
         }
     }
 
     private void Exo1B(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            window.FirstExo();
+            RunExo1.Run(window);
         }
     }
 
     private void Exo2(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            window.SecondExo();
+            RunExo2.Run(window);
         }
     }
 
     private void Lab1(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            window.FirstLab();
+            RunLab1.Run(window);
         }
     }
 
     private void MemfyAI(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            window.MemfyAI();
+            RunMemfy.Run(window);
         }
     }
 }

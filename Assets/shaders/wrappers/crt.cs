@@ -197,8 +197,8 @@ public class CRT : ShaderEffect {
         set => SetValue(BloomStrengthProperty, value);
     }
 
-    public Color TintColor {
-        get => (Color)GetValue(TintColorProperty);
+    public System.Drawing.Color TintColor {
+        get => (System.Drawing.Color)GetValue(TintColorProperty);
         set => SetValue(TintColorProperty, value);
     }
 
@@ -300,7 +300,7 @@ public class CRT : ShaderEffect {
 
     // --- PRESETS ---
     public void ApplyFalloutPreset() {
-        TintColor = Color.FromArgb(200, 0, 255, 100);
+        TintColor = System.Drawing.Color.FromArgb(200, 0, 255, 100);
         DistortionStrength = 0.1;
         ScanlineIntensity = 0.2;
         BloomStrength = 0.4;
@@ -314,7 +314,7 @@ public class CRT : ShaderEffect {
     }
 
     public void ApplyCleanPreset() {
-        TintColor = Color.FromArgb(255, 255, 255, 255);
+        TintColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
         DistortionStrength = 0.02;
         ScanlineIntensity = 0.05;
         BloomStrength = 0.1;

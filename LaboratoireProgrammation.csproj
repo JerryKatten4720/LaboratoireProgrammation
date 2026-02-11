@@ -116,6 +116,16 @@
         <Resource Include="Assets\images\folderYellow.png" />
         <None Remove="Assets\images\vaultTec.png" />
         <Resource Include="Assets\images\vaultTec.png" />
+        <None Remove="Assets\fonts\bsod-font.ttf" />
+        <Resource Include="Assets\fonts\bsod-font.ttf" />
+        <None Remove="Assets\fonts\Minecraftia-Regular.ttf" />
+        <Resource Include="Assets\fonts\minecraftia.ttf" />
+        <None Remove="Assets\images\bethesdaWhite.png" />
+        <Resource Include="Assets\images\bethesdaWhite.png" />
+        <None Remove="Assets\images\bethesda.png" />
+        <Resource Include="Assets\images\bethesda.png" />
+        <None Remove="Assets\images\bethesdaYellow.png" />
+        <Resource Include="Assets\images\bethesdaYellow.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -165,7 +175,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Project\Models\Menu\" />
+      <Folder Include="Project\Models\Exercices\" />
+      <Folder Include="Project\Views\Laboratoires\OverseerWars\" />
     </ItemGroup>
 
 </Project>

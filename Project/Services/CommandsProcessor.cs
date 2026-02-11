@@ -1,4 +1,7 @@
 using System.Windows.Media;
+using LaboratoireProgrammation.Project.Models.Menu;
+using LaboratoireProgrammation.Project.Models.Miscellaneous;
+using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 
 namespace LaboratoireProgrammation.Project.Services;
@@ -51,29 +54,39 @@ public class CommandsProcessor {
             case "exo1":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [1+B]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
-                window.FirstExo();
+                RunExo1.Run(window);
                 break;
 
             case "exo2":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [2]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
-                window.SecondExo();
+                RunExo2.Run(window);           
+                break;
+            
+            case "exo3":
+                TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [3]", Colors.Yellow);
+                TerminalDisplay.AppendOutput("...", Colors.Yellow);
+                RunExo3.Run(window);
                 break;
 
             case "lab1":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> LABORATOIRE [1]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
-                window.FirstLab();
+                RunLab1.Run(window);
                 break;
 
             case "memfy":
             case "memfyai":
             case "memfy ai":
-                window.MemfyAgreementLaunch();
+                RunMemfy.Run(window);
                 break;
             
             case "sep":
                 TerminalDisplay.SeparationLine();
+                break;
+            
+            case "ow":
+                OverseerWarInit.Introduce(window);
                 break;
 
             default:

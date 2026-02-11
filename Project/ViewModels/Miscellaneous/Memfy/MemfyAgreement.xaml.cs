@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using LaboratoireProgrammation.Project.Models.Miscellaneous;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy;
@@ -14,7 +15,7 @@ public partial class MemfyAgreement : UserControl {
     private void YesButton_OnClick(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            window.MemfyAI();
+            RunMemfy.Run(window);
         }
     }
 

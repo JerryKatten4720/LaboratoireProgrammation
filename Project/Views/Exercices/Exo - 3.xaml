@@ -1,0 +1,153 @@
+<UserControl x:Class="LaboratoireProgrammation.Project.Views.Exercices.Exo3"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
+             xmlns:exercices="clr-namespace:LaboratoireProgrammation.Project.Views.Exercices"
+             mc:Ignorable="d"
+             d:DesignHeight="auto" d:DesignWidth="auto" Background="Transparent">
+
+    <UserControl.Resources>
+        <Style x:Key="FileButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderBrush" Value="WhiteSmoke" />
+            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Height" Value="60" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Opacity" Value="0.75" />
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Minecraftia" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="WhiteSmoke" />
+                    <Setter Property="BorderBrush" Value="WhiteSmoke" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="AddFileButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderBrush" Value="WhiteSmoke" />
+            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FadeGreenBrush}" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Height" Value="60" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Opacity" Value="0.75" />
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Minecraftia" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="WhiteSmoke" />
+                    <Setter Property="BorderBrush" Value="WhiteSmoke" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="RemoveFileButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderBrush" Value="WhiteSmoke" />
+            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FadeRedBrush}" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Height" Value="60" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Opacity" Value="0.75" />
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Minecraftia" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="WhiteSmoke" />
+                    <Setter Property="BorderBrush" Value="WhiteSmoke" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.Resources>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <Button Grid.Row="0" Grid.Column="0" FontSize="24" Style="{StaticResource FileButtonStyle}" Opacity="1" Content="Nouveau fichier" Click="NewFileButton_Click"/>
+        <Button Grid.Row="0" Grid.Column="1" FontSize="24" Style="{StaticResource FileButtonStyle}" Opacity="1" Content="Ouvrir fichier" Click="NewFileButton_Click"/>
+        <Button Grid.Row="0" Grid.Column="2" FontSize="24" Style="{StaticResource FileButtonStyle}" Opacity="1" Content="Enregistrer" Click="NewFileButton_Click"/>
+
+        <Button Grid.Row="0" Grid.Column="3"  Margin="30,0,10,0" FontSize="24" Style="{StaticResource AddFileButtonStyle}" Opacity="1" Content="Ajouter" Click="NewFileButton_Click"/>
+        <Button Grid.Row="0" Grid.Column="4" FontSize="24" Style="{StaticResource RemoveFileButtonStyle}" Opacity="1" Content="Supprimer" Click="NewFileButton_Click"/>
+        
+        <Label Grid.Row="1" Padding="10,30,0,-0" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Fichiers existants</Label>
+       
+        <ScrollViewer Background="#3C000000" Padding="0,-10,0,0" x:Name="FilesScrollViewer" CanContentScroll="True" Grid.Row="2" Grid.Column="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Left">
+            <StackPanel x:Name="FileContainer">
+            </StackPanel>
+        </ScrollViewer>
+        
+        <Label Grid.Row="1" Grid.Column="1" Padding="10,30,0,-0" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Personnes enregistrées</Label>
+        <ScrollViewer Background="#3C000000" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="2" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Left">
+            <StackPanel x:Name="FileContentContainer">
+                
+            </StackPanel>
+        </ScrollViewer>
+        
+    </Grid>
+</UserControl>

@@ -7,6 +7,7 @@
         xmlns:viewModels1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Menu"
         xmlns:laboratoire1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.Laboratoire___1"
         xmlns:memfy1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy"
+        xmlns:exercices1="clr-namespace:LaboratoireProgrammation.Project.Views.Exercices"
         Title="{x:Static viewModels1:MainWindowConfiguration.Title}"
         Height="{x:Static viewModels1:MainWindowConfiguration.Height}"
         Width="{x:Static viewModels1:MainWindowConfiguration.Width}"
@@ -146,6 +147,7 @@
     </Window.Resources>
 
     <Grid x:Name="MainGrid">
+        <Rectangle x:Name="BackgroundRectangle" Fill="Black" Panel.ZIndex="999" Visibility="Collapsed" />
 
         <DockPanel LastChildFill="True" Margin="20">
             <!-- Title Bar -->
@@ -161,7 +163,7 @@
                     <Button Style="{StaticResource RobcoBtnHome}" Margin="0,0,20,0"
                             Content="Menu Principal [ 🏠 ]"
                             Click="BackToMenu"
-                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="MainMenuButton" />
 
                     <Button Style="{StaticResource RobcoBtnVisualMode}" Margin="0,0,100,0"
                             Content="Mode Visuel [ ✔ ]" x:Name="VisualMode"
@@ -171,17 +173,17 @@
                     <Button Style="{StaticResource RobcoBtn}"
                             Content="[ _ ]"
                             Click="MinimizeProgram"
-                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnMinimize"/>
 
                     <Button Style="{StaticResource RobcoBtn}"
                             Content="[ □ ]"
                             Click="MaximizeProgram"
-                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnMaximize"/>
 
                     <Button Style="{StaticResource RobcoBtn}"
                             Content="[ X ]"
                             Click="CloseProgram"
-                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnClose"/>
                 </StackPanel>
             </Grid>
 
@@ -226,7 +228,19 @@
                 <memfy1:MemfyAgreement Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement" />
+                
+                <exercices1:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3" />
+                <exercices1:Exo3B Grid.Row="0" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
 
+                <Grid>
+                    <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo" Visibility="Collapsed">
+                        <Image.Effect>
+                            <DropShadowEffect ShadowDepth="10" Color="White" Opacity="0.1" BlurRadius="10" />
+                        </Image.Effect>
+                    </Image>
+                </Grid>
+                
+                
                 <!-- Input Area -->
                 <Grid Grid.Row="1" Margin="0,5,0,0">
                     <Grid.ColumnDefinitions>
@@ -239,7 +253,7 @@
                                FontWeight="Bold"
                                FontSize="24"
                                Opacity="0.8"
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center" x:Name="InputBoxIndicator"/>
 
                     <TextBox x:Name="InputBox"
                              Panel.ZIndex="99"
@@ -261,23 +275,23 @@
 
     <Window.Effect>
         <wrappers:CRT x:Name="VaultShader"
-                      DistortionStrength="0.2"
+                      DistortionStrength="0.15"
                       CurveRadius="0.04"
-                      VignetteStrength="0.1"
+                      VignetteStrength="0.2"
                       ScanlineIntensity="0.35"
                       ScanlineCount="100.0"
-                      ScanlineSpeed="0.02"
-                      PixelGridIntensity="0.12"
+                      ScanlineSpeed="0.03"
+                      PixelGridIntensity="0.22"
                       BloomStrength="0.8"
                       ChromaticAberration="0.08"
                       TintColor="#0AFF7D0F"
-                      Brightness="0.95"
-                      Contrast="0.98"
-                      NoiseIntensity="0.02"
-                      NoiseScale="0.3"
+                      Brightness="1.00"
+                      Contrast="0.95"
+                      NoiseIntensity="0.03"
+                      NoiseScale="0.8"
                       FlickerIntensity="0.06"
                       FlickerSpeed="0.6"
                       PhosphorDecay="0.5"
-                      ScreenResolution="1920,1080" />
+                      ScreenResolution="1080,720" />
     </Window.Effect>
 </Window>

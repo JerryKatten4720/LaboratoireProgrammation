@@ -13,6 +13,9 @@ public class ColorHelper {
     public static Color Critical = HexToColor("#c7312c");
     public static Color Success = HexToColor("#29e62c");
 
+    public static Color FadeGreen = HexToColor("#4FF743");
+    public static Color FadeRed = HexToColor("#F74343");
+
     public static SolidColorBrush FancyTextBrush {
         get => new(FancyText);
         set => FancyText = value.Color;
@@ -56,6 +59,16 @@ public class ColorHelper {
     public static SolidColorBrush SuccessBrush {
         get => new(Success);
         set => Success = value.Color;
+    }
+    
+    public static SolidColorBrush FadeGreenBrush {
+        get => new(FadeGreen);
+        set => FadeGreen = value.Color;
+    }
+
+    public static SolidColorBrush FadeRedBrush {
+        get => new(FadeRed);
+        set => FadeRed = value.Color;
     }
 
 
