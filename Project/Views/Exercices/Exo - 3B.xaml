@@ -5,10 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
              mc:Ignorable="d"
-             d:DesignHeight="*" d:DesignWidth="600" Background="Transparent">
+             d:DesignHeight="*" d:DesignWidth="800" Background="Transparent">
     <Grid>
         
-        <GroupBox Width="600" FontSize="24" Header=". Enregistrer un nouvel utilisateur ." Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderBrush="WhiteSmoke" BorderThickness="1" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">
+        <GroupBox Width="800" FontSize="24" Header="- - Enregistrer un nouvel utilisateur - -" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderBrush="WhiteSmoke" BorderThickness="1" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">
             <Grid>
                 
                 <Grid.ColumnDefinitions>
@@ -22,21 +22,30 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Margin="10,10,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Qualité</Label>
+                <Label Grid.Row="0" Grid.Column="0" Margin="10,0,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Nom</Label>
+                <TextBox x:Name="NameTextBox" Grid.Column="0" Grid.Row="1" Margin="10" Foreground="#0F1115" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia"/>
+
+                <Label Grid.Row="0" Grid.Column="1" Margin="10,0,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Prénom</Label>
+                <TextBox x:Name="NameTextBox2" Grid.Column="1" Grid.Row="1" Margin="10" Foreground="#0F1115" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia"/>
+
+                
+                <Label Grid.Row="2" Grid.Column="0" Margin="10,10,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Qualité</Label>
                 <ComboBox x:Name="QualityComboBox"
-                          Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0"
+                          Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0"
                           Margin="10,10,10,20" Foreground="#1F2329" BorderBrush="WhiteSmoke" 
                           FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia" BorderThickness="1">
-
                 </ComboBox>
                 
-                <Label Grid.Row="2" Grid.Column="0" Margin="10,0,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Nom  |  Prénom</Label>
-                <TextBox x:Name="NameTextBox" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="3" Margin="10" Foreground="#0F1115" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia"/>
-                <Button Grid.Column="0" Grid.Row="5" Margin="10,50,10,10" Content="Confirmer" Click="ConfirmButton_Click"/>
-                <Button Grid.Column="1" Grid.Row="5" Margin="10,50,10,10" Content="Annuler" Click="CancelButton_Click"/>
+                <Label Grid.Row="4" Grid.Column="0" Margin="10,0,0,-10" Foreground="WhiteSmoke" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia">Salaire</Label>
+                <TextBox x:Name="SalaryTextBox" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="5" Margin="10" Foreground="#0F1115" FontSize="24" FontFamily="pack://application:,,,/Assets/fonts/#Minecraftia"/>
+
+                
+                <Button Grid.Column="0" Grid.Row="6" Margin="10,50,10,10" Content="Confirmer" Click="ConfirmButton_Click"/>
+                <Button Grid.Column="1" Grid.Row="6" Margin="10,50,10,10" Content="Annuler" Click="CancelButton_Click"/>
                 
             </Grid>
         </GroupBox>

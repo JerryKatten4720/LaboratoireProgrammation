@@ -3,11 +3,12 @@ using LaboratoireProgrammation.Project.Models.Menu;
 using LaboratoireProgrammation.Project.Models.Miscellaneous;
 using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
+using Wpf.Ui;
 
 namespace LaboratoireProgrammation.Project.Services;
 
 public class CommandsProcessor {
-    public static void ProcessCommand(string cmd, MainWindow window) {
+    public static async void ProcessCommand(string cmd, MainWindow window) {
         switch (cmd) {
             case "help":
                 TerminalDisplay.AppendOutput("COMMAND LIST:");
@@ -60,7 +61,7 @@ public class CommandsProcessor {
             case "exo2":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [2]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
-                RunExo2.Run(window);           
+                RunExo2.Run(window);
                 break;
             
             case "exo3":
@@ -87,6 +88,10 @@ public class CommandsProcessor {
             
             case "ow":
                 OverseerWarInit.Introduce(window);
+                break;
+            
+            case "te":
+                
                 break;
 
             default:

@@ -68,7 +68,7 @@ public class OverseerWarInit {
         win.VaultShader.BloomStrength -= 0.2;
         win.TerminalOutputPanel.Children.Clear();
         win.TerminalOutputPanel.Children.Add(inspirationBlockOff);
-        await Task.Delay(250);
+        await Task.Delay(200);
         win.VaultShader.Brightness += 0.2;
         win.VaultShader.BloomStrength += 0.2;
         win.TerminalOutputPanel.Children.Clear();
@@ -117,26 +117,51 @@ public class OverseerWarInit {
         
         win.TerminalOutputPanel.Children.Clear();
         win.TerminalOutputPanel.Children.Add(inspirationBlock);
-        
         await Task.Delay(600);
+        
         win.TerminalOutputPanel.Children.Clear();
         await Task.Delay(100);
 
         var authorBlock1 = TerminalDisplay.CreateTitleBlock("</-/> Developped by </-/>", 100 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#fcc23a")), 100);
+        var authorBlock1Glitched = TerminalDisplay.CreateTitleBlock("<ù-$> ꀸꍟꃴꍟ꒒ꂦꉣꉣꍟꀸ ꌃꌩ <%-:>", 100 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#1Afcc23a")), 100);
         var authorBlock2 = TerminalDisplay.CreateTitleBlock("anto.cldl", 80 * fontMult, new SolidColorBrush(Color.FromArgb(255, 255, 255, 250)), 0);
+        var authorBlock2Glitched = TerminalDisplay.CreateTitleBlock("ꍏꈤ꓄ꂦ.ꉓ꒒ꀸ꒒", 80 * fontMult, new SolidColorBrush(Color.FromArgb(20, 255, 0, 0)), 0);
         win.TerminalOutputPanel.Children.Add(authorBlock1);
         win.TerminalOutputPanel.Children.Add(authorBlock2);
+        await Task.Delay(1950);
         
-        await Task.Delay(2000);
         win.TerminalOutputPanel.Children.Clear();
+        win.VaultShader.ChromaticAberration += 1.5;
+        win.VaultShader.ScreenResolution = new Size(100,100);
+        win.TerminalOutputPanel.Children.Add(authorBlock1Glitched);
+        win.TerminalOutputPanel.Children.Add(authorBlock2Glitched);
+        await Task.Delay(80);
         
+        win.TerminalOutputPanel.Children.Clear();
+        win.VaultShader.ChromaticAberration -= 1.5;
+        win.VaultShader.PixelGridIntensity -= 0.20;
+        win.VaultShader.ScreenResolution = screenSize;
+        win.TerminalOutputPanel.Children.Clear();
         var authorBlock3 = TerminalDisplay.CreateTitleBlock("< ! > Assets by < ! >", 100 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#fcc23a")), 100);
-        var authorBlock4 = TerminalDisplay.CreateTitleBlock("ranma", 80 * fontMult, new SolidColorBrush(Color.FromArgb(255, 255, 240, 240)), 0);
+        var authorBlock3Glitched = TerminalDisplay.CreateTitleBlock("< ꀘ > ꍏꌗꌗꍟ꓄ꌗ ꌃꌩ < ꂵ >", 100 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#1Afcc23a")), 100);
+        var authorBlock4 = TerminalDisplay.CreateTitleBlock("ines_qessouri", 80 * fontMult, new SolidColorBrush(Color.FromArgb(255, 255, 240, 240)), 0);
+        var authorBlock4Glitched = TerminalDisplay.CreateTitleBlock("꒒ꈤꍟꌗ_ꋪꍟꌗꌗꍏꈤꋪ꒒", 80 * fontMult, new SolidColorBrush(Color.FromArgb(20, 255, 0, 0)), 0);
         win.TerminalOutputPanel.Children.Add(authorBlock3);
         win.TerminalOutputPanel.Children.Add(authorBlock4);
+        await Task.Delay(1950);
         
-        await Task.Delay(2000);
         win.TerminalOutputPanel.Children.Clear();
+        win.VaultShader.ChromaticAberration += 1.5;
+        win.VaultShader.ScreenResolution = new Size(100,100);
+        win.TerminalOutputPanel.Children.Add(authorBlock3Glitched);
+        win.TerminalOutputPanel.Children.Add(authorBlock4Glitched);
+        await Task.Delay(30);
+        
+        win.VaultShader.ChromaticAberration -= 1.5;
+        win.VaultShader.ScreenResolution = screenSize;
+        
+        win.TerminalOutputPanel.Children.Clear();
+        await Task.Delay(500);
 
         if (wasSl) ConsoleBehavior.SpeedLoad = true;
         

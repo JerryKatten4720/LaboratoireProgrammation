@@ -24,13 +24,13 @@ public class RunExo1 {
         var descriptionBlock = TerminalDisplay.CreateTitleBlock("Travail du >>> (02.02.26)", 50 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#3495eb")));
         win.TerminalOutputPanel.Children.Add(descriptionBlock);
 
-        if (ConsoleBehavior.SpeedLoad) await Task.Delay(200);
+        if (ConsoleBehavior.SpeedLoad) await Task.Delay(0);
         else await Task.Delay(2000);
 
         var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#deefff")));
         win. TerminalOutputPanel.Children.Add(authorBlock);
 
-        if (ConsoleBehavior.SpeedLoad) await Task.Delay(200);
+        if (ConsoleBehavior.SpeedLoad) await Task.Delay(0);
         else await Task.Delay(2000);
 
         win.TerminalOutputPanel.Children.Clear();

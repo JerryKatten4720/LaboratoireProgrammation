@@ -42,6 +42,7 @@
             <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
             <Setter Property="FontFamily" Value="{StaticResource TerminalFont}" />
             <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
@@ -52,7 +53,36 @@
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
+                            <ContentPresenter HorizontalAlignment="Left"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource TerminalBlackBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="RobcoBtnTriggered" TargetType="Button">
+            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="FontFamily" Value="{StaticResource TerminalFont}" />
+            <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Margin" Value="5,0" />
+            <Setter Property="Padding" Value="20,2,5,2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left"
                                               VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -229,8 +259,8 @@
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement" />
                 
-                <exercices1:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3" />
-                <exercices1:Exo3B Grid.Row="0" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
+                <exercices1:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
+                <exercices1:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
 
                 <Grid>
                     <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo" Visibility="Collapsed">
@@ -270,7 +300,6 @@
                 </Grid>
             </Grid>
         </DockPanel>
-
     </Grid>
 
     <Window.Effect>

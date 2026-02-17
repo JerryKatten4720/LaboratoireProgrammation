@@ -4,6 +4,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.Helpers;
+using LaboratoireProgrammation.Project.Models.Exercices;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.Models.Menu;
 
@@ -22,6 +23,8 @@ public partial class MainWindow : Window {
         
         TerminalDisplay.Init(OutputBox, InputBox);
         SizeHelper.setFullscreen(this);
+        
+        //Exo4.InitializeVirus(this);
         
         AnimateLoader();
         MainInit();
@@ -146,15 +149,11 @@ public partial class MainWindow : Window {
             
         var title = TerminalDisplay.CreateTitleBlock("{ - Programmation <-> Laboratoire - }", 76 * fontMult, ColorHelper.FancyTextBrush, 100);
         TerminalOutputPanel.Children.Add(title);
-        await Task.Delay(1000);
-            
-        await Task.Delay(_behavior.GetSpeedLoad() ? 200 : 1000);
+        await Task.Delay(_behavior.GetSpeedLoad() ? 0 : 1000);
 
         var author = TerminalDisplay.CreateTitleBlock("\nanto.cldl", 350 * fontMult, Brushes.White, - 200);
         TerminalOutputPanel.Children.Add(author);
-        await Task.Delay(1000);
-            
-        await Task.Delay(_behavior.GetSpeedLoad() ? 200 : 800);
+        await Task.Delay(_behavior.GetSpeedLoad() ? 0 : 800);
             
         TerminalOutputPanel.Children.Clear();
         OutputBox.Visibility = Visibility.Visible;

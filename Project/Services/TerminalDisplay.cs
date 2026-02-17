@@ -146,4 +146,14 @@ public class TerminalDisplay {
             Margin = new Thickness(0, yOffset, 0, 0)
         };
     }
+
+    public static void HideDisplay() {
+        _outputBox!.Visibility = Visibility.Collapsed;
+        _inputBox!.Visibility = Visibility.Collapsed;
+    }
+    
+    public static void ShowDisplay() {
+        _outputBox!.Visibility = Visibility.Visible;
+        _inputBox!.Visibility = Visibility.Visible;
+    }
 }

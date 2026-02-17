@@ -4,6 +4,7 @@ namespace LaboratoireProgrammation.Project.Helpers;
 
 public class ColorHelper {
     public static Color FancyText = HexToColor("#fcfe4d");
+    public static Color HoverFancyText = HexToColor("e3b946");
     public static Color HomeText = HexToColor("#ff9838");
     public static Color VisualText = HexToColor("#6fff59");
     public static Color Text = HexToColor("#ededed");
@@ -15,10 +16,16 @@ public class ColorHelper {
 
     public static Color FadeGreen = HexToColor("#4FF743");
     public static Color FadeRed = HexToColor("#F74343");
+    public static Color Snow = HexToColor("#fcfeff");
 
     public static SolidColorBrush FancyTextBrush {
         get => new(FancyText);
         set => FancyText = value.Color;
+    }
+    
+    public static SolidColorBrush HoverFancyTextBrush {
+        get => new(HoverFancyText);
+        set => HoverFancyText = value.Color;
     }
 
     public static SolidColorBrush HomeBrush {
@@ -70,6 +77,11 @@ public class ColorHelper {
         get => new(FadeRed);
         set => FadeRed = value.Color;
     }
+    
+    public static SolidColorBrush SnowBrush {
+        get => new(Snow);
+        set => Snow = value.Color;
+    }
 
 
     public static Color HexToColor(string hex) {
@@ -84,6 +96,24 @@ public class ColorHelper {
             Convert.ToByte(hex.Substring(4, 2), 16), // G
             Convert.ToByte(hex.Substring(6, 2), 16) // B
         );
+    }
+
+    public static System.Drawing.Color HexToColorSystem(string hex) {
+        hex = hex.Replace("#", "");
+
+        if (hex.Length == 6)
+            hex = "FF" + hex;
+
+        return System.Drawing.Color.FromArgb(
+            Convert.ToInt32(hex.Substring(0, 2), 16), // A
+            Convert.ToInt32(hex.Substring(2, 2), 16), // R
+            Convert.ToInt32(hex.Substring(4, 2), 16), // G
+            Convert.ToInt32(hex.Substring(6, 2), 16) // B
+        );
+    }
+    
+    public static SolidColorBrush HexToColorBrush(string hex) {
+        return new SolidColorBrush(HexToColor(hex));
     }
 
     public static SolidColorBrush generateRandomColor() {
