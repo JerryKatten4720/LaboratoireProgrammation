@@ -57,34 +57,34 @@ float fbm(float2 uv) {
 
 // --- Main Shader ---
 float4 main(float2 uv : TEXCOORD) : COLOR {
+    // 0. Sample the original UI content (your Image/Grid)
+    float4 originalColor = tex2D(input, uv);
     
-    // 1. Calculate Movement
-    // We offset the UVs based on time * speed * direction
+    // 1. Calculate Movement (Existing code)
     float2 move = Direction * Speed * Time;
     float2 smokeUV = uv * Dispersion + move;
 
-    // 2. Generate Noise Pattern
-    // We use two fBm calls warped against each other for a "fluid" feel
+    // 2. Generate Noise Pattern (Existing code)
     float q = fbm(smokeUV);
     float2 r = float2(fbm(smokeUV + q + Time * 0.1), fbm(smokeUV + q - Time * 0.1));
     float smokeShape = fbm(smokeUV + r);
 
     // 3. Apply Density and Intensity
-    // Map the noise (0.0 to 1.0) to a density curve
     float alpha = smoothstep(0.0, 1.0 - (Density * 0.5), smokeShape); 
     
     // 4. Colorize
-    float3 col = SmokeColor.rgb * smokeShape * Intensity;
+    float3 smokeRGB = SmokeColor.rgb * smokeShape * Intensity;
     
     // 5. Apply Coverage (Vignette)
-    // Calculates distance from center to fade edges if Coverage < 1.0
     float2 center = uv * 2.0 - 1.0;
     float dist = length(center);
-    // Smooth fade out based on coverage parameter
     float mask = 1.0 - smoothstep(Coverage * 0.5, Coverage * 1.5, dist);
     
-    alpha *= mask;
+    float finalSmokeAlpha = alpha * mask * SmokeColor.a;
 
-    // Return final color with calculated alpha
-    return float4(col, alpha * SmokeColor.a);
+    // --- NEW BLENDING STEP ---
+    // This overlays the smoke onto the original content
+    float3 finalColor = lerp(originalColor.rgb, smokeRGB, finalSmokeAlpha);
+    
+    return float4(finalColor, originalColor.a);
 }

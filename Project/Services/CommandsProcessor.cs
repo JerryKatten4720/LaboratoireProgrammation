@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.Models.Menu;
 using LaboratoireProgrammation.Project.Models.Miscellaneous;
@@ -91,7 +92,7 @@ public class CommandsProcessor {
                 break;
             
             case "te":
-                
+                window.OverseerWarsMenu.Visibility = Visibility.Visible;
                 break;
 
             default:

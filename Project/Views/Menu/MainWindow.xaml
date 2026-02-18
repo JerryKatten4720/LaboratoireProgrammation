@@ -8,11 +8,12 @@
         xmlns:laboratoire1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.Laboratoire___1"
         xmlns:memfy1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy"
         xmlns:exercices1="clr-namespace:LaboratoireProgrammation.Project.Views.Exercices"
+        xmlns:overseerWars="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars"
         Title="{x:Static viewModels1:MainWindowConfiguration.Title}"
         Height="{x:Static viewModels1:MainWindowConfiguration.Height}"
         Width="{x:Static viewModels1:MainWindowConfiguration.Width}"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="CanResize"
+        ResizeMode="NoResize"
         Background="#09090B"
         Opacity="{x:Static viewModels1:MainWindowConfiguration.Opacity}"
         Foreground="{x:Static colorhelper:ColorHelper.TextBrush}"
@@ -177,6 +178,13 @@
     </Window.Resources>
 
     <Grid x:Name="MainGrid">
+        
+        <overseerWars:UI x:Name="OverseerWarsMenu" Panel.ZIndex="9999"
+                           Visibility="Visible" 
+                           HorizontalAlignment="Stretch" 
+                           VerticalAlignment="Stretch" 
+                           />
+        
         <Rectangle x:Name="BackgroundRectangle" Fill="Black" Panel.ZIndex="999" Visibility="Collapsed" />
 
         <DockPanel LastChildFill="True" Margin="20">
@@ -261,7 +269,7 @@
                 
                 <exercices1:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
                 <exercices1:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
-
+                
                 <Grid>
                     <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo" Visibility="Collapsed">
                         <Image.Effect>
@@ -304,7 +312,7 @@
 
     <Window.Effect>
         <wrappers:CRT x:Name="VaultShader"
-                      DistortionStrength="0.15"
+                      DistortionStrength="0.0"
                       CurveRadius="0.04"
                       VignetteStrength="0.2"
                       ScanlineIntensity="0.35"

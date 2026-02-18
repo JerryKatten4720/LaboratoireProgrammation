@@ -88,7 +88,6 @@
         <None Remove="Assets\backgrounds\png\launcher-3.png"/>
         <Resource Include="Assets\backgrounds\png\launcher-3.png"/>
         <None Remove="Assets\shaders\effects\smoke.ps"/>
-        <Resource Include="Assets\shaders\effects\smoke.ps"/>
         <None Remove="Assets\fonts\overseer.ttf"/>
         <Resource Include="Assets\fonts\overseer.ttf"/>
         <None Remove="Assets\fonts\helvetica.ttf"/>
@@ -131,6 +130,17 @@
         <Resource Include="Assets\fonts\ubuntu mono.ttf" />
         <None Remove="Assets\images\empty.png" />
         <Resource Include="Assets\images\empty.png" />
+        <None Remove="Assets\images\powerArmor.png" />
+        <Resource Include="Assets\shaders\effects\smoke.ps" />
+        <None Remove="Assets\images\test.png" />
+        <Resource Include="Assets\images\test.png" />
+        <Resource Include="Assets\videos\Video.mp4" />
+        <None Remove="Assets\images\overseerWars\icons\elec.png" />
+        <Resource Include="Assets\images\overseerWars\icons\elec.png" />
+        <None Remove="Assets\images\overseerWars\icons\food.png" />
+        <Resource Include="Assets\images\overseerWars\icons\food.png" />
+        <None Remove="Assets\images\overseerWars\icons\caps.png" />
+        <Resource Include="Assets\images\overseerWars\icons\caps.png" />
     </ItemGroup>
 
     <ItemGroup>

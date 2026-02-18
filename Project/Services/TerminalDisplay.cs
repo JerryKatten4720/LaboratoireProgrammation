@@ -7,8 +7,7 @@ using LaboratoireProgrammation.Project.Helpers;
 namespace LaboratoireProgrammation.Project.Services;
 
 public class TerminalDisplay {
-    
-    private static RichTextBox? _outputBox;
+    public static RichTextBox? _outputBox;
     private static TextBox? _inputBox;
     private static bool _initialized;
 
