@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.Helpers;
+using LaboratoireProgrammation.Project.ViewModels.Menu;
 
 namespace LaboratoireProgrammation.Project.Services;
 
@@ -63,7 +64,12 @@ public class TerminalDisplay {
 
         double width = _outputBox.ActualWidth;
         if (width <= 0) {
-            _outputBox.Loaded += (s, e) => SeparationLine();
+            RoutedEventHandler? loadedHandler = null;
+            loadedHandler = (s, e) => {
+                _outputBox.Loaded -= loadedHandler;
+                SeparationLine();
+            };
+            _outputBox.Loaded += loadedHandler;
             return;
         }
 
@@ -146,9 +152,11 @@ public class TerminalDisplay {
         };
     }
 
-    public static void HideDisplay() {
+    public static void HideDisplay(MainWindow win) {
         _outputBox!.Visibility = Visibility.Collapsed;
         _inputBox!.Visibility = Visibility.Collapsed;
+    
+        win.TerminalOutputPanel.Visibility = Visibility.Collapsed; 
     }
     
     public static void ShowDisplay() {

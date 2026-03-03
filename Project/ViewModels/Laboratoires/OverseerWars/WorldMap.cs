@@ -19,9 +19,11 @@ public class WorldMap {
             }
         }
     }
-    
     public Tile GetTile(int x, int y) {
         return World[x * Width + y];
+    }
+    public bool IsTileInBounds(int x, int y) {
+        return x >= 0 && x < Width && y >= 0 && y < Height;
     }
     
 }

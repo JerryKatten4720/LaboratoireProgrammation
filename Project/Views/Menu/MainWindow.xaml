@@ -13,6 +13,7 @@
         Height="{x:Static viewModels1:MainWindowConfiguration.Height}"
         Width="{x:Static viewModels1:MainWindowConfiguration.Width}"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         ResizeMode="NoResize"
         Background="#09090B"
         Opacity="{x:Static viewModels1:MainWindowConfiguration.Opacity}"
@@ -21,7 +22,7 @@
         AllowsTransparency="{x:Static viewModels1:MainWindowConfiguration.AllowTransparency}">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="40" ResizeBorderThickness="5" />
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="5"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -179,13 +180,12 @@
 
     <Grid x:Name="MainGrid">
         
-        <overseerWars:UI x:Name="OverseerWarsMenu" Panel.ZIndex="9999"
-                           Visibility="Visible" 
-                           HorizontalAlignment="Stretch" 
-                           VerticalAlignment="Stretch" 
-                           />
+        <overseerWars:OverseerWarsUi x:Name="OverseerWarsMenu" Panel.ZIndex="101"
+                         Visibility="Hidden" 
+                         HorizontalAlignment="Stretch" 
+                         VerticalAlignment="Stretch" />
         
-        <Rectangle x:Name="BackgroundRectangle" Fill="Black" Panel.ZIndex="999" Visibility="Collapsed" />
+        <Rectangle x:Name="BackgroundRectangle" Fill="Black" Panel.ZIndex="100" Visibility="Collapsed" />
 
         <DockPanel LastChildFill="True" Margin="20">
             <!-- Title Bar -->
@@ -264,8 +264,16 @@
                                       VerticalAlignment="Center" Margin="0,0,0,0" x:Name="BabyMode" />
 
                 <memfy1:MemfyAgreement Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement" />
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement" />
+                
+                <exercices1:Exo5 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo5" />
+                    
+                <exercices1:Exo6 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo6" />
                 
                 <exercices1:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
                 <exercices1:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
@@ -322,9 +330,9 @@
                       BloomStrength="0.8"
                       ChromaticAberration="0.08"
                       TintColor="#0AFF7D0F"
-                      Brightness="1.00"
-                      Contrast="0.95"
-                      NoiseIntensity="0.03"
+                      Brightness="0.95"
+                      Contrast="1.05"
+                      NoiseIntensity="0.025"
                       NoiseScale="0.8"
                       FlickerIntensity="0.06"
                       FlickerSpeed="0.6"

@@ -13,6 +13,11 @@ namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 public class OverseerWarInit {
 
     public static async void Introduce(MainWindow win) {
+        if (ConsoleBehavior.SpeedLoad) {
+            ToggleVisibility(win);
+            return;
+        }
+        
         win.IsAnimating = true;
         win.OutputBox.Visibility = Visibility.Collapsed;
         win.TopText.Visibility = Visibility.Collapsed;
@@ -168,17 +173,13 @@ public class OverseerWarInit {
         win.VaultShader.VignetteStrength -= 0.45;
         win.BethesdaLogo.Opacity = 1;
         win.TerminalOutputPanel.Children.Clear();
-        win.OutputBox.Visibility = Visibility.Visible;
-        win.TopText.Visibility = Visibility.Visible;
-        if (ConsoleBehavior.Babymode) win.BabyMode.Visibility = Visibility.Visible;
-        win.VisualMode.Visibility = Visibility.Visible;
-        win.MainMenuButton.Visibility = Visibility.Visible;
-        win.WinBtnClose.Visibility = Visibility.Visible;
-        win.WinBtnMinimize.Visibility = Visibility.Visible;
-        win.WinBtnMaximize.Visibility = Visibility.Visible;
-        win.InputBox.Visibility = Visibility.Visible;
-        win.InputBoxIndicator.Visibility = Visibility.Visible;
-        win.IsAnimating = false;
+
+        ToggleVisibility(win);
+    }
+
+    public static void ToggleVisibility(MainWindow win) {
+        OverseerWarsUi.DisablePreviousUi(win);
+        win.OverseerWarsMenu.Visibility = Visibility.Visible;
     }
     
 }

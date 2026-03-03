@@ -56,19 +56,37 @@ public class CommandsProcessor {
             case "exo1":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [1+B]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
-                RunExo1.Run(window);
+                RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice1, window);
                 break;
 
             case "exo2":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [2]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
-                RunExo2.Run(window);
+                RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice2, window);
                 break;
             
             case "exo3":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [3]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
-                RunExo3.Run(window);
+                RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice3, window);
+                break;
+            
+            case "exo4":
+                TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [4]", Colors.Yellow);
+                TerminalDisplay.AppendOutput("...", Colors.Yellow);
+                RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice4, window);
+                break;
+            
+            case "exo5":
+                TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [5]", Colors.Yellow);
+                TerminalDisplay.AppendOutput("...", Colors.Yellow);
+                RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice5, window);
+                break;
+            
+            case "exo6":
+                TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [6]", Colors.Yellow);
+                TerminalDisplay.AppendOutput("...", Colors.Yellow);
+                RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice6, window);
                 break;
 
             case "lab1":
@@ -92,7 +110,6 @@ public class CommandsProcessor {
                 break;
             
             case "te":
-                window.OverseerWarsMenu.Visibility = Visibility.Visible;
                 break;
 
             default:

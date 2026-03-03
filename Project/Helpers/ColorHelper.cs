@@ -121,4 +121,16 @@ public class ColorHelper {
         return new SolidColorBrush(Color.FromArgb((byte)random.Next(0, 256), (byte)random.Next(0, 256),
             (byte)random.Next(0, 256), 0xFF));
     }
+
+    public static SolidColorBrush GetLighter(Brush? brush, int amount) {
+        if (brush is SolidColorBrush scb) {
+            var color = scb.Color;
+            var a = (byte)(color.A - (byte)(255 * (amount / 100.0)));
+            var r = (byte)(color.R + (byte)(255 * (amount / 100.0)));
+            var g = (byte)(color.G + (byte)(255 * (amount / 100.0)));
+            var b = (byte)(color.B + (byte)(255 * (amount / 100.0)));
+            return new SolidColorBrush(Color.FromArgb(a, Math.Min(a, r), Math.Min(a, g), Math.Min(a, b)));
+        }
+        return new SolidColorBrush(Colors.Transparent);
+    }
 }

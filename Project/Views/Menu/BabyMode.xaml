@@ -4,78 +4,645 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
-             mc:Ignorable="d" Background="Transparent"
-             d:DesignHeight="*" d:DesignWidth="*">
+             mc:Ignorable="d"
+             Background="Transparent">
 
     <UserControl.Resources>
-        <Style x:Key="ClickableBabyMode" TargetType="Button">
-            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+
+        <Style x:Key="TerminalCard" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
-            <Setter Property="Background" Value="#1E000000" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="0" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
+                        <Grid>
+                            <Border x:Name="GlowBorder"
+                                    Margin="-4"
+                                    Background="Transparent"
+                                    Opacity="0"
+                                    CornerRadius="2">
+                                <Border.Effect>
+                                    <DropShadowEffect x:Name="GlowEffect"
+                                                      Color="{x:Static colorhelper:ColorHelper.FancyText}"
+                                                      ShadowDepth="0"
+                                                      BlurRadius="18"
+                                                      Opacity="0.85" />
+                                </Border.Effect>
+                            </Border>
+
+                            <Border x:Name="CardBody"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Border x:Name="FillLayer"
+                                            HorizontalAlignment="Left"
+                                            Width="0"
+                                            Background="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                            Opacity="0.15" />
+                                    <ContentPresenter />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="1200" Duration="0:0:0.25"
+                                                EasingFunction="{x:Null}" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.18" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1" Duration="0:0:0.2" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="White" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="0" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.12" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0" Duration="0:0:0.25" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="{x:Static colorhelper:ColorHelper.FancyText}"
+                                                Duration="0:0:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FillLayer" Property="Opacity" Value="0.35" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="White" />
-                    <Setter Property="BorderBrush" Value="White" />
-                </Trigger>
-            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TerminalCard2" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.WarningBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="GlowBorder"
+                                    Margin="-4"
+                                    Background="Transparent"
+                                    Opacity="0"
+                                    CornerRadius="2">
+                                <Border.Effect>
+                                    <DropShadowEffect x:Name="GlowEffect"
+                                                      Color="{x:Static colorhelper:ColorHelper.Warning}"
+                                                      ShadowDepth="0"
+                                                      BlurRadius="18"
+                                                      Opacity="0.85" />
+                                </Border.Effect>
+                            </Border>
+
+                            <Border x:Name="CardBody"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Border x:Name="FillLayer"
+                                            HorizontalAlignment="Left"
+                                            Width="0"
+                                            Background="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                            Opacity="0.15" />
+                                    <ContentPresenter />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="1200" Duration="0:0:0.25"
+                                                EasingFunction="{x:Null}" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.18" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1" Duration="0:0:0.2" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="White" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="0" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.12" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0" Duration="0:0:0.25" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="{x:Static colorhelper:ColorHelper.Warning}"
+                                                Duration="0:0:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FillLayer" Property="Opacity" Value="0.35" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="TerminalCard3" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.FadeRedBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="GlowBorder"
+                                    Margin="-4"
+                                    Background="Transparent"
+                                    Opacity="0"
+                                    CornerRadius="2">
+                                <Border.Effect>
+                                    <DropShadowEffect x:Name="GlowEffect"
+                                                      Color="{x:Static colorhelper:ColorHelper.FadeRed}"
+                                                      ShadowDepth="0"
+                                                      BlurRadius="18"
+                                                      Opacity="0.85" />
+                                </Border.Effect>
+                            </Border>
+
+                            <Border x:Name="CardBody"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Border x:Name="FillLayer"
+                                            HorizontalAlignment="Left"
+                                            Width="0"
+                                            Background="{x:Static colorhelper:ColorHelper.FadeRedBrush}"
+                                            Opacity="0.15" />
+                                    <ContentPresenter />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="1200" Duration="0:0:0.25"
+                                                EasingFunction="{x:Null}" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.18" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1" Duration="0:0:0.2" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="White" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="0" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.12" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0" Duration="0:0:0.25" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="{x:Static colorhelper:ColorHelper.FadeRed}"
+                                                Duration="0:0:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FillLayer" Property="Opacity" Value="0.35" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" Padding="0,0,15,0">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Width="1200" Margin="0,20,0,20">
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+            <StackPanel Margin="0,0,0,28">
+                <TextBlock Text=":// MODE VISUEL | SÉLECTIONNEZ UN MODULE :\\"
+                           FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                           FontSize="24"
+                           Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                           Opacity="0.5"
+                           HorizontalAlignment="Left" />
+                <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}" Opacity="0.2"
+                           Margin="0,6,0,0" />
+            </StackPanel>
 
-        <Button x:Name="Exo1_Button" Grid.Row="0" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120"
-                Padding="20"
-                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
-                Style="{StaticResource ClickableBabyMode}"
-                Content="EXO - 1" Click="Exo1" Width="400" />
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <Button x:Name="Exo1B_Button" Grid.Row="0" Grid.Column="1" FontSize="64" BorderThickness="2" Height="120"
-                Padding="20"
-                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
-                Style="{StaticResource ClickableBabyMode}"
-                Content="EXO - 1B" Click="Exo1B" Width="400" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
 
-        <Button x:Name="Exo2_Button" Grid.Row="1" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120"
-                Padding="20"
-                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
-                Style="{StaticResource ClickableBabyMode}"
-                Content="EXO - 2" Click="Exo2" Width="400" />
+                <StackPanel Margin="0,8,0,10" Grid.Row="0" Grid.ColumnSpan="3">
+                    <TextBlock Text=":// Exercices"
+                               FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="20"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.35" HorizontalAlignment="Left" />
 
-        <Button x:Name="Lab1_Button" Grid.Row="3" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120"
-                Padding="20"
-                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
-                Style="{StaticResource ClickableBabyMode}"
-                Content="LABO - 1" Click="Lab1" Width="400" />
+                    <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}" Opacity="0.12"
+                               Margin="0,4,0,0" />
+                </StackPanel>
 
-        <Button x:Name="MemfyAI_Button" Grid.Row="4" Grid.Column="0" FontSize="64" BorderThickness="2" Height="120"
-                Padding="20"
-                Margin="10" FontWeight="Bold" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
-                Style="{StaticResource ClickableBabyMode}"
-                Content="MEMFY" Click="MemfyAI" Width="400" />
+                <Button Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Style="{StaticResource TerminalCard}"
+                        Click="Exo1" MinHeight="120">
+                    <Grid Margin="20,14">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
+                        <TextBlock Grid.Row="0" Text="[Exercice 1] >>> BOUTONS"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   FontSize="38" FontWeight="Bold"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
 
-    </Grid>
+                        <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                   Opacity="0.25" Margin="0,6,0,8" />
+
+                        <TextBlock Grid.Row="2"
+                                   Text="Utilisation et formattage des boutons, inversion de deux images via des boutons."
+                                   FontFamily="Consolas" FontSize="13"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                   Opacity="0.55" TextWrapping="Wrap" />
+
+                        <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                                   FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                   Opacity="0.4" HorizontalAlignment="Right"
+                                   Margin="0,6,0,0" />
+
+                    </Grid>
+                </Button>
+            </Grid>
+
+            <Button Style="{StaticResource TerminalCard}" Click="Exo2" MinHeight="120" Margin="0,0,0,10">
+                <Grid Margin="20,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="[Exercice 2] >>> TRANSFERT"
+                               FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                               FontSize="38" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.25" Margin="0,6,0,8" />
+                    <TextBlock Grid.Row="2" Text="Fausse barre de chargement et simulation de transfer de fichier."
+                               FontFamily="Consolas" FontSize="13"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.55" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                               FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.4" HorizontalAlignment="Right"
+                               Margin="0,6,0,0" />
+                </Grid>
+            </Button>
+
+            <Button Style="{StaticResource TerminalCard}" Click="Exo3" MinHeight="120" Margin="0,0,0,10">
+                <Grid Margin="20,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="[Exercice 3] >>> GESTIONNAIRE DES EMPLOYÉS"
+                               FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                               FontSize="38" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.25" Margin="0,6,0,8" />
+                    <TextBlock Grid.Row="2"
+                               Text="Gestionnaire de fichier des employés, gestion des employés, des fichiers et des listes."
+                               FontFamily="Consolas" FontSize="13"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.55" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                               FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.4" HorizontalAlignment="Right"
+                               Margin="0,6,0,0" />
+                </Grid>
+            </Button>
+
+            <Button Style="{StaticResource TerminalCard}" Click="Exo4" MinHeight="120" Margin="0,0,0,10">
+                <Grid Margin="20,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="[Exercice 4] >>> LE FAUX VIRUS"
+                               FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                               FontSize="38" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.25" Margin="0,6,0,8" />
+                    <TextBlock Grid.Row="2"
+                               Text="Petit bouton malicieux qui vient activer le protocol de faux virus ROB.CO !"
+                               FontFamily="Consolas" FontSize="13"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.55" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                               FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.4" HorizontalAlignment="Right"
+                               Margin="0,6,0,0" />
+                </Grid>
+            </Button>
+
+            <Button Style="{StaticResource TerminalCard}" Click="Exo5" MinHeight="120" Margin="0,0,0,10">
+                <Grid Margin="20,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="[Exercice 5] >>> ROBCO // TERM.WRITE"
+                               FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                               FontSize="38" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.25" Margin="0,6,0,8" />
+                    <TextBlock Grid.Row="2" Text="Un éditeur de texte complet, prêt à se comparer à MS.WORD !"
+                               FontFamily="Consolas" FontSize="13"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.55" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                               FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.4" HorizontalAlignment="Right"
+                               Margin="0,6,0,0" />
+                </Grid>
+            </Button>
+
+            <Button Style="{StaticResource TerminalCard}" Click="Exo6" MinHeight="120" Margin="0,0,0,10">
+                <Grid Margin="20,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="[Exercice 6] >>> LE SPIROGRAPHE"
+                               FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                               FontSize="38" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.25" Margin="0,6,0,8" />
+                    <TextBlock Grid.Row="2"
+                               Text="Un générateur de forme et de couleurs comme vous n'en avez encore jamais vues !"
+                               FontFamily="Consolas" FontSize="13"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.55" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                               FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               Opacity="0.4" HorizontalAlignment="Right"
+                               Margin="0,6,0,0" />
+                </Grid>
+            </Button>
+
+            <StackPanel Margin="0,32,0,10">
+                <TextBlock Text=":// LABORATOIRES"
+                           FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="20"
+                           Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                           Opacity="0.35" HorizontalAlignment="Left" />
+                <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.WarningBrush}" Opacity="0.12"
+                           Margin="0,4,0,0" />
+            </StackPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Style="{StaticResource TerminalCard2}" Click="Lab1" MinHeight="120">
+                    <Grid Margin="20,14">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="LABO-1"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   FontSize="38" FontWeight="Bold"
+                                   Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}" />
+                        <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                   Opacity="0.25" Margin="0,6,0,8" />
+                        <TextBlock Grid.Row="2" Text="Laboratoire 1 — mise en pratique et intégration des concepts."
+                                   FontFamily="Consolas" FontSize="13"
+                                   Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                   Opacity="0.55" TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                                   FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                                   Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                   Opacity="0.4" HorizontalAlignment="Right"
+                                   Margin="0,6,0,0" />
+                    </Grid>
+                </Button>
+
+                <Button Grid.Column="2" Style="{StaticResource TerminalCard2}" Click="MemfyAI" MinHeight="120">
+                    <Grid Margin="20,14">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <TextBlock Text="MEMFY"
+                                       FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                       FontSize="38" FontWeight="Bold"
+                                       Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}" />
+                            <Border Background="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                    CornerRadius="2" Padding="5,2" Margin="10,8,0,0" VerticalAlignment="Top">
+                                <TextBlock Text="AI" FontFamily="Consolas" FontSize="10"
+                                           FontWeight="Bold" Foreground="Black" />
+                            </Border>
+                        </StackPanel>
+                        <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                   Opacity="0.25" Margin="0,6,0,8" />
+                        <TextBlock Grid.Row="2"
+                                   Text="Assistant mémoire intelligent — gestion et révision de vos notes."
+                                   FontFamily="Consolas" FontSize="13"
+                                   Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                   Opacity="0.55" TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                                   FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                                   Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}"
+                                   Opacity="0.4" HorizontalAlignment="Right"
+                                   Margin="0,6,0,0" />
+                    </Grid>
+                </Button>
+            </Grid>
+
+            <StackPanel Margin="0,32,0,10">
+                <TextBlock Text=":// OVERSEER WARS (A ROB.CO PRODUCTION)"
+                           FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="20"
+                           Foreground="{x:Static colorhelper:ColorHelper.FadeRedBrush}"
+                           Opacity="0.35" HorizontalAlignment="Left" />
+                <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.FadeRedBrush}" Opacity="0.12"
+                           Margin="0,4,0,0" />
+            </StackPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource TerminalCard3}" Click="OverseerWars"
+                        MinHeight="120">
+                    <Grid Margin="20,14">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="OVERSEER WARS"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   FontSize="38" FontWeight="Bold"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FadeRedBrush}" />
+                        <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.FadeRedBrush}"
+                                   Opacity="0.25" Margin="0,6,0,8" />
+                        <TextBlock Grid.Row="2"
+                                   Text="Plongez dans un jeu joueur contre joueur fascinant inspiré de l'univers de la mythique franchise Fallout développée par Bethesda !"
+                                   FontFamily="Consolas" FontSize="13"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FadeRedBrush}"
+                                   Opacity="0.55" TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="3" Text="[ LANCER ]"
+                                   FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FadeRedBrush}"
+                                   Opacity="0.4" HorizontalAlignment="Right"
+                                   Margin="0,6,0,0" />
+                    </Grid>
+                </Button>
+            </Grid>
+
+            <StackPanel Margin="0,24,0,0">
+                <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.FadeRedBrush}" Opacity="0.12" />
+                <TextBlock Text="@anto.cldl — Terminal.UI v1.0  |  MODE VISUEL ACTIF"
+                           FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="16"
+                           Foreground="{x:Static colorhelper:ColorHelper.FadeRedBrush}"
+                           Opacity="0.4" HorizontalAlignment="Center"
+                           Margin="0,8,0,0" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

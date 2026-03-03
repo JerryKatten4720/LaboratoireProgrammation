@@ -5,28 +5,45 @@ namespace LaboratoireProgrammation.Project.Models.Menu;
 public class RunSubprograms {
     
     public enum Subprograms {
-        Exercice1, Exercice2, Exercice3,
+        Exercice1, Exercice2, Exercice3, Exercice4, Exercice5, Exercice6,
         Labo1,
-        Memfy
+        Memfy,
+        OverseerWars
     }
 
     public static void RunSub(Subprograms sub, MainWindow win) {
         switch (sub) {
             
             case Subprograms.Exercice1:
-                RunExo1.Run(win);
+                _ = MenuLoaders.Run_Exo1(win);
                 break;
             
             case Subprograms.Exercice2:
-                RunExo2.Run(win);
+                _ = MenuLoaders.Run_Exo2(win);
                 break;
             
             case Subprograms.Exercice3:
-                RunExo3.Run(win);
+                _ = MenuLoaders.Run_Exo3(win);
+                break;
+            
+            case Subprograms.Exercice4:
+                _ = MenuLoaders.Run_Exo4(win);
+                break;
+            
+            case Subprograms.Exercice5:
+                _ = MenuLoaders.Run_Exo5(win);
+                break;
+            
+            case Subprograms.Exercice6:
+                _ = MenuLoaders.Run_Exo6(win);
                 break;
             
             case Subprograms.Labo1:
                 RunLab1.Run(win);
+                break;
+            
+            case Subprograms.OverseerWars:
+                _ = MenuLoaders.Run_OverseerWars(win);
                 break;
             
         }

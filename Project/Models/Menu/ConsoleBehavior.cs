@@ -67,11 +67,7 @@ public class ConsoleBehavior {
         
         return string.Empty;
     }
-
-    public void ToggleBabyMode() {
-        Babymode = !Babymode;
-    }
-
+    public void ToggleBabyMode() { Babymode = !Babymode; }
     public bool GetBabyMode() { return Babymode; }
     public bool GetSpeedLoad() { return SpeedLoad; }
     public bool GetMemfyMode() { return MemfyMode; }
