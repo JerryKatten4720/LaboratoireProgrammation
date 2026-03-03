@@ -7,28 +7,27 @@ using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Models.Exercices;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.Models.Menu;
+using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Menu;
 
 public partial class MainWindow : Window {
     
     private readonly ConsoleBehavior _behavior = new();
-    private readonly Color _terminalGreen = Color.FromRgb(51, 255, 51);
+    private readonly Color _terminalGreen = Color.FromRgb(51, 255, 51); 
     public bool IsAnimating = false;
 
     public MainWindow() {
         InitializeComponent();
-        
+        //Exo4.RestartAsAdmin();
+
         SetupModelEvents();
         
         TerminalDisplay.Init(OutputBox, InputBox);
         SizeHelper.setFullscreen(this);
         
-        //Exo4.InitializeVirus(this);
         
         AnimateLoader();
-        MainInit();
-        BlankSpace();
     }
 
     private void SetupModelEvents() {
@@ -40,11 +39,14 @@ public partial class MainWindow : Window {
     public void MainInit() {
         OutputBox.Visibility = Visibility.Visible;
         InputBox.Visibility = Visibility.Visible;
+        
         Exo1.Visibility = Visibility.Collapsed;
         Exo1B.Visibility = Visibility.Collapsed;
         Exo2.Visibility = Visibility.Collapsed;
+        Exo3.Visibility = Visibility.Collapsed;
+        Exo5.Visibility = Visibility.Collapsed;
         Labo1B.Visibility = Visibility.Collapsed;
-
+        
         UpdateBabyModeUi();
         
         Loaded += (s, e) => InputBox.Focus();
@@ -71,8 +73,7 @@ public partial class MainWindow : Window {
         if (_behavior.GetIsAdjustingSize()) {
             HandleFontSizeMode(e);
             return;
-        }
-        HandleStandardMode(e);
+        } HandleStandardMode(e);
     }
 
     private void HandleFontSizeMode(KeyEventArgs e) {
@@ -141,25 +142,14 @@ public partial class MainWindow : Window {
 
     private async void AnimateLoader() {
         IsAnimating = true;
-        OutputBox.Visibility = Visibility.Collapsed;
-        TopText.Visibility = Visibility.Collapsed;
-        BabyMode.Visibility = Visibility.Collapsed;
-            
-        double fontMult = ActualWidth >= 1600 ? 1.0 : (ActualWidth >= 1200 ? 0.8 : 0.6);
-            
-        var title = TerminalDisplay.CreateTitleBlock("{ - Programmation <-> Laboratoire - }", 76 * fontMult, ColorHelper.FancyTextBrush, 100);
-        TerminalOutputPanel.Children.Add(title);
-        await Task.Delay(_behavior.GetSpeedLoad() ? 0 : 1000);
-
-        var author = TerminalDisplay.CreateTitleBlock("\nanto.cldl", 350 * fontMult, Brushes.White, - 200);
-        TerminalOutputPanel.Children.Add(author);
-        await Task.Delay(_behavior.GetSpeedLoad() ? 0 : 800);
-            
-        TerminalOutputPanel.Children.Clear();
-        OutputBox.Visibility = Visibility.Visible;
-        TopText.Visibility = Visibility.Visible;
-        if (_behavior.GetBabyMode()) BabyMode.Visibility = Visibility.Visible;
-        IsAnimating = false;
+    
+        MenuLoaders.InitializeVariables(this);
+        await MenuLoaders.Run_Main(this); 
+    
+        MainInit();
+        BlankSpace();
+    
+        IsAnimating = false; 
     }
 
     private void BackToMenu(object sender, RoutedEventArgs e) => MainInit();

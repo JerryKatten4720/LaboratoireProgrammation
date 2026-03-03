@@ -15,28 +15,49 @@ public partial class BabyMode : UserControl {
     private void Exo1(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            RunExo1.Run(window);
-        }
-    }
-
-    private void Exo1B(object sender, RoutedEventArgs e) {
-        if (ParentWindow is { } window) {
-            Visibility = Visibility.Collapsed;
-            RunExo1.Run(window);
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice1, window);
         }
     }
 
     private void Exo2(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            RunExo2.Run(window);
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice2, window);
+        }
+    }
+    
+    private void Exo3(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice3, window);
+        }
+    }
+    
+    private void Exo4(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice4, window);
+        }
+    }
+    
+    private void Exo5(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice5, window);
+        }
+    }
+    
+    private void Exo6(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice6, window);
         }
     }
 
     private void Lab1(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            RunLab1.Run(window);
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice2, window);
         }
     }
 
@@ -44,6 +65,14 @@ public partial class BabyMode : UserControl {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
             RunMemfy.Run(window);
+        }
+    }
+
+
+    private void OverseerWars(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.OverseerWars, window);
         }
     }
 }
