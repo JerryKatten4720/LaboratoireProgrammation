@@ -122,7 +122,7 @@ namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars 
             var all = _registry.GetAllDwellers();
             var garvey = all.FirstOrDefault(d => d.FirstName.Equals("Preston", StringComparison.OrdinalIgnoreCase));
             var butch = all.FirstOrDefault(d => d.FirstName.Equals("Butch", StringComparison.OrdinalIgnoreCase));
-            var ghoul = all.FirstOrDefault(d => d.FirstName.Equals("The", StringComparison.OrdinalIgnoreCase));
+            var ghoul = all.FirstOrDefault(d => d.FirstName.Equals("Three", StringComparison.OrdinalIgnoreCase));
 
             garvey.CurrentState = DwellerState.Ally;
             butch.CurrentState = DwellerState.Ally;
@@ -299,20 +299,23 @@ namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars 
             visual.MouseDown += (s, e) => {
                 if (dweller.Team != CurrentTeamView) return;
 
-                if (_selectedDweller != null && _dwellerVisuals.ContainsKey(_selectedDweller)) {
-                    RootGrid.Children.Remove(_dwellerVisuals[_selectedDweller]);
-                    _dwellerVisuals.Remove(_selectedDweller);
+                // Reset the old selection's state and visual
+                if (_selectedDweller != null && _selectedDweller != dweller) {
                     _selectedDweller.CurrentState = _selectedDweller.Team == CurrentTeamView ? DwellerState.Ally : DwellerState.Enemy;
+                    if (_dwellerVisuals.TryGetValue(_selectedDweller, out var oldVisual)) {
+                        RootGrid.Children.Remove(oldVisual);
+                        _dwellerVisuals.Remove(_selectedDweller);
+                    }
                 }
 
+                // Update the new selected dweller
                 dweller.CurrentState = DwellerState.Selected;
                 _selectedDweller = dweller;
                 _selectedTile = _worldMap.GetTile(dweller.X, dweller.Y);
 
-                if (_dwellerVisuals.ContainsKey(dweller)) {
-                    RootGrid.Children.Remove(_dwellerVisuals[dweller]);
-                    _dwellerVisuals.Remove(dweller);
-                }
+                // Remove its current visual so RefreshDwellerVisuals recreates it with White outline
+                RootGrid.Children.Remove(visual);
+                _dwellerVisuals.Remove(dweller);
 
                 RefreshDwellerVisuals();
                 InvalidateVisual();
@@ -382,9 +385,18 @@ namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars 
                 CaptureMouse();
             }
             else if (e.ChangedButton == MouseButton.Left) {
-                if (_selectedDweller != null && _finalTile == _hoveredTile && _finalTile != null)
-                    MoveDwellerTo(_selectedDweller, _finalTile.X, _finalTile.Y);
-                if (_selectedDweller != null && _finalTile != _hoveredTile) {
+                if (_selectedDweller != null) {
+                    if (_finalTile == _hoveredTile && _finalTile != null) {
+                        MoveDwellerTo(_selectedDweller, _finalTile.X, _finalTile.Y);
+                    }
+
+                    // Force visual reset when clicking anywhere on the map
+                    _selectedDweller.CurrentState = _selectedDweller.Team == CurrentTeamView ? DwellerState.Ally : DwellerState.Enemy;
+                    if (_dwellerVisuals.TryGetValue(_selectedDweller, out var oldVisual)) {
+                        RootGrid.Children.Remove(oldVisual);
+                        _dwellerVisuals.Remove(_selectedDweller);
+                    }
+                    
                     _selectedDweller = null;
                     _selectedTile = null;
                     _currentPath.Clear();
@@ -444,7 +456,18 @@ namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars 
             else if (e.Key == Key.S || e.Key == Key.Down) _cameraPos.Y += step;
             else if (e.Key == Key.A || e.Key == Key.Left) _cameraPos.X -= step;
             else if (e.Key == Key.D || e.Key == Key.Right) _cameraPos.X += step;
-            else if (e.Key == Key.Escape) { _selectedDweller = null; _selectedTile = null; _currentPath.Clear(); }
+            else if (e.Key == Key.Escape) { 
+                if (_selectedDweller != null) {
+                    _selectedDweller.CurrentState = _selectedDweller.Team == CurrentTeamView ? DwellerState.Ally : DwellerState.Enemy;
+                    if (_dwellerVisuals.TryGetValue(_selectedDweller, out var v)) {
+                        RootGrid.Children.Remove(v);
+                        _dwellerVisuals.Remove(_selectedDweller);
+                    }
+                }
+                _selectedDweller = null; 
+                _selectedTile = null; 
+                _currentPath.Clear(); 
+            }
             else handled = false;
 
             if (handled) {
