@@ -1,38 +1,31 @@
-using System.IO;
+    using System.IO;
 using System.Text.Json;
 using System.Windows;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 
 public class DwellerRegistry {
+    private static readonly JsonSerializerOptions JsonOptions = new() { IncludeFields = true, PropertyNameCaseInsensitive = true };
     private static List<Dweller> _cachedDwellers = new();
+
     public void Initialize() {
         var uri = new Uri("pack://application:,,,/LaboratoireProgrammation;component/Assets/data/dwellers.json");
-        var resourceStream = System.Windows.Application.GetResourceStream(uri);
-        
-        if (resourceStream == null) throw new FileNotFoundException("Check dwellers.json Build Action!");
+        var stream = Application.GetResourceStream(uri) ?? throw new FileNotFoundException("Check dwellers.json Build Action!");
 
-        using var reader = new StreamReader(resourceStream.Stream);
-        string jsonContent = reader.ReadToEnd();
-
-        var options = new JsonSerializerOptions { IncludeFields = true, PropertyNameCaseInsensitive = true };
-        _cachedDwellers = JsonSerializer.Deserialize<List<Dweller>>(jsonContent, options) ?? new();
+        using var reader = new StreamReader(stream.Stream);
+        _cachedDwellers = JsonSerializer.Deserialize<List<Dweller>>(reader.ReadToEnd(), JsonOptions) ?? new();
     }
 
     public Dweller? GetByName(string firstName) {
-        var template = _cachedDwellers.FirstOrDefault(d => d.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase));
+        var t = _cachedDwellers.FirstOrDefault(d => d.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase));
+        if (t == null) return null;
 
-        if (template == null) return null;
-        
-        return new Dweller(template.FirstName, template.LastName) {
-            S = template.S, P = template.P, E = template.E,
-            C = template.C, I = template.I, A = template.A, L = template.L,
-            Rarity = template.Rarity,
-            Texture = template.Texture,
+        return new Dweller(t.FirstName, t.LastName) {
+            S = t.S, P = t.P, E = t.E, C = t.C, I = t.I, A = t.A, L = t.L,
+            Rarity = t.Rarity,
+            Texture = t.Texture
         };
     }
-    
-    public List<Dweller> GetAllDwellers() {
-        return _cachedDwellers;
-    }
+
+    public List<Dweller> GetAllDwellers() => _cachedDwellers;
 }

@@ -1,31 +1,22 @@
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 
 public class WorldMap {
+    public readonly int Width;
+    public readonly int Height;
+    public readonly List<Tile> World;
     public PlayerMapView? CurrentView;
-    
-    public int Height;
-    public int Width;
-    public List<Tile> World;
 
-    public WorldMap(int H, int W) {
-        Height = H;
-        Width = W;
-        
-        World = new List<Tile>();
-        CurrentView = null;
-        for (int i = 0; i < H; i++) {
-            for (int j = 0; j < W; j++) {
-                World.Add(new Tile { X = i, Y = j });
-            }
-        }
+    public WorldMap(int width, int height) {
+        Width = width;
+        Height = height;
+        World = new List<Tile>(width * height);
+        for (int x = 0; x < height; x++)
+        for (int y = 0; y < width; y++)
+            World.Add(new Tile { X = x, Y = y });
     }
-    public Tile GetTile(int x, int y) {
-        return World[x * Width + y];
-    }
-    public bool IsTileInBounds(int x, int y) {
-        return x >= 0 && x < Width && y >= 0 && y < Height;
-    }
-    
+
+    public Tile GetTile(int x, int y) => World[x * Width + y];
+    public bool IsTileInBounds(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
 }
 
 public class Tile {
@@ -34,28 +25,21 @@ public class Tile {
 }
 
 public class PlayerMapView {
-    public int RowVisibility;
-    public int ColumnVisibility;
-    
+    public int RowVisibility = 5;
+    public int ColumnVisibility = 5;
     public Tile? OriginTile;
-    public List<Tile>? DiscoveredTiles;
-    public List<Tile>? VisibleTiles;
+    public List<Tile> DiscoveredTiles = new();
+    public List<Tile> VisibleTiles = new();
 
     public PlayerMapView(WorldMap world) {
         OriginTile = world.World[0];
-        RowVisibility = 5;
-        ColumnVisibility = 5;
-        DiscoveredTiles = new List<Tile>();
-        VisibleTiles = new List<Tile>();
         UpdateView(world);
     }
-    
+
     public void UpdateView(WorldMap world) {
-        VisibleTiles?.Clear();
-        for (int i = 0; i < RowVisibility; i++) {
-            for (int j = 0; j < ColumnVisibility; j++) {
-                VisibleTiles?.Add(world.World[i * world.Width + j]);
-            }
-        }
+        VisibleTiles.Clear();
+        for (int i = 0; i < RowVisibility; i++)
+        for (int j = 0; j < ColumnVisibility; j++)
+            VisibleTiles.Add(world.World[i * world.Width + j]);
     }
 }
