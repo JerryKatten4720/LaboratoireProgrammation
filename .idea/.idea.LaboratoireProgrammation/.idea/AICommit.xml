@@ -3,6 +3,13 @@
   <component name="com.github.blarc.ai.commits.intellij.plugin.settings.ProjectSettings" isProjectSpecificPrompt="true">
     <option name="projectSpecificPrompt" value="true" />
     <option name="splitButtonActionSelectedLLMClientId" value="25d4ccb8-1db8-4011-aed0-267064c3eea7" />
-    <option name="locale" value="fr-PM" />
+    <option name="activePrompt">
+      <Prompt>
+        <option name="content" value="# Instructions pour les messages de commit (STRICT)&#10;&#10;## Langue et Ton&#10;- Français impératif (ex: &quot;Ajouter&quot;).&#10;- Pas de jargon anglais si un terme français existe.&#10;- Un petit message par modification, que ça soir suppression, modification, déplacement, ajout, un message très concis mais au moins comme ça on sait qu'il y a eu un truc&#10;&#10;## Structure du Message&#10;1. **En-tête** : `&lt;type&gt;: &lt;description&gt;`&#10;2. **Résumé** : Pourquoi ce changement ?&#10;3. **Détails** (INTERDICTION d'utiliser le caractère `) :&#10;&lt;!&gt; Ne pas inclure le **En-Tête**, etc... C'est juste pour que tu voies la structure.&#10;&#10;✨ **AJOUTS** :&#10;- [Nom du fichier] - Description&#10;&#10;⚙️ **MODIFICATIONS** :&#10;- [Nom du fichier] - Description&#10;&#10;️ **SUPPRESSIONS** :&#10;- [Nom du fichier] - Description&#10;&#10;## INTERDICTIONS CRITIQUES (Zéro Tolérance)&#10;- NE JAMAIS utiliser de backticks ou d'accents graves (`) pour entourer du texte.&#10;- NE JAMAIS utiliser d'étoile (*) pour entourer du texte.&#10;- NE JAMAIS écrire `[Nom du fichier]`. Écrire uniquement [Nom du fichier] sans rien autour.&#10;- Si tu utilises un accent grave, le message sera considéré comme invalide." />
+        <option name="description" value="made by @anto.cldl" />
+        <option name="name" value="@anto.cldl" />
+      </Prompt>
+    </option>
+    <option name="locale" value="en-NU" />
   </component>
 </project>
