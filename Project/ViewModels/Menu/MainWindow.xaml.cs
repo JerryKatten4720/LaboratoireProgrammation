@@ -143,7 +143,6 @@ public partial class MainWindow : Window {
     private async void AnimateLoader() {
         IsAnimating = true;
     
-        MenuLoaders.InitializeVariables(this);
         await MenuLoaders.Run_Main(this); 
     
         MainInit();

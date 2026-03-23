@@ -1,9 +1,8 @@
-<UserControl x:Class="LaboratoireProgrammation.Project.Views.Exercices.Exo6"
+<UserControl x:Class="LaboratoireProgrammation.Project.ViewModels.Exercices.Exo6"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:LaboratoireProgrammation.Project.Views.Exercices"
              xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
              mc:Ignorable="d" Background="Transparent" d:DesignWidth="800" d:DesignHeight="500">
 

@@ -1,12 +1,10 @@
-using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace LaboratoireProgrammation.Project.Views.Exercices {
+namespace LaboratoireProgrammation.Project.ViewModels.Exercices {
     public partial class Exo6 : UserControl {
         private Brush _lineColor = Brushes.Cyan;
         private Brush _bgColor = new SolidColorBrush(Color.FromRgb(8, 8, 8));

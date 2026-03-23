@@ -1,3 +1,6 @@
+using System;
+using System.Data;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -5,6 +8,7 @@ using System.Windows.Media.Imaging;
 using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Services;
 using MySqlConnector;
+using Microsoft.Data.SqlClient;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.Laboratoire___1;
 
@@ -41,8 +45,22 @@ public partial class ConnectControl : UserControl {
 
         await Task.Delay(1800);
 
-        var db = new SqlUtils(() =>
-            new MySqlConnection($"Server={server};Database={database};User={user};Password={password}"));
+        // Define our factory based on the ComboBox selection
+        Func<IDbConnection> connectionFactory;
+
+        if (DbTypeInput.SelectedIndex == 1) // SQL Server (MSSQL)
+        {
+            // Note: TrustServerCertificate is often required for modern MSSQL instances on local dev environments
+            string msSqlConnString = $"Server={server};Database={database};User Id={user};Password={password};TrustServerCertificate=True;";
+            connectionFactory = () => new SqlConnection(msSqlConnString);
+        }
+        else // MySQL (Default)
+        {
+            string mySqlConnString = $"Server={server};Database={database};User={user};Password={password};";
+            connectionFactory = () => new MySqlConnection(mySqlConnString);
+        }
+
+        var db = new SqlUtils(connectionFactory);
 
         try {
             db.AssertStatus();
@@ -76,6 +94,9 @@ public partial class ConnectControl : UserControl {
         Label.Visibility = Visibility.Visible;
         pbStatus.Visibility = Visibility.Hidden;
         ConfirmConnection();
+        
+        // At this point, you might want to store your 'db' instance in a singleton
+        // or a global Dependency Injection container so the rest of your app uses the same DbType.
     }
 
     private void LockTrials() {
@@ -98,6 +119,8 @@ public partial class ConnectControl : UserControl {
         UserInput.BorderBrush = ColorHelper.CriticalBrush;
         PasswordInput.BorderBrush = ColorHelper.CriticalBrush;
         TitleLabel.Foreground = ColorHelper.CriticalBrush;
+        DbTypeLabel.Foreground = ColorHelper.CriticalBrush;
+        DbTypeInput.BorderBrush = ColorHelper.CriticalBrush;
     }
 
     private void ConfirmConnection() {
@@ -118,5 +141,7 @@ public partial class ConnectControl : UserControl {
         UserInput.BorderBrush = ColorHelper.SuccessBrush;
         PasswordInput.BorderBrush = ColorHelper.SuccessBrush;
         TitleLabel.Foreground = ColorHelper.SuccessBrush;
+        DbTypeLabel.Foreground = ColorHelper.SuccessBrush;
+        DbTypeInput.BorderBrush = ColorHelper.SuccessBrush;
     }
 }

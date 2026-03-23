@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars.DwellerComponent;
+using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars.Registry;
 using ColorHelper = LaboratoireProgrammation.Project.Helpers.ColorHelper;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars {
@@ -15,15 +17,15 @@ namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars 
         // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
         // [ - Constants - ]
 
-        private const int WorldWidth = 100;
-        private const int WorldHeight = 100;
+        private const int WorldWidth = 250;
+        private const int WorldHeight = 250;
         private const double BaseTileSize = 80.0;
-        private const double MaxZoom = 8.0;
-        private const double MinZoom = 0.5;
+        private const double MaxZoom = 24.0;
+        private const double MinZoom = 0.1;
         private const double CardAspectRatio = 400.0 / 600.0;
         private const double CardHeightRatio = 0.40;
         private const int HoverDelayMs = 1000;
-        private const int MaxDwellersPerTile = 6;
+        private const int MaxDwellersPerTile = 12;
 
         // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
         // [ - Fields - ]

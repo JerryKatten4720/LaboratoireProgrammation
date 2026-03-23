@@ -1,3 +1,5 @@
+using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars.DwellerComponent;
+
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 
 public class Team {

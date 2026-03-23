@@ -53,11 +53,25 @@ public partial class BabyMode : UserControl {
             RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice6, window);
         }
     }
+    
+    private void Exo7(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice7, window);
+        }
+    }
 
     private void Lab1(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice2, window);
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Labo1, window);
+        }
+    }
+    
+    private void Exo8(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice8, window);
         }
     }
 

@@ -267,16 +267,24 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement" />
                 
-                <exercices1:Exo5 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                <exercices:Exo5 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                  HorizontalAlignment="Stretch"
                                  VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo5" />
                     
-                <exercices1:Exo6 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
-                                 HorizontalAlignment="Stretch"
-                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo6" />
+                <exercices:Exo6 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo6" />
                 
-                <exercices1:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
-                <exercices1:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
+                <exercices1:Exo7 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo7" />
+                
+                <exercices1:Exo___8 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo8" />
+                
+                <exercices:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
+                <exercices:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
                 
                 <Grid>
                     <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo" Visibility="Collapsed">

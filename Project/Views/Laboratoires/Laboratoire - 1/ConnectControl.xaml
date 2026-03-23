@@ -6,6 +6,130 @@
              xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
              mc:Ignorable="d" Background="Transparent"
              d:DesignHeight="*" d:DesignWidth="1000">
+    
+    <UserControl.Resources>
+        
+        <SolidColorBrush x:Key="TerminalYellowBrush" Color="{x:Static colorhelper:ColorHelper.FancyText}" />
+        <SolidColorBrush x:Key="TerminalBgBrush" Color="#09090B" />
+        <SolidColorBrush x:Key="TerminalPanelBrush" Color="#111113" />
+        <SolidColorBrush x:Key="TerminalBorderBrush" Color="#2A2A2E" />
+        <FontFamily x:Key="TerminalFont">Consolas</FontFamily>
+
+        
+        <Style x:Key="TerminalCombo" TargetType="ComboBox">
+            <Setter Property="Background" Value="#111113" />
+            <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
+            <Setter Property="BorderBrush" Value="#2A2A2E" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontFamily" Value="{StaticResource TerminalFont}" />
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="20" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="MainBorder" Grid.ColumnSpan="2"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}" />
+                            <ContentPresenter Grid.Column="0"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="5,0,0,0"
+                                              VerticalAlignment="Center"
+                                              IsHitTestVisible="False"
+                                              TextBlock.Foreground="{StaticResource TerminalYellowBrush}"
+                                              TextBlock.FontFamily="{StaticResource TerminalFont}"
+                                              TextBlock.FontSize="32" />
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Grid.Column="0"
+                                     Background="Transparent"
+                                     Foreground="{StaticResource TerminalYellowBrush}"
+                                     BorderThickness="0"
+                                     CaretBrush="{StaticResource TerminalYellowBrush}"
+                                     FontFamily="{StaticResource TerminalFont}"
+                                     FontSize="32"
+                                     Margin="5,0,0,0"
+                                     VerticalAlignment="Center"
+                                     Focusable="True"
+                                     Visibility="Collapsed" />
+                            <TextBlock Grid.Column="1" Text="▼"
+                                       Foreground="{StaticResource TerminalYellowBrush}"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       IsHitTestVisible="False" />
+                            <ToggleButton Grid.ColumnSpan="2"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Focusable="False"
+                                          Opacity="0" />
+                            <Popup x:Name="PART_Popup"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Fade">
+                                <Border Background="#111113"
+                                        BorderBrush="{StaticResource TerminalYellowBrush}"
+                                        BorderThickness="1"
+                                        MaxHeight="200"
+                                        MinWidth="{TemplateBinding ActualWidth}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
+                        <Setter Property="FontFamily" Value="{StaticResource TerminalFont}" />
+                        <Setter Property="FontSize" Value="26" />
+                        <Setter Property="Padding" Value="6,3" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="ItemBd" Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="ItemBd" Property="Background" Value="#1F1F10" />
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="ItemBd" Property="Background" Value="#2A2A0A" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
     <Grid Margin="20" x:Name="MainGrid">
 
@@ -13,6 +137,7 @@
             <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" /> <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -27,7 +152,7 @@
                Stretch="UniformToFill"
                Grid.Row="0"
                Grid.Column="0"
-               Grid.RowSpan="9"
+               Grid.RowSpan="10"
                Grid.ColumnSpan="2"
                VerticalAlignment="Center"
                HorizontalAlignment="Center" />
@@ -46,50 +171,61 @@
             Connexion à la base de données
         </Label>
 
+        <Label x:Name="DbTypeLabel" Grid.Row="2" Grid.Column="0" FontSize="32"
+               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+               HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
+               Content="Type de SGBD :" />
 
-        <Label x:Name="ServerLabel" Grid.Row="2" Grid.Column="0" FontSize="32"
+        <ComboBox Grid.Row="2" Grid.Column="1" Height="50" Background="#1E000000" Foreground="Black" FontSize="32"
+                  Margin="10,5,0,5" Padding="10,0,0,0"
+                  BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderThickness="2"
+                  x:Name="DbTypeInput" SelectedIndex="0" Style="{StaticResource TerminalCombo}">
+            <ComboBoxItem Content="MySQL" />
+            <ComboBoxItem Content="SQL Server (MSSQL)" />
+        </ComboBox>
+
+        <Label x:Name="ServerLabel" Grid.Row="3" Grid.Column="0" FontSize="32"
                Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
                HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
                Content="Serveur :" />
 
-        <TextBox Grid.Row="2" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+        <TextBox Grid.Row="3" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
                  Margin="10,5,0,5" Padding="10,0,0,0"
                  BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderThickness="2"
                  x:Name="ServerInput" />
 
-
-        <Label x:Name="DatabaseLabel" Grid.Row="3" Grid.Column="0" FontSize="32"
+        <Label x:Name="DatabaseLabel" Grid.Row="4" Grid.Column="0" FontSize="32"
                Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
                HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
                Content="Base de données :" />
 
-        <TextBox Grid.Row="3" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+        <TextBox Grid.Row="4" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
                  Margin="10,5,0,5" Padding="10,0,0,0"
                  BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderThickness="2"
                  x:Name="DatabaseInput" />
 
 
-        <Label x:Name="UserLabel" Grid.Row="4" Grid.Column="0" FontSize="32"
+        <Label x:Name="UserLabel" Grid.Row="5" Grid.Column="0" FontSize="32"
                Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
                HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
                Content="Utilisateur :" />
 
-        <TextBox Grid.Row="4" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+        <TextBox Grid.Row="5" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
                  Margin="10,5,0,5" Padding="10,0,0,0"
                  BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderThickness="2" x:Name="UserInput" />
 
 
-        <Label x:Name="PasswordLabel" Grid.Row="5" Grid.Column="0" FontSize="32"
+        <Label x:Name="PasswordLabel" Grid.Row="6" Grid.Column="0" FontSize="32"
                Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
                HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="#alvera" FontWeight="Bold"
                Content="Mot de passe :" />
 
-        <PasswordBox Grid.Row="5" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
+        <PasswordBox Grid.Row="6" Grid.Column="1" Height="50" Background="#1E000000" Foreground="White" FontSize="32"
                      Margin="10,5,0,5" Padding="10,0,0,0"
                      BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" BorderThickness="2"
                      x:Name="PasswordInput" />
 
-        <Button x:Name="ConnectButton" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" FontSize="32"
+        <Button x:Name="ConnectButton" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" FontSize="32"
                 BorderThickness="2" Height="80"
                 Margin="0,20,0,0"
                 Content="Se connecter" Click="ConnectButton_Click">
@@ -120,22 +256,21 @@
             </Button.Style>
         </Button>
 
-        <ProgressBar Visibility="Hidden" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Height="20"
+        <ProgressBar Visibility="Hidden" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Height="20"
                      Margin="20,10,20,10"
                      BorderThickness="0" Minimum="0" Maximum="100" Background="#1E000000"
                      Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
                      IsIndeterminate="True" x:Name="pbStatus" />
 
-        <Label x:Name="RemainingTrials" Visibility="Hidden" Grid.Column="0" Grid.Row="8" FontWeight="DemiBold"
+        <Label x:Name="RemainingTrials" Visibility="Hidden" Grid.Column="0" Grid.Row="9" FontWeight="DemiBold"
                FontSize="28" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}">
             Essais restants (4)
         </Label>
 
-        <ProgressBar Visibility="Hidden" Grid.Row="8" Grid.Column="1" Height="20"
+        <ProgressBar Visibility="Hidden" Grid.Row="9" Grid.Column="1" Height="20"
                      Margin="20,10,20,10"
                      BorderThickness="0" Minimum="0" Maximum="100" Background="#1E000000"
                      Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
                      Value="100" IsIndeterminate="false" x:Name="RemainingTrialsBar" />
     </Grid>
-
 </UserControl>

@@ -71,9 +71,11 @@
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.66"/>
         <PackageReference Include="HandyControl" Version="3.6.0-rc3"/>
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0-preview3.25342.7" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.2"/>
         <PackageReference Include="MySqlConnector" Version="2.5.0"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
+        <PackageReference Include="SkiaSharp.Views" Version="3.119.3-preview.1.1" />
         <PackageReference Include="System.Drawing.Common" Version="10.0.2"/>
         <PackageReference Include="WPF-UI" Version="4.0.3"/>
     </ItemGroup>
@@ -273,7 +275,7 @@
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
         </Page>
-        <Page Update="Project\Views\Exercices\Exo - 1b.xaml">
+        <Page Update="Project\Views\Exercices\Exo - 1B.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
@@ -311,6 +313,7 @@
 
     <ItemGroup>
       <Folder Include="Assets\images\overseerWars\dwellers\" />
+      <Folder Include="Project\ViewModels\Laboratoires\OverseerWars\VaultManagement\" />
       <Folder Include="Project\Views\Laboratoires\OverseerWars\" />
     </ItemGroup>
 

@@ -3,10 +3,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
+using LaboratoireProgrammation.Project.Views.Exercices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace LaboratoireProgrammation.Project.Views.Exercices;
+namespace LaboratoireProgrammation.Project.ViewModels.Exercices;
 
 public partial class Exo3 : UserControl {
     

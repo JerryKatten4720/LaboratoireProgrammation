@@ -10,23 +10,7 @@ namespace LaboratoireProgrammation.Project.Models.Menu;
 public class RunLab1 {
     public static async void Run(MainWindow win) {
         win.OutputBox.Document.Blocks.Clear();
-
-        var smokeDensity = win.VaultShader.SmokeDensity;
-        var glitchIntensity = win.VaultShader.GlitchIntensity;
-        var phosphorDecay = win.VaultShader.PhosphorDecay;
-        var burnIn = win.VaultShader.BurnInIntensity;
-        var constrast = win.VaultShader.Contrast;
-        var vaultBrightness = win.VaultShader.Brightness;
-        var tint = win.VaultShader.TintColor;
-
-        win.VaultShader.GlitchIntensity *= 5;
-        win.VaultShader.SmokeDensity = 1.01;
-        win.VaultShader.Brightness = 1.1;
-        win.VaultShader.Contrast *= 1.04;
-        win.VaultShader.PhosphorDecay *= 1.5;
-        win.VaultShader.BurnInIntensity *= 2;
-
-        win.VaultShader.TintColor = Color.FromArgb(5, 255, 0, 0);
+        
         win.OutputBox.Visibility = Visibility.Collapsed;
         win.TopText.Visibility = Visibility.Collapsed;
         win.InputBox.Visibility = Visibility.Collapsed;
@@ -53,14 +37,6 @@ public class RunLab1 {
 
         win.InputBox.Visibility = Visibility.Visible;
         win.TopText.Visibility = Visibility.Visible;
-
-        win.VaultShader.GlitchIntensity = glitchIntensity;
-        win.VaultShader.SmokeDensity = smokeDensity;
-        win.VaultShader.Brightness = vaultBrightness;
-        win.VaultShader.PhosphorDecay = phosphorDecay;
-        win.VaultShader.BurnInIntensity = burnIn;
-        win.VaultShader.Contrast = constrast;
-        win.VaultShader.TintColor = tint;
 
         win.Labo1B.Visibility = Visibility.Visible;
     }

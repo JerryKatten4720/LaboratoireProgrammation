@@ -196,7 +196,7 @@ Background="#0A0806">
                                 <Run Text=" /300" Foreground="#5C4D3D" FontSize="11"/>
                             </TextBlock>
                         </StackPanel>
-                        <TextBlock Text="MÉTAUX" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="14" Foreground="#4A3D2A" Margin="0,1,0,0"/>
+                        <TextBlock Text="MÉTAUXx" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="14" Foreground="#4A3D2A" Margin="0,1,0,0"/>
                         <ProgressBar Style="{StaticResource ResourceMeter}" Foreground="#AAAA96" Value="200" Maximum="300"/>
                     </StackPanel>
                 </Border>
