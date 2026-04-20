@@ -1,10 +1,8 @@
-using System.Windows;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.Models.Menu;
 using LaboratoireProgrammation.Project.Models.Miscellaneous;
 using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
-using Wpf.Ui;
 
 namespace LaboratoireProgrammation.Project.Services;
 
@@ -29,9 +27,12 @@ public class CommandsProcessor {
                 TerminalDisplay.AppendOutput("ROBCO UNIFIED OPERATING SYSTEM v1.0");
                 TerminalDisplay.AppendOutput("Running on WPF .NET Core.");
                 TerminalDisplay.BlankSpace();
-                TerminalDisplay.AppendOutput("• [exo.1+b] : UI Interactive : Contrôle de boutons et permutation d'images", Colors.Coral);
-                TerminalDisplay.AppendOutput("• [exo.2]   : Simulation de transfert de fichiers (Barres de progression)", Colors.Coral);
-                TerminalDisplay.AppendOutput("• [lab.1]   : Système de gestion de BDD (CRUD Complet) [EN DÉVELOPPEMENT]", Colors.Gold);
+                TerminalDisplay.AppendOutput(
+                    "• [exo.1+b] : UI Interactive : Contrôle de boutons et permutation d'images", Colors.Coral);
+                TerminalDisplay.AppendOutput(
+                    "• [exo.2]   : Simulation de transfert de fichiers (Barres de progression)", Colors.Coral);
+                TerminalDisplay.AppendOutput(
+                    "• [lab.1]   : Système de gestion de BDD (CRUD Complet) [EN DÉVELOPPEMENT]", Colors.Gold);
                 break;
 
             case "clear":
@@ -64,25 +65,25 @@ public class CommandsProcessor {
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
                 RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice2, window);
                 break;
-            
+
             case "exo3":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [3]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
                 RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice3, window);
                 break;
-            
+
             case "exo4":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [4]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
                 RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice4, window);
                 break;
-            
+
             case "exo5":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [5]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
                 RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice5, window);
                 break;
-            
+
             case "exo6":
                 TerminalDisplay.AppendOutput("[SYSTEM] DÉMARRAGE >>> EXO [6]", Colors.Yellow);
                 TerminalDisplay.AppendOutput("...", Colors.Yellow);
@@ -100,15 +101,15 @@ public class CommandsProcessor {
             case "memfy ai":
                 RunMemfy.Run(window);
                 break;
-            
+
             case "sep":
                 TerminalDisplay.SeparationLine();
                 break;
-            
+
             case "ow":
                 OverseerWarInit.Introduce(window);
                 break;
-            
+
             case "te":
                 break;
 

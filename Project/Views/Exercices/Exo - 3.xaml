@@ -46,37 +46,6 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="FileButtonStyleON" TargetType="Button">
-            <Setter Property="Foreground" Value="Black" />
-            <Setter Property="BorderBrush" Value="WhiteSmoke" />
-            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FadeGreenBrush}" />
-            <Setter Property="FontSize" Value="20" />
-            <Setter Property="Margin" Value="0" />
-            <Setter Property="Padding" Value="8" />
-            <Setter Property="Height" Value="60" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Opacity" Value="0.75" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="WhiteSmoke" />
-                    <Setter Property="BorderBrush" Value="WhiteSmoke" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
     </UserControl.Resources>
 
     <Grid>
@@ -114,37 +83,39 @@
         <ScrollViewer Background="#0FFFB500" Width="400" x:Name="FilesScrollViewer" Margin="10,20,0,0" Grid.Column="0"
                       Grid.Row="5" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
                       HorizontalAlignment="Left">
-            <StackPanel>
-
-            </StackPanel>
+            <StackPanel />
         </ScrollViewer>
 
-        <Label Content="NOMS"  x:Name="NamesLabel"
-               HorizontalContentAlignment="Center" 
+        <Label Content="NOMS" x:Name="NamesLabel"
+               HorizontalContentAlignment="Center"
                FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Padding="15,5,0,0"
-               Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18" Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"/>
-        
-        <Label Content="PRÉNOMS"  x:Name="Names2Label"
-               HorizontalContentAlignment="Center" 
-               FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Padding="5,5,0,0"
-               Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18" Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"/>
+               Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18"
+               Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
 
-        <Label Content="ENTREPRISE"  x:Name="QualityLabel"
-               HorizontalContentAlignment="Center" 
+        <Label Content="PRÉNOMS" x:Name="Names2Label"
+               HorizontalContentAlignment="Center"
                FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Padding="5,5,0,0"
-               Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18" Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"/>
+               Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18"
+               Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
 
-        <Label Content="SALAIRE"  x:Name="SalaryLabel"
-               HorizontalContentAlignment="Center" 
+        <Label Content="ENTREPRISE" x:Name="QualityLabel"
+               HorizontalContentAlignment="Center"
                FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Padding="5,5,0,0"
-               Grid.Row="0" Grid.Column="4" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18" Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"/>
+               Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18"
+               Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
 
-        <ScrollViewer Visibility="Hidden" Background="#0FFFB500" Width="200" x:Name="FileContentScrollViewer_Names" ScrollChanged="ScrollViewer_ScrollChanged"
+        <Label Content="SALAIRE" x:Name="SalaryLabel"
+               HorizontalContentAlignment="Center"
+               FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Padding="5,5,0,0"
+               Grid.Row="0" Grid.Column="4" HorizontalAlignment="Left" VerticalContentAlignment="Top" FontSize="18"
+               Height="60" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+
+        <ScrollViewer Visibility="Hidden" Background="#0FFFB500" Width="200" x:Name="FileContentScrollViewer_Names"
+                      ScrollChanged="ScrollViewer_ScrollChanged"
                       Margin="10,-40,0,0" Grid.Column="1" Grid.Row="1" Grid.RowSpan="5"
                       HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
                       HorizontalAlignment="Left">
-            <StackPanel>
-            </StackPanel>
+            <StackPanel />
         </ScrollViewer>
 
 
@@ -152,24 +123,21 @@
                       x:Name="FileContentScrollViewer_Names2" Margin="0,-40,0,0" Grid.Column="2"
                       Grid.Row="1" Grid.RowSpan="5" HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Left">
-            <StackPanel>
-            </StackPanel>
+            <StackPanel />
         </ScrollViewer>
-        
+
         <ScrollViewer Visibility="Hidden" Background="#0FFFB500" Width="200" ScrollChanged="ScrollViewer_ScrollChanged"
                       x:Name="FileContentScrollViewer_Qualities" Margin="0,-40,0,0" Grid.Column="3"
                       Grid.Row="1" Grid.RowSpan="5" HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Left">
-            <StackPanel>
-            </StackPanel>
+            <StackPanel />
         </ScrollViewer>
-        
+
         <ScrollViewer Visibility="Hidden" Background="#0FFFB500" Width="200" ScrollChanged="ScrollViewer_ScrollChanged"
                       x:Name="FileContentScrollViewer_Salary" Margin="0,-40,0,0" Grid.Column="4"
                       Grid.Row="1" Grid.RowSpan="5" HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Left">
-            <StackPanel>
-            </StackPanel>
+            <StackPanel />
         </ScrollViewer>
 
     </Grid>

@@ -7,10 +7,9 @@ public class MainWindowConfiguration {
 
     public static string Title = "@anto.cldl";
     public static bool AllowTransparency = true;
-    
+
     // [Additional data used for Overseer Wars]
 
     public static double WastelandGridHeight = Height * 0.7;
     public static double WastelandGridWidth = Width * 0.7;
-    
 }

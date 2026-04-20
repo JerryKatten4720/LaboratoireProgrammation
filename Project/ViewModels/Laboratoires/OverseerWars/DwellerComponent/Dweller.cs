@@ -12,15 +12,27 @@ using FontFamily = System.Windows.Media.FontFamily;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars.DwellerComponent;
 
-public enum DwellerState { Selected, Ally, Enemy }
-public enum Rarity { Common, Uncommon, Rare, Epic, Legendary }
+public enum DwellerState {
+    Selected,
+    Ally,
+    Enemy
+}
+
+public enum Rarity {
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary
+}
 
 public class Dweller {
-
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     // [ - Constants - ]
 
-    private const string AssetBase = "pack://application:,,,/LaboratoireProgrammation;component/Assets/images/overseerWars";
+    private const string AssetBase =
+        "pack://application:,,,/LaboratoireProgrammation;component/Assets/images/overseerWars";
+
     private const string FontBase = "pack://application:,,,/LaboratoireProgrammation;component/Assets/fonts/";
     private static readonly int[] OutlineAngles = { 0, 45, 90, 135, 180, 225, 270, 315 };
     private static readonly Brush StatBg = (SolidColorBrush)new BrushConverter().ConvertFrom("#4D000000");
@@ -32,6 +44,17 @@ public class Dweller {
     public string LastName;
     public int S, P, E, C, I, A, L;
     public int X, Y;
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+    // [ - Constructors - ]
+
+    public Dweller() { }
+
+    public Dweller(string fn, string ln) {
+        FirstName = fn;
+        LastName = ln;
+    }
+
     public Team Team { get; set; }
     public Outfit Outfit { get; set; }
     public Weapon Weapon { get; set; }
@@ -40,20 +63,17 @@ public class Dweller {
     public DwellerState CurrentState { get; set; }
     public int IndividuelActionPoints { get; set; } = 3;
 
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-    // [ - Constructors - ]
-
-    public Dweller() { }
-    public Dweller(string fn, string ln) { FirstName = fn; LastName = ln; }
-
-    public void Move(int x, int y) { X = x; Y = y; }
+    public void Move(int x, int y) {
+        X = x;
+        Y = y;
+    }
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     // [ - Visuals - ]
 
     public UIElement CreateCardVisual() {
-        string rarity = Rarity.ToString().ToLower();
-        bool isHolo = Rarity == Rarity.Epic || Rarity == Rarity.Legendary;
+        var rarity = Rarity.ToString().ToLower();
+        var isHolo = Rarity == Rarity.Epic || Rarity == Rarity.Legendary;
 
         var skewX = new SkewTransform();
         var skewY = new SkewTransform();
@@ -102,13 +122,14 @@ public class Dweller {
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin = new Thickness(0, 0, 0, 40)
         };
-        foreach (var (letter, val) in new[] { ("S",S),("P",P),("E",E),("C",C),("I",I),("A",A),("L",L) })
+        foreach (var (letter, val) in new[] { ("S", S), ("P", P), ("E", E), ("C", C), ("I", I), ("A", A), ("L", L) })
             statsGrid.Children.Add(CreateStatCircle(letter, val));
         AddToGrid(cardGrid, statsGrid, 120);
 
         AddToGrid(cardGrid, new Rectangle {
             IsHitTestVisible = false,
-            Fill = new RadialGradientBrush(Colors.Transparent, Color.FromArgb(45, 0, 0, 0)) { RadiusX = 1.1, RadiusY = 1.1 }
+            Fill = new RadialGradientBrush(Colors.Transparent, Color.FromArgb(45, 0, 0, 0))
+                { RadiusX = 1.1, RadiusY = 1.1 }
         }, 123);
 
         Rectangle? holoOverlay = null;
@@ -120,13 +141,13 @@ public class Dweller {
                 EndPoint = new Point(1, 1),
                 MappingMode = BrushMappingMode.RelativeToBoundingBox,
                 GradientStops = new GradientStopCollection {
-                    new GradientStop(Color.FromArgb(0,   255,   0, 128), 0.00),
-                    new GradientStop(Color.FromArgb(25,  255,   0, 255), 0.16),
-                    new GradientStop(Color.FromArgb(25,    0, 128, 255), 0.32),
-                    new GradientStop(Color.FromArgb(25,    0, 255, 200), 0.48),
-                    new GradientStop(Color.FromArgb(25,  255, 255,   0), 0.64),
-                    new GradientStop(Color.FromArgb(25,  255, 100,   0), 0.80),
-                    new GradientStop(Color.FromArgb(0,   255,   0, 128), 1.00)
+                    new GradientStop(Color.FromArgb(0, 255, 0, 128), 0.00),
+                    new GradientStop(Color.FromArgb(25, 255, 0, 255), 0.16),
+                    new GradientStop(Color.FromArgb(25, 0, 128, 255), 0.32),
+                    new GradientStop(Color.FromArgb(25, 0, 255, 200), 0.48),
+                    new GradientStop(Color.FromArgb(25, 255, 255, 0), 0.64),
+                    new GradientStop(Color.FromArgb(25, 255, 100, 0), 0.80),
+                    new GradientStop(Color.FromArgb(0, 255, 0, 128), 1.00)
                 }
             };
             holoOverlay = new Rectangle { IsHitTestVisible = false, Opacity = 0, Fill = holoBrush };
@@ -135,8 +156,8 @@ public class Dweller {
 
         cardGrid.MouseMove += (s, e) => {
             var pos = e.GetPosition(cardGrid);
-            double xp = pos.X / 400.0 - 0.5;
-            double yp = pos.Y / 600.0 - 0.5;
+            var xp = pos.X / 400.0 - 0.5;
+            var yp = pos.Y / 600.0 - 0.5;
             skewX.AngleX = -yp * 8;
             skewY.AngleY = xp * 8;
 
@@ -146,13 +167,13 @@ public class Dweller {
             holoBrush.StartPoint = new Point(Math.Clamp(xp + 0.1, 0, 1), Math.Clamp(yp + 0.1, 0, 1));
             holoBrush.EndPoint = new Point(Math.Clamp(xp + 0.9, 0, 1), Math.Clamp(yp + 0.9, 0, 1));
 
-            double hue = xp * 0.18;
+            var hue = xp * 0.18;
             var stops = holoBrush.GradientStops;
-            stops[1].Color = ShiftHue(Color.FromArgb(25, 255,   0, 255), hue);
-            stops[2].Color = ShiftHue(Color.FromArgb(25,   0, 128, 255), hue);
-            stops[3].Color = ShiftHue(Color.FromArgb(25,   0, 255, 200), hue);
-            stops[4].Color = ShiftHue(Color.FromArgb(25, 255, 255,   0), hue);
-            stops[5].Color = ShiftHue(Color.FromArgb(25, 255, 100,   0), hue);
+            stops[1].Color = ShiftHue(Color.FromArgb(25, 255, 0, 255), hue);
+            stops[2].Color = ShiftHue(Color.FromArgb(25, 0, 128, 255), hue);
+            stops[3].Color = ShiftHue(Color.FromArgb(25, 0, 255, 200), hue);
+            stops[4].Color = ShiftHue(Color.FromArgb(25, 255, 255, 0), hue);
+            stops[5].Color = ShiftHue(Color.FromArgb(25, 255, 100, 0), hue);
         };
 
         cardGrid.MouseLeave += (s, e) => {
@@ -171,21 +192,21 @@ public class Dweller {
             RenderTransformOrigin = new Point(0.5, 0.5)
         };
 
-        Color outlineColor = CurrentState switch {
+        var outlineColor = CurrentState switch {
             DwellerState.Selected => Colors.White,
             DwellerState.Enemy => Color.FromRgb(211, 0, 24),
             _ => Color.FromRgb(0, 182, 255)
         };
 
-        foreach (int angle in OutlineAngles) {
+        foreach (var angle in OutlineAngles)
             container.Children.Add(new Image {
                 Source = imageSource,
                 Stretch = Stretch.Uniform,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Effect = new DropShadowEffect { Color = outlineColor, BlurRadius = 0, ShadowDepth = 3, Direction = angle, Opacity = 1 }
+                Effect = new DropShadowEffect
+                    { Color = outlineColor, BlurRadius = 0, ShadowDepth = 3, Direction = angle, Opacity = 1 }
             });
-        }
 
         container.Children.Add(new Image {
             Source = imageSource,
@@ -200,11 +221,13 @@ public class Dweller {
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     // [ - Helpers - ]
 
-    private BitmapImage LoadImage(string path) =>
-        new BitmapImage(new Uri($"{AssetBase}/{path}", UriKind.Absolute));
+    private BitmapImage LoadImage(string path) {
+        return new BitmapImage(new Uri($"{AssetBase}/{path}", UriKind.Absolute));
+    }
 
-    private void AddCardImage(Grid grid, string path, int zIndex) =>
+    private void AddCardImage(Grid grid, string path, int zIndex) {
         AddToGrid(grid, new Image { Source = LoadImage(path) }, zIndex);
+    }
 
     private static void AddToGrid(Grid grid, UIElement el, int zIndex) {
         Panel.SetZIndex(el, zIndex);
@@ -245,25 +268,25 @@ public class Dweller {
 
     private static Color ShiftHue(Color color, double shift) {
         double r = color.R / 255.0, g = color.G / 255.0, b = color.B / 255.0;
-        double max = Math.Max(r, Math.Max(g, b));
-        double min = Math.Min(r, Math.Min(g, b));
-        double delta = max - min;
+        var max = Math.Max(r, Math.Max(g, b));
+        var min = Math.Min(r, Math.Min(g, b));
+        var delta = max - min;
 
         if (delta == 0) return color;
 
         double h;
-        if (max == r) h = ((g - b) / delta) % 6;
+        if (max == r) h = (g - b) / delta % 6;
         else if (max == g) h = (b - r) / delta + 2;
         else h = (r - g) / delta + 4;
 
-        h = ((h / 6.0) + shift + 1.0) % 1.0;
+        h = (h / 6.0 + shift + 1.0) % 1.0;
         double s = delta / max, v = max;
 
-        int hi = (int)(h * 6);
-        double f = h * 6 - hi;
+        var hi = (int)(h * 6);
+        var f = h * 6 - hi;
         double p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
 
-        (double nr, double ng, double nb) = hi switch {
+        var (nr, ng, nb) = hi switch {
             0 => (v, t, p),
             1 => (q, v, p),
             2 => (p, v, t),

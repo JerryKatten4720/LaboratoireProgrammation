@@ -6,9 +6,11 @@ using LaboratoireProgrammation.Project.ViewModels.Menu;
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 
 public partial class OverseerWarsUi : UserControl {
-    
+    public OverseerWarsUi() {
+        InitializeComponent();
+    }
+
     private MainWindow? Win => Window.GetWindow(this) as MainWindow;
-    public OverseerWarsUi() { InitializeComponent(); }
 
     public static void DisablePreviousUi(MainWindow win) {
         win.VisualMode.Visibility = Visibility.Collapsed;

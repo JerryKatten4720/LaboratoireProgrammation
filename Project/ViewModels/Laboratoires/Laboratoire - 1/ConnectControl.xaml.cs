@@ -1,14 +1,12 @@
-using System;
 using System.Data;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Services;
-using MySqlConnector;
 using Microsoft.Data.SqlClient;
+using MySqlConnector;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.Laboratoire___1;
 
@@ -51,12 +49,13 @@ public partial class ConnectControl : UserControl {
         if (DbTypeInput.SelectedIndex == 1) // SQL Server (MSSQL)
         {
             // Note: TrustServerCertificate is often required for modern MSSQL instances on local dev environments
-            string msSqlConnString = $"Server={server};Database={database};User Id={user};Password={password};TrustServerCertificate=True;";
+            var msSqlConnString =
+                $"Server={server};Database={database};User Id={user};Password={password};TrustServerCertificate=True;";
             connectionFactory = () => new SqlConnection(msSqlConnString);
         }
         else // MySQL (Default)
         {
-            string mySqlConnString = $"Server={server};Database={database};User={user};Password={password};";
+            var mySqlConnString = $"Server={server};Database={database};User={user};Password={password};";
             connectionFactory = () => new MySqlConnection(mySqlConnString);
         }
 
@@ -94,7 +93,7 @@ public partial class ConnectControl : UserControl {
         Label.Visibility = Visibility.Visible;
         pbStatus.Visibility = Visibility.Hidden;
         ConfirmConnection();
-        
+
         // At this point, you might want to store your 'db' instance in a singleton
         // or a global Dependency Injection container so the rest of your app uses the same DbType.
     }

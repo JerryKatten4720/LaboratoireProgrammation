@@ -3,14 +3,13 @@ using System.Windows.Media;
 using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
-using Color = System.Drawing.Color;
 
 namespace LaboratoireProgrammation.Project.Models.Menu;
 
 public class RunLab1 {
     public static async void Run(MainWindow win) {
         win.OutputBox.Document.Blocks.Clear();
-        
+
         win.OutputBox.Visibility = Visibility.Collapsed;
         win.TopText.Visibility = Visibility.Collapsed;
         win.InputBox.Visibility = Visibility.Collapsed;
@@ -18,16 +17,19 @@ public class RunLab1 {
         var width = win.ActualWidth;
         var fontMult = width >= 1600 ? 1.0 : width >= 1200 ? 0.8 : 0.6;
 
-        var inspirationBlock = TerminalDisplay.CreateTitleBlock("Laboratoire - 1", 76 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#eb4634")));
+        var inspirationBlock = TerminalDisplay.CreateTitleBlock("Laboratoire - 1", 76 * fontMult,
+            new SolidColorBrush(ColorHelper.HexToColor("#eb4634")));
         win.TerminalOutputPanel.Children.Add(inspirationBlock);
 
-        var descriptionBlock = TerminalDisplay.CreateTitleBlock("< ! > LAB :// { - 03.02.26 - } :\\ < ! >", 50 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#eb4634")));
+        var descriptionBlock = TerminalDisplay.CreateTitleBlock("< ! > LAB :// { - 03.02.26 - } :\\ < ! >",
+            50 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#eb4634")));
         win.TerminalOutputPanel.Children.Add(descriptionBlock);
 
         if (ConsoleBehavior.SpeedLoad) await Task.Delay(0);
         else await Task.Delay(2000);
 
-        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult, new SolidColorBrush(ColorHelper.HexToColor("#fff1f0")));
+        var authorBlock = TerminalDisplay.CreateTitleBlock("anto.cldl", 200 * fontMult,
+            new SolidColorBrush(ColorHelper.HexToColor("#fff1f0")));
         win.TerminalOutputPanel.Children.Add(authorBlock);
 
         if (ConsoleBehavior.SpeedLoad) await Task.Delay(0);

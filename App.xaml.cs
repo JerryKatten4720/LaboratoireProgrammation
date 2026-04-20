@@ -1,5 +1,7 @@
 ﻿using System.Windows;
-using System.Windows.Media.Animation; // Don't forget this namespace!
+using System.Windows.Media.Animation;
+
+// Don't forget this namespace!
 
 namespace LaboratoireProgrammation;
 

@@ -6,9 +6,6 @@
     <UserControl.Resources>
 
         <SolidColorBrush x:Key="TerminalYellowBrush" Color="{x:Static colorhelper:ColorHelper.FancyText}" />
-        <SolidColorBrush x:Key="TerminalBgBrush" Color="#09090B" />
-        <SolidColorBrush x:Key="TerminalPanelBrush" Color="#111113" />
-        <SolidColorBrush x:Key="TerminalBorderBrush" Color="#2A2A2E" />
         <FontFamily x:Key="TerminalFont">Consolas</FontFamily>
 
         <Style x:Key="ToolbarSeparatorStyle" TargetType="Separator">
@@ -39,10 +36,12 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#1A1A1C" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                                 <Setter Property="Foreground" Value="Black" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -73,11 +72,13 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#1A1A1C" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#2A2A0A" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -159,7 +160,8 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="MainBorder" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                             <Trigger Property="IsEditable" Value="True">
                                 <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
@@ -198,129 +200,125 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <Style x:Key="TerminalScrollThumb" TargetType="Thumb">
-    <Setter Property="Background" Value="#2A2A2E" />
-    <Setter Property="BorderBrush" Value="Transparent" />
-    <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="Template">
-        <Setter.Value>
-            <ControlTemplate TargetType="Thumb">
-                <Border Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="0" />
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#3A3A3E" />
-                    </Trigger>
-                    <Trigger Property="IsDragging" Value="True">
-                        <Setter Property="Background" Value="{StaticResource TerminalYellowBrush}" />
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-        </Setter.Value>
-    </Setter>
-</Style>
-
-<Style x:Key="TerminalScrollPageBtn" TargetType="RepeatButton">
-    <Setter Property="Background" Value="Transparent" />
-    <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="IsTabStop" Value="False" />
-    <Setter Property="Focusable" Value="False" />
-    <Setter Property="Template">
-        <Setter.Value>
-            <ControlTemplate TargetType="RepeatButton">
-                <Border Background="{TemplateBinding Background}" />
-            </ControlTemplate>
-        </Setter.Value>
-    </Setter>
-</Style>
-
-<Style x:Key="TerminalScrollArrowBtn" TargetType="RepeatButton">
-    <Setter Property="Background" Value="#111113" />
-    <Setter Property="Foreground" Value="#505050" />
-    <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="IsTabStop" Value="False" />
-    <Setter Property="Focusable" Value="False" />
-    <Setter Property="Template">
-        <Setter.Value>
-            <ControlTemplate TargetType="RepeatButton">
-                <Border Background="{TemplateBinding Background}">
-                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
-                    </Trigger>
-                    <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Background" Value="{StaticResource TerminalYellowBrush}" />
-                        <Setter Property="Foreground" Value="Black" />
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-        </Setter.Value>
-    </Setter>
-</Style>
-
-<Style TargetType="{x:Type ScrollBar}">
-    <Setter Property="Background" Value="#09090B" />
-    <Setter Property="BorderBrush" Value="#2A2A2E" />
-    <Setter Property="BorderThickness" Value="1,0,0,0" />
-    <Setter Property="Width" Value="14" />
-    <Setter Property="Template">
-        <Setter.Value>
-            <ControlTemplate TargetType="{x:Type ScrollBar}">
-                <Border Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition MaxHeight="14" />
-                            <RowDefinition Height="0.00001*" />
-                            <RowDefinition MaxHeight="14" />
-                        </Grid.RowDefinitions>
-                        
-                        <RepeatButton Grid.Row="0" Style="{StaticResource TerminalScrollArrowBtn}" Command="ScrollBar.LineUpCommand" Content="▲" FontSize="8" />
-                        
-                        <Track Grid.Row="1" x:Name="PART_Track" IsDirectionReversed="true">
-                            <Track.DecreaseRepeatButton>
-                                <RepeatButton Style="{StaticResource TerminalScrollPageBtn}" Command="ScrollBar.PageUpCommand" />
-                            </Track.DecreaseRepeatButton>
-                            <Track.Thumb>
-                                <Thumb Style="{StaticResource TerminalScrollThumb}" Margin="2,0" />
-                            </Track.Thumb>
-                            <Track.IncreaseRepeatButton>
-                                <RepeatButton Style="{StaticResource TerminalScrollPageBtn}" Command="ScrollBar.PageDownCommand" />
-                            </Track.IncreaseRepeatButton>
-                        </Track>
-                        
-                        <RepeatButton Grid.Row="2" Style="{StaticResource TerminalScrollArrowBtn}" Command="ScrollBar.LineDownCommand" Content="▼" FontSize="8" />
-                    </Grid>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="Orientation" Value="Horizontal">
-                        <Setter Property="Width" Value="Auto" />
-                        <Setter Property="Height" Value="14" />
-                        <Setter Property="BorderThickness" Value="0,1,0,0" />
-                        <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False" />
-                        </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-        </Setter.Value>
-    </Setter>
-</Style>
-        
-        <Style x:Key="TerminalEditableCombo" TargetType="ComboBox" BasedOn="{StaticResource TerminalCombo}">
-            <Setter Property="IsEditable" Value="True" />
+            <Setter Property="Background" Value="#2A2A2E" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="0" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3A3A3E" />
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter Property="Background" Value="{StaticResource TerminalYellowBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style x:Key="ColorPickerBtn" TargetType="Button" BasedOn="{StaticResource TerminalBtn}">
-            <Setter Property="MinWidth" Value="22" />
-            <Setter Property="Width" Value="22" />
-            <Setter Property="Height" Value="22" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="BorderThickness" Value="2" />
+        <Style x:Key="TerminalScrollPageBtn" TargetType="RepeatButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Background="{TemplateBinding Background}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TerminalScrollArrowBtn" TargetType="RepeatButton">
+            <Setter Property="Background" Value="#111113" />
+            <Setter Property="Foreground" Value="#505050" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter Property="Foreground" Value="Black" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Background" Value="#09090B" />
+            <Setter Property="BorderBrush" Value="#2A2A2E" />
+            <Setter Property="BorderThickness" Value="1,0,0,0" />
+            <Setter Property="Width" Value="14" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition MaxHeight="14" />
+                                    <RowDefinition Height="0.00001*" />
+                                    <RowDefinition MaxHeight="14" />
+                                </Grid.RowDefinitions>
+
+                                <RepeatButton Grid.Row="0" Style="{StaticResource TerminalScrollArrowBtn}"
+                                              Command="ScrollBar.LineUpCommand" Content="▲" FontSize="8" />
+
+                                <Track Grid.Row="1" x:Name="PART_Track" IsDirectionReversed="true">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource TerminalScrollPageBtn}"
+                                                      Command="ScrollBar.PageUpCommand" />
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource TerminalScrollThumb}" Margin="2,0" />
+                                    </Track.Thumb>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource TerminalScrollPageBtn}"
+                                                      Command="ScrollBar.PageDownCommand" />
+                                    </Track.IncreaseRepeatButton>
+                                </Track>
+
+                                <RepeatButton Grid.Row="2" Style="{StaticResource TerminalScrollArrowBtn}"
+                                              Command="ScrollBar.LineDownCommand" Content="▼" FontSize="8" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter Property="Width" Value="Auto" />
+                                <Setter Property="Height" Value="14" />
+                                <Setter Property="BorderThickness" Value="0,1,0,0" />
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TerminalEditableCombo" TargetType="ComboBox" BasedOn="{StaticResource TerminalCombo}">
+            <Setter Property="IsEditable" Value="True" />
         </Style>
 
     </UserControl.Resources>
@@ -341,15 +339,20 @@
 
         <Border Grid.Row="0" Background="#111113" BorderBrush="#2A2A2E" BorderThickness="0,0,0,1" Padding="6,4">
             <StackPanel Orientation="Horizontal" Margin="2,0">
-                <Button Style="{StaticResource TerminalBtn}" Content="[ NEW ]" Click="NewFileClick" ToolTip="Nouveau (Ctrl+N)" />
+                <Button Style="{StaticResource TerminalBtn}" Content="[ NEW ]" Click="NewFileClick"
+                        ToolTip="Nouveau (Ctrl+N)" />
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
-                <Button Style="{StaticResource TerminalBtn}" Content="[ OPEN ]" Click="OpenFileClick" ToolTip="Ouvrir (Ctrl+O)" />
+                <Button Style="{StaticResource TerminalBtn}" Content="[ OPEN ]" Click="OpenFileClick"
+                        ToolTip="Ouvrir (Ctrl+O)" />
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
-                <Button Style="{StaticResource TerminalBtn}" Content="[ SAVE ]" Click="SaveFileClick" ToolTip="Sauvegarder (Ctrl+S)" />
+                <Button Style="{StaticResource TerminalBtn}" Content="[ SAVE ]" Click="SaveFileClick"
+                        ToolTip="Sauvegarder (Ctrl+S)" />
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
-                <Button Style="{StaticResource TerminalBtn}" Content="[ SAVE AS ]" Click="SaveAsFileClick" ToolTip="Sauvegarder sous..." />
+                <Button Style="{StaticResource TerminalBtn}" Content="[ SAVE AS ]" Click="SaveAsFileClick"
+                        ToolTip="Sauvegarder sous..." />
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
-                <Button Style="{StaticResource TerminalBtn}" Content="[ PRINT ]" Click="PrintClick" ToolTip="Imprimer (Ctrl+P)" />
+                <Button Style="{StaticResource TerminalBtn}" Content="[ PRINT ]" Click="PrintClick"
+                        ToolTip="Imprimer (Ctrl+P)" />
             </StackPanel>
         </Border>
 
@@ -364,25 +367,30 @@
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <Button Style="{StaticResource TerminalBtn}" Content="A▲" Click="IncreaseFontSizeClick" ToolTip="Augmenter la taille" />
+                <Button Style="{StaticResource TerminalBtn}" Content="A▲" Click="IncreaseFontSizeClick"
+                        ToolTip="Augmenter la taille" />
                 <ComboBox x:Name="FontSizeCombo"
                           Style="{StaticResource TerminalEditableCombo}"
                           Width="55"
                           SelectionChanged="FontSizeCombo_SelectionChanged"
                           TextBoxBase.TextChanged="FontSizeCombo_TextChanged"
                           ToolTip="Taille" />
-                <Button Style="{StaticResource TerminalBtn}" Content="A▼" Click="DecreaseFontSizeClick" ToolTip="Diminuer la taille" />
+                <Button Style="{StaticResource TerminalBtn}" Content="A▼" Click="DecreaseFontSizeClick"
+                        ToolTip="Diminuer la taille" />
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <ToggleButton x:Name="BtnBold" Style="{StaticResource TerminalToggleBtn}" Content="B" FontWeight="Bold"
+                <ToggleButton x:Name="BtnBold" Style="{StaticResource TerminalToggleBtn}" Content="B"
                               Click="BoldClick" ToolTip="Gras (Ctrl+B)" />
-                <ToggleButton x:Name="BtnItalic" Style="{StaticResource TerminalToggleBtn}" Content="I" FontStyle="Italic"
+                <ToggleButton x:Name="BtnItalic" Style="{StaticResource TerminalToggleBtn}" Content="I"
+                              FontStyle="Italic"
                               Click="ItalicClick" ToolTip="Italique (Ctrl+I)" />
-                <ToggleButton x:Name="BtnUnderline" Style="{StaticResource TerminalToggleBtn}" Click="UnderlineClick" ToolTip="Souligné (Ctrl+U)">
+                <ToggleButton x:Name="BtnUnderline" Style="{StaticResource TerminalToggleBtn}" Click="UnderlineClick"
+                              ToolTip="Souligné (Ctrl+U)">
                     <TextBlock Text="U" TextDecorations="Underline" />
                 </ToggleButton>
-                <ToggleButton x:Name="BtnStrike" Style="{StaticResource TerminalToggleBtn}" Click="StrikeClick" ToolTip="Barré">
+                <ToggleButton x:Name="BtnStrike" Style="{StaticResource TerminalToggleBtn}" Click="StrikeClick"
+                              ToolTip="Barré">
                     <TextBlock Text="S" TextDecorations="Strikethrough" />
                 </ToggleButton>
 
@@ -394,15 +402,16 @@
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
                 <Button x:Name="BtnFontColor" Style="{StaticResource TerminalBtn}"
-                        Click="FontColorClick" ToolTip="Couleur du texte" Width="36" Height="26" Padding="2">
+                        Click="FontColorClick" ToolTip="Couleur du texte" Width="36" Padding="2">
                     <StackPanel>
                         <TextBlock Text="A" FontWeight="Bold" HorizontalAlignment="Center" />
-                        <Border x:Name="FontColorIndicator" Height="4" Background="{StaticResource TerminalYellowBrush}" />
+                        <Border x:Name="FontColorIndicator" Height="4"
+                                Background="{StaticResource TerminalYellowBrush}" />
                     </StackPanel>
                 </Button>
 
                 <Button x:Name="BtnHighlight" Style="{StaticResource TerminalBtn}"
-                        Click="HighlightClick" ToolTip="Surlignage" Width="36" Height="26" Padding="2">
+                        Click="HighlightClick" ToolTip="Surlignage" Width="36" Padding="2">
                     <StackPanel>
                         <TextBlock Text="H" FontWeight="Bold" HorizontalAlignment="Center" />
                         <Border x:Name="HighlightIndicator" Height="4" Background="Yellow" />
@@ -411,42 +420,56 @@
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <ToggleButton x:Name="BtnAlignLeft" Style="{StaticResource TerminalToggleBtn}" Content="≡◄" ToolTip="Aligner à gauche"
+                <ToggleButton x:Name="BtnAlignLeft" Style="{StaticResource TerminalToggleBtn}" Content="≡◄"
+                              ToolTip="Aligner à gauche"
                               Click="AlignLeftClick" />
-                <ToggleButton x:Name="BtnAlignCenter" Style="{StaticResource TerminalToggleBtn}" Content="≡|" ToolTip="Centrer"
+                <ToggleButton x:Name="BtnAlignCenter" Style="{StaticResource TerminalToggleBtn}" Content="≡|"
+                              ToolTip="Centrer"
                               Click="AlignCenterClick" />
-                <ToggleButton x:Name="BtnAlignRight" Style="{StaticResource TerminalToggleBtn}" Content="►≡" ToolTip="Aligner à droite"
+                <ToggleButton x:Name="BtnAlignRight" Style="{StaticResource TerminalToggleBtn}" Content="►≡"
+                              ToolTip="Aligner à droite"
                               Click="AlignRightClick" />
-                <ToggleButton x:Name="BtnAlignJustify" Style="{StaticResource TerminalToggleBtn}" Content="≡≡" ToolTip="Justifier"
+                <ToggleButton x:Name="BtnAlignJustify" Style="{StaticResource TerminalToggleBtn}" Content="≡≡"
+                              ToolTip="Justifier"
                               Click="AlignJustifyClick" />
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <Button Style="{StaticResource TerminalBtn}" Content="¶+" Click="IncreaseIndentClick" ToolTip="Augmenter le retrait" />
-                <Button Style="{StaticResource TerminalBtn}" Content="¶-" Click="DecreaseIndentClick" ToolTip="Diminuer le retrait" />
+                <Button Style="{StaticResource TerminalBtn}" Content="¶+" Click="IncreaseIndentClick"
+                        ToolTip="Augmenter le retrait" />
+                <Button Style="{StaticResource TerminalBtn}" Content="¶-" Click="DecreaseIndentClick"
+                        ToolTip="Diminuer le retrait" />
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <Button Style="{StaticResource TerminalBtn}" Content="• LIST" Click="BulletListClick" ToolTip="Liste à puces" />
-                <Button Style="{StaticResource TerminalBtn}" Content="1. LIST" Click="NumberListClick" ToolTip="Liste numérotée" />
+                <Button Style="{StaticResource TerminalBtn}" Content="• LIST" Click="BulletListClick"
+                        ToolTip="Liste à puces" />
+                <Button Style="{StaticResource TerminalBtn}" Content="1. LIST" Click="NumberListClick"
+                        ToolTip="Liste numérotée" />
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <Button Style="{StaticResource TerminalBtn}" Content="──" Click="InsertSeparatorClick" ToolTip="Insérer un séparateur" />
-                <Button Style="{StaticResource TerminalBtn}" Content="⇕" Click="ToggleLineSpacingClick" ToolTip="Interligne double" />
+                <Button Style="{StaticResource TerminalBtn}" Content="──" Click="InsertSeparatorClick"
+                        ToolTip="Insérer un séparateur" />
+                <Button Style="{StaticResource TerminalBtn}" Content="⇕" Click="ToggleLineSpacingClick"
+                        ToolTip="Interligne double" />
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <Button Style="{StaticResource TerminalBtn}" Content="☀" Click="ToggleThemeClick" ToolTip="Changer de thème" FontSize="14" />
+                <Button Style="{StaticResource TerminalBtn}" Content="☀" Click="ToggleThemeClick"
+                        ToolTip="Changer de thème" FontSize="14" />
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <Button Style="{StaticResource TerminalBtn}" Content="↩" Click="UndoClick" ToolTip="Annuler (Ctrl+Z)" FontSize="14" />
-                <Button Style="{StaticResource TerminalBtn}" Content="↪" Click="RedoClick" ToolTip="Rétablir (Ctrl+Y)" FontSize="14" />
+                <Button Style="{StaticResource TerminalBtn}" Content="↩" Click="UndoClick" ToolTip="Annuler (Ctrl+Z)"
+                        FontSize="14" />
+                <Button Style="{StaticResource TerminalBtn}" Content="↪" Click="RedoClick" ToolTip="Rétablir (Ctrl+Y)"
+                        FontSize="14" />
 
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
 
-                <Button Style="{StaticResource TerminalBtn}" Content="🔍" Click="FindReplaceClick" ToolTip="Rechercher / Remplacer" FontSize="14" />
+                <Button Style="{StaticResource TerminalBtn}" Content="🔍" Click="FindReplaceClick"
+                        ToolTip="Rechercher / Remplacer" FontSize="14" />
 
             </WrapPanel>
         </Border>

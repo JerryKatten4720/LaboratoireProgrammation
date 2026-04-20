@@ -5,8 +5,8 @@ using LaboratoireProgrammation.Project.Helpers;
 namespace LaboratoireProgrammation.Project.ViewModels.Exercices;
 
 public partial class Exo2 : UserControl {
+    private bool _hasBeenClicked;
     private bool _isComplete;
-    private bool _hasBeenClicked = false;
 
     public Exo2() {
         InitializeComponent();
@@ -19,7 +19,7 @@ public partial class Exo2 : UserControl {
 
     private void SendFilesClick(object sender, RoutedEventArgs e) {
         if (_hasBeenClicked) return;
-        
+
         _hasBeenClicked = true;
         ProgressBar1.Visibility = Visibility.Visible;
         ProgressBar2.Visibility = Visibility.Visible;

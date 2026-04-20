@@ -353,6 +353,55 @@ cliquables pour tous les exercices.
 
 ---
 
+### Exercice 3 : Gestion du personnel
+
+**Objectifs du sous-programme**
+
+- Gestion de fichiers d'entreprise
+- Gestion d'entrées
+- Analyse par tri
+
+---
+
+### Exercice 4 : Le Faux Virus
+
+**.<!> Ce programme Requiert un passage du programme an Administrateur <!>.**
+
+---
+
+### Exercice 5 : RobCo.Term.Write
+
+**Un éditeur de texte aussi complet que Word, avec un usage de mémoire vive gargantuesque pour ses features!**
+
+- Gestion de fichiers
+- Modification de fichiers
+- Application de styles
+- Chargement de fichiers
+- Enregistrement de fichiers
+
+---
+
+### Exercice 6 : Le Spirographe (De Satan)
+
+**Une forme géométrique mais surtout à mon plus grand malheur mathématique !**
+
+- Maîtrise de formules mathématiques aussi complexes qu'insupportables !
+- Liberté quant au dessin dessiné !
+
+---
+
+### Exercice 7 : Key.Logger
+
+**Pour récupérer tous les appuis clavier de vos ennemis !**
+
+- Un clavier visuel et surtout virtuel pour visualiser les appuis clavier.
+- Logging des appuis
+- Gestion des états du clavier
+
+---
+
+### Exercice 8 : Explorateur Rob.Co
+
 ### 🗄️ Laboratoire 1 : Système de gestion de base de données
 
 **Statut** : 🚧 *En développement actif*

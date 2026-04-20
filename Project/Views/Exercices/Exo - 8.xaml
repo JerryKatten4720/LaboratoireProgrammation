@@ -3,18 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:LaboratoireProgrammation.Project.Views.Exercices"
              xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="900" Background="#09090B" Loaded="SetupExplorerData">
 
     <UserControl.Resources>
         <SolidColorBrush x:Key="TerminalYellowBrush" Color="{x:Static colorhelper:ColorHelper.FancyText}" />
-        <SolidColorBrush x:Key="TerminalBgBrush" Color="#09090B" />
-        <SolidColorBrush x:Key="TerminalPanelBrush" Color="#111113" />
-        <SolidColorBrush x:Key="TerminalBorderBrush" Color="#2A2A2E" />
         <FontFamily x:Key="TerminalFont">Consolas</FontFamily>
-        
+
         <Style x:Key="TerminalCombo" TargetType="ComboBox">
             <Setter Property="Background" Value="#111113" />
             <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
@@ -89,7 +85,8 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="MainBorder" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                             <Trigger Property="IsEditable" Value="True">
                                 <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
@@ -156,10 +153,12 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#1A1A1C" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                                 <Setter Property="Foreground" Value="Black" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -167,7 +166,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <Style x:Key="TerminalScrollThumb" TargetType="Thumb">
             <Setter Property="Background" Value="#2A2A2E" />
             <Setter Property="BorderBrush" Value="Transparent" />
@@ -249,22 +248,26 @@
                                     <RowDefinition Height="0.00001*" />
                                     <RowDefinition MaxHeight="14" />
                                 </Grid.RowDefinitions>
-                                
-                                <RepeatButton Grid.Row="0" Style="{StaticResource TerminalScrollArrowBtn}" Command="ScrollBar.LineUpCommand" Content="▲" FontSize="8" />
-                                
+
+                                <RepeatButton Grid.Row="0" Style="{StaticResource TerminalScrollArrowBtn}"
+                                              Command="ScrollBar.LineUpCommand" Content="▲" FontSize="8" />
+
                                 <Track Grid.Row="1" x:Name="PART_Track" IsDirectionReversed="true">
                                     <Track.DecreaseRepeatButton>
-                                        <RepeatButton Style="{StaticResource TerminalScrollPageBtn}" Command="ScrollBar.PageUpCommand" />
+                                        <RepeatButton Style="{StaticResource TerminalScrollPageBtn}"
+                                                      Command="ScrollBar.PageUpCommand" />
                                     </Track.DecreaseRepeatButton>
                                     <Track.Thumb>
                                         <Thumb Style="{StaticResource TerminalScrollThumb}" Margin="2,0" />
                                     </Track.Thumb>
                                     <Track.IncreaseRepeatButton>
-                                        <RepeatButton Style="{StaticResource TerminalScrollPageBtn}" Command="ScrollBar.PageDownCommand" />
+                                        <RepeatButton Style="{StaticResource TerminalScrollPageBtn}"
+                                                      Command="ScrollBar.PageDownCommand" />
                                     </Track.IncreaseRepeatButton>
                                 </Track>
-                                
-                                <RepeatButton Grid.Row="2" Style="{StaticResource TerminalScrollArrowBtn}" Command="ScrollBar.LineDownCommand" Content="▼" FontSize="8" />
+
+                                <RepeatButton Grid.Row="2" Style="{StaticResource TerminalScrollArrowBtn}"
+                                              Command="ScrollBar.LineDownCommand" Content="▼" FontSize="8" />
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -337,8 +340,10 @@
             <StackPanel Orientation="Horizontal" Margin="2,0">
                 <Button Style="{StaticResource TerminalBtn}" Content="[ EXIT ]" Click="HandleApplicationExit" />
                 <Separator Style="{StaticResource ToolbarSeparatorStyle}" />
-                <TextBlock Text="VIEW:" VerticalAlignment="Center" Foreground="#606060" FontFamily="Consolas" Margin="8,0" />
-                <ComboBox x:Name="ViewModeSelector" Style="{StaticResource TerminalCombo}" Width="150" SelectionChanged="HandleViewModeChange">
+                <TextBlock Text="VIEW:" VerticalAlignment="Center" Foreground="#606060" FontFamily="Consolas"
+                           Margin="8,0" />
+                <ComboBox x:Name="ViewModeSelector" Style="{StaticResource TerminalCombo}" Width="150"
+                          SelectionChanged="HandleViewModeChange">
                     <ComboBoxItem Content="Small Icons" />
                     <ComboBoxItem Content="Large Icons" />
                     <ComboBoxItem Content="List" />
@@ -354,7 +359,8 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <TreeView x:Name="DirectoryTree" Grid.Column="0" SelectedItemChanged="HandleDirectorySelection" TreeViewItem.Expanded="HandleDirectoryExpansion" />
+            <TreeView x:Name="DirectoryTree" Grid.Column="0" SelectedItemChanged="HandleDirectorySelection"
+                      TreeViewItem.Expanded="HandleDirectoryExpansion" />
 
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#111113" />
 

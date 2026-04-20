@@ -3,16 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              Background="Transparent"
              d:DesignHeight="800" d:DesignWidth="1200">
 
     <UserControl.Resources>
         <SolidColorBrush x:Key="TerminalBgBrush" Color="#09090B" />
-        <SolidColorBrush x:Key="KeyDefaultBg" Color="#111113" />
         <SolidColorBrush x:Key="KeyDefaultBorder" Color="#2A2A2E" />
         <SolidColorBrush x:Key="KeyTextDefault" Color="#FFB500" />
-        <SolidColorBrush x:Key="KeyTextValidated" Color="#00FF00" />
 
         <Style x:Key="ScoreText" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Doto" />
@@ -23,21 +21,21 @@
     </UserControl.Resources>
 
     <Grid Background="{StaticResource TerminalBgBrush}">
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Image Grid.Row="0" Grid.RowSpan="2"
-               Source="pack://application:,,,/Assets/images/bingodingo/bingodingowhite.png" 
-               HorizontalAlignment="Center" 
-               VerticalAlignment="Center" 
+               Source="pack://application:,,,/Assets/images/bingodingo/bingodingowhite.png"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
                IsHitTestVisible="False"
                Opacity="0.95"
                RenderTransformOrigin="0.5,0.5">
             <Image.RenderTransform>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                <ScaleTransform ScaleX="1" ScaleY="1" />
             </Image.RenderTransform>
         </Image>
 
@@ -49,24 +47,30 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
-                <TextBlock Text="[ BINGO DINGO ]" Style="{StaticResource ScoreText}" FontSize="32"/>
-                <TextBlock Text="Professeur Manzi Gonün" Style="{StaticResource ScoreText}" FontSize="16" Foreground="#A0A0A0"/>
+                <TextBlock Text="[ BINGO DINGO ]" Style="{StaticResource ScoreText}" FontSize="32" />
+                <TextBlock Text="Professeur Manzi Gonün" Style="{StaticResource ScoreText}" FontSize="16"
+                           Foreground="#A0A0A0" />
             </StackPanel>
 
             <StackPanel Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock x:Name="LastActionText" Text="EN ATTENTE" Margin="0,0,0,0" Style="{StaticResource ScoreText}" FontSize="26" Foreground="#A0A0A0" TextAlignment="Center"/>
-                <TextBlock x:Name="MultiplierText" Text="MULTIPLICATEUR: x1.00" Style="{StaticResource ScoreText}" FontSize="18" Foreground="#00FF00" TextAlignment="Center" Visibility="Hidden"/>
+                <TextBlock x:Name="LastActionText" Text="EN ATTENTE" Margin="0,0,0,0"
+                           Style="{StaticResource ScoreText}" FontSize="26" Foreground="#A0A0A0" TextAlignment="Center" />
+                <TextBlock x:Name="MultiplierText" Text="MULTIPLICATEUR: x1.00" Style="{StaticResource ScoreText}"
+                           FontSize="18" Foreground="#00FF00" TextAlignment="Center" Visibility="Hidden" />
             </StackPanel>
 
             <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                <TextBlock Text="SCORE TOTAL" Style="{StaticResource ScoreText}" FontSize="18" Foreground="#A0A0A0" HorizontalAlignment="Right"/>
-                <TextBlock x:Name="ScoreTextDisplay" Text="0" Style="{StaticResource ScoreText}" FontSize="36" HorizontalAlignment="Right"/>
+                <TextBlock Text="SCORE TOTAL" Style="{StaticResource ScoreText}" FontSize="18" Foreground="#A0A0A0"
+                           HorizontalAlignment="Right" />
+                <TextBlock x:Name="ScoreTextDisplay" Text="0" Style="{StaticResource ScoreText}" FontSize="36"
+                           HorizontalAlignment="Right" />
             </StackPanel>
         </Grid>
 
         <Border Grid.Row="1" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.8"
                 Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
-                BorderBrush="{StaticResource KeyDefaultBorder}" BorderThickness="2" CornerRadius="8" Background="#050505">
+                BorderBrush="{StaticResource KeyDefaultBorder}" BorderThickness="2" CornerRadius="8"
+                Background="#050505">
             <UniformGrid x:Name="GridBingo" Rows="6" Columns="6" />
         </Border>
 

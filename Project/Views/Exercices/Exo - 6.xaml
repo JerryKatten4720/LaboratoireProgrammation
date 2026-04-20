@@ -33,10 +33,12 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#1A1A1C" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                                 <Setter Property="Foreground" Value="Black" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -46,11 +48,11 @@
         </Style>
 
         <Style x:Key="TerminalSlider" TargetType="Slider">
-            <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}"/>
-            <Setter Property="Background" Value="{StaticResource TerminalBorderBrush}"/>
-            <Setter Property="IsSnapToTickEnabled" Value="True"/>
-            <Setter Property="TickFrequency" Value="1"/>
-            <Setter Property="Margin" Value="0,5,0,15"/>
+            <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
+            <Setter Property="Background" Value="{StaticResource TerminalBorderBrush}" />
+            <Setter Property="IsSnapToTickEnabled" Value="True" />
+            <Setter Property="TickFrequency" Value="1" />
+            <Setter Property="Margin" Value="0,5,0,15" />
         </Style>
     </UserControl.Resources>
 
@@ -60,31 +62,45 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Background="{StaticResource TerminalPanelBrush}" 
+        <Border Grid.Column="0" Background="{StaticResource TerminalPanelBrush}"
                 BorderBrush="{StaticResource TerminalBorderBrush}" BorderThickness="0,0,1,0" Padding="15">
             <StackPanel>
-                
-                <TextBlock Text="[ PARAMÉTRAGE ]" FontFamily="pack://application:,,,/Assets/fonts/#Doto" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TerminalYellowBrush}" Margin="0,0,0,20" />
 
-                <TextBlock Text="{Binding ElementName=SldVertices, Path=Value, StringFormat='Nombre de sommets : {0} (3 à 8)'}" FontFamily="{StaticResource TerminalFont}" Foreground="#A0A0A0" FontSize="12" />
-                <Slider PreviewMouseUp="UpdateSpirograph" x:Name="SldVertices" Style="{StaticResource TerminalSlider}" Minimum="3" Maximum="8" Value="5" />
+                <TextBlock Text="[ PARAMÉTRAGE ]" FontFamily="pack://application:,,,/Assets/fonts/#Doto" FontSize="28"
+                           FontWeight="Bold" Foreground="{StaticResource TerminalYellowBrush}" Margin="0,0,0,20" />
 
-                <TextBlock Text="{Binding ElementName=SldDensity, Path=Value, StringFormat='Densité de dessins : {0} (5 à 20)'}" FontFamily="{StaticResource TerminalFont}" Foreground="#A0A0A0" FontSize="12" />
-                <Slider PreviewMouseUp="UpdateSpirograph" x:Name="SldDensity" Style="{StaticResource TerminalSlider}" Minimum="5" Maximum="20" Value="10" />
+                <TextBlock
+                    Text="{Binding ElementName=SldVertices, Path=Value, StringFormat='Nombre de sommets : {0} (3 à 8)'}"
+                    FontFamily="{StaticResource TerminalFont}" Foreground="#A0A0A0" FontSize="12" />
+                <Slider PreviewMouseUp="UpdateSpirograph" x:Name="SldVertices" Style="{StaticResource TerminalSlider}"
+                        Minimum="3" Maximum="8" Value="5" />
 
-                <TextBlock Text="{Binding ElementName=SldDepth, Path=Value, StringFormat='Profondeur de dessin : {0} (20 à 80)'}" FontFamily="{StaticResource TerminalFont}" Foreground="#A0A0A0" FontSize="12" />
-                <Slider PreviewMouseUp="UpdateSpirograph" x:Name="SldDepth" Style="{StaticResource TerminalSlider}" Minimum="20" Maximum="80" Value="40" />
-                
+                <TextBlock
+                    Text="{Binding ElementName=SldDensity, Path=Value, StringFormat='Densité de dessins : {0} (5 à 20)'}"
+                    FontFamily="{StaticResource TerminalFont}" Foreground="#A0A0A0" FontSize="12" />
+                <Slider PreviewMouseUp="UpdateSpirograph" x:Name="SldDensity" Style="{StaticResource TerminalSlider}"
+                        Minimum="5" Maximum="20" Value="10" />
+
+                <TextBlock
+                    Text="{Binding ElementName=SldDepth, Path=Value, StringFormat='Profondeur de dessin : {0} (20 à 80)'}"
+                    FontFamily="{StaticResource TerminalFont}" Foreground="#A0A0A0" FontSize="12" />
+                <Slider PreviewMouseUp="UpdateSpirograph" x:Name="SldDepth" Style="{StaticResource TerminalSlider}"
+                        Minimum="20" Maximum="80" Value="40" />
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="10" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    
-                    <Button x:Name="BtnLineColor" Grid.Column="0" Style="{StaticResource TerminalBtn}" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Content="Couleur Trait" Click="BtnLineColor_Click" ToolTip="Changer la couleur du trait" />
-                    
-                    <Button x:Name="BtnBgColor" Grid.Column="2" Style="{StaticResource TerminalBtn}" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Content="Couleur Fond" Click="BtnBgColor_Click" ToolTip="Changer la couleur de fond" />
+
+                    <Button x:Name="BtnLineColor" Grid.Column="0" Style="{StaticResource TerminalBtn}"
+                            FontFamily="pack://application:,,,/Assets/fonts/#Doto" Content="Couleur Trait"
+                            Click="BtnLineColor_Click" ToolTip="Changer la couleur du trait" />
+
+                    <Button x:Name="BtnBgColor" Grid.Column="2" Style="{StaticResource TerminalBtn}"
+                            FontFamily="pack://application:,,,/Assets/fonts/#Doto" Content="Couleur Fond"
+                            Click="BtnBgColor_Click" ToolTip="Changer la couleur de fond" />
                 </Grid>
 
             </StackPanel>

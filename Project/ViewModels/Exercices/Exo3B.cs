@@ -7,7 +7,6 @@ using LaboratoireProgrammation.Project.Views.Exercices;
 namespace LaboratoireProgrammation.Project.ViewModels.Exercices;
 
 public partial class Exo3B : UserControl {
-    
     public Exo3B() {
         InitializeComponent();
         InitializeComboBox();
@@ -21,32 +20,32 @@ public partial class Exo3B : UserControl {
     }
 
 
-    private void ConfirmButton_Click(object sender, RoutedEventArgs e) { 
-        if (!Exo3.SelectedFilePath.Contains("Exercice-3") || 
-            string.IsNullOrWhiteSpace(NameTextBox.Text) || 
+    private void ConfirmButton_Click(object sender, RoutedEventArgs e) {
+        if (!Exo3.SelectedFilePath.Contains("Exercice-3") ||
+            string.IsNullOrWhiteSpace(NameTextBox.Text) ||
             QualityComboBox.SelectedItem == null) return;
-        
-        if (!float.TryParse((string?)SalaryTextBox.Text, out float salary)) return;
 
-        string file = Exo3.SelectedFilePath;
-        Human human = new Human(
-            NameTextBox.Text, 
-            NameTextBox2.Text, 
-            QualityComboBox.SelectedItem.ToString()!, 
+        if (!float.TryParse((string?)SalaryTextBox.Text, out var salary)) return;
+
+        var file = Exo3.SelectedFilePath;
+        var human = new Human(
+            NameTextBox.Text,
+            NameTextBox2.Text,
+            QualityComboBox.SelectedItem.ToString()!,
             salary
         );
         File.AppendAllText(file, Environment.NewLine + Human.Serialize(human));
 
-        MainWindow win = (MainWindow)Application.Current.MainWindow;
+        var win = (MainWindow)Application.Current.MainWindow;
         if (win != null) {
             Visibility = Visibility.Collapsed;
-        
+
             win.Exo3.Opacity = 1.0;
             Panel.SetZIndex(win.Exo3, 1);
-            
-            _ = win.Exo3.Refresh(); 
+
+            _ = win.Exo3.Refresh();
         }
-        
+
         NameTextBox.Text = "";
         NameTextBox2.Text = "";
         SalaryTextBox.Text = "";
@@ -55,12 +54,12 @@ public partial class Exo3B : UserControl {
 
 
     private void CancelButton_Click(object sender, RoutedEventArgs e) {
-        MainWindow win = (MainWindow) Application.Current.MainWindow;
+        var win = (MainWindow)Application.Current.MainWindow;
         if (win is null) return;
-        
+
         QualityComboBox.SelectedIndex = -1;
         NameTextBox.Text = "";
-        
+
         Visibility = Visibility.Collapsed;
         win.Exo3.Opacity = 1.0;
         Panel.SetZIndex(win.Exo3, 1);

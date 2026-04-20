@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using Dapper;
 
 namespace LaboratoireProgrammation.Project.Services;
@@ -17,22 +13,18 @@ public class SqlUtils {
     public IDbConnection GetConnection() {
         return _connectionFactory();
     }
-    
 
-    
+
     private bool IsSqlServer(IDbConnection connection) {
-
         return connection.GetType().Name.Contains("SqlConnection");
     }
 
     private string EscapeColumn(string columnName, IDbConnection connection) {
-
         if (IsSqlServer(connection)) return $"[{columnName}]";
-        
 
-        return columnName; 
+
+        return columnName;
     }
-
 
 
     public bool IsAvailable() {
@@ -85,13 +77,12 @@ public class SqlUtils {
     }
 
 
-
     public void Insert<T>(string table, T entity) {
         using var c = GetConnection();
         var props = typeof(T).GetProperties();
         var cols = string.Join(", ", props.Select(p => EscapeColumn(p.Name, c)));
         var vals = string.Join(", ", props.Select(p => "@" + p.Name));
-        
+
         c.Execute($"INSERT INTO {table} ({cols}) VALUES ({vals})", entity);
     }
 
@@ -99,7 +90,7 @@ public class SqlUtils {
         using var c = GetConnection();
         var props = typeof(T).GetProperties().Select(p => $"{EscapeColumn(p.Name, c)} = @{p.Name}");
         var sets = string.Join(", ", props);
-        
+
         c.Execute($"UPDATE {table} SET {sets} WHERE {where}", entity);
     }
 
@@ -118,28 +109,24 @@ public class SqlUtils {
             var cols = string.Join(",", props.Select(p => EscapeColumn(p.Name, c)));
             var vals = string.Join(",", props.Select(p => "@" + p.Name));
             var sql = $"INSERT INTO {table} ({cols}) VALUES ({vals})";
-            
+
             c.Execute(sql, entities, t);
         });
     }
-
 
 
     public void CreateTable(string table, string schema) {
         using var c = GetConnection();
         string sql;
 
-        if (IsSqlServer(c)) {
-
+        if (IsSqlServer(c))
             sql = $@"
                 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{table}') AND type in (N'U'))
                 BEGIN
                     CREATE TABLE {table} ({schema});
                 END";
-        } else {
-
+        else
             sql = $"CREATE TABLE IF NOT EXISTS {table} ({schema});";
-        }
 
         c.Execute(sql);
     }

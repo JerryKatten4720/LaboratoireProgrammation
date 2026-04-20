@@ -25,35 +25,35 @@ public partial class BabyMode : UserControl {
             RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice2, window);
         }
     }
-    
+
     private void Exo3(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
             RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice3, window);
         }
     }
-    
+
     private void Exo4(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
             RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice4, window);
         }
     }
-    
+
     private void Exo5(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
             RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice5, window);
         }
     }
-    
+
     private void Exo6(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
             RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice6, window);
         }
     }
-    
+
     private void Exo7(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
@@ -67,7 +67,7 @@ public partial class BabyMode : UserControl {
             RunSubprograms.RunSub(RunSubprograms.Subprograms.Labo1, window);
         }
     }
-    
+
     private void Exo8(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
@@ -82,11 +82,25 @@ public partial class BabyMode : UserControl {
         }
     }
 
+    private void ESP8266(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.ESP8266, window);
+        }
+    }
+
 
     private void OverseerWars(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
             RunSubprograms.RunSub(RunSubprograms.Subprograms.OverseerWars, window);
+        }
+    }
+
+    private void Exo9(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice9, window);
         }
     }
 }

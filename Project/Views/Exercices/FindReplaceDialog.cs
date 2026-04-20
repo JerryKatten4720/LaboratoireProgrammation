@@ -7,17 +7,16 @@ using System.Windows.Media;
 namespace LaboratoireProgrammation.Project.Views.Exercices;
 
 public class FindReplaceDialog : Window {
-
-    private readonly RichTextBox _editor;
-    private TextBox _findBox = null!;
-    private TextBox _replaceBox = null!;
-    private TextBlock _resultText = null!;
-
     private static readonly SolidColorBrush YellowBrush = new(Color.FromRgb(0xFF, 0x7D, 0x0F));
     private static readonly SolidColorBrush DarkBrush = new(Color.FromRgb(9, 9, 11));
     private static readonly SolidColorBrush PanelBrush = new(Color.FromRgb(17, 17, 19));
     private static readonly SolidColorBrush BorderBrush2 = new(Color.FromRgb(42, 42, 46));
     private static readonly FontFamily Mono = new("Consolas");
+
+    private readonly RichTextBox _editor;
+    private TextBox _findBox = null!;
+    private TextBox _replaceBox = null!;
+    private TextBlock _resultText = null!;
 
     public FindReplaceDialog(RichTextBox editor) {
         _editor = editor;
@@ -44,7 +43,10 @@ public class FindReplaceDialog : Window {
 
         _findBox = CreateTextBox();
         _replaceBox = CreateTextBox();
-        _resultText = new TextBlock { Foreground = new SolidColorBrush(Colors.Gray), FontFamily = Mono, FontSize = 12, Margin = new Thickness(0, 4, 0, 0) };
+        _resultText = new TextBlock {
+            Foreground = new SolidColorBrush(Colors.Gray), FontFamily = Mono, FontSize = 12,
+            Margin = new Thickness(0, 4, 0, 0)
+        };
 
         AddRow(grid, 0, "[ FIND ]", _findBox);
         AddRow(grid, 1, "[ REPLACE ]", _replaceBox);
@@ -64,17 +66,19 @@ public class FindReplaceDialog : Window {
         Content = grid;
     }
 
-    private TextBox CreateTextBox() => new() {
-        Background = PanelBrush,
-        Foreground = YellowBrush,
-        CaretBrush = YellowBrush,
-        BorderBrush = BorderBrush2,
-        BorderThickness = new Thickness(1),
-        FontFamily = Mono,
-        FontSize = 13,
-        Padding = new Thickness(4, 2, 4, 2),
-        Margin = new Thickness(0, 4, 0, 4)
-    };
+    private TextBox CreateTextBox() {
+        return new TextBox {
+            Background = PanelBrush,
+            Foreground = YellowBrush,
+            CaretBrush = YellowBrush,
+            BorderBrush = BorderBrush2,
+            BorderThickness = new Thickness(1),
+            FontFamily = Mono,
+            FontSize = 13,
+            Padding = new Thickness(4, 2, 4, 2),
+            Margin = new Thickness(0, 4, 0, 4)
+        };
+    }
 
     private Button CreateBtn(string label, RoutedEventHandler click) {
         var btn = new Button {
@@ -94,7 +98,10 @@ public class FindReplaceDialog : Window {
     }
 
     private void AddRow(Grid grid, int row, string label, UIElement control) {
-        var lbl = new TextBlock { Text = label, Foreground = YellowBrush, FontFamily = Mono, FontSize = 12, VerticalAlignment = VerticalAlignment.Center };
+        var lbl = new TextBlock {
+            Text = label, Foreground = YellowBrush, FontFamily = Mono, FontSize = 12,
+            VerticalAlignment = VerticalAlignment.Center
+        };
         Grid.SetRow(lbl, row);
         Grid.SetColumn(lbl, 0);
         Grid.SetRow(control, row);
@@ -112,15 +119,15 @@ public class FindReplaceDialog : Window {
             _editor.Selection.Select(pos, pos.GetPositionAtOffset(term.Length, LogicalDirection.Forward));
             _editor.Focus();
             _resultText.Text = "Trouvé.";
-        } else {
+        }
+        else {
             _resultText.Text = "Non trouvé.";
         }
     }
 
     private void ReplaceOne(object sender, RoutedEventArgs e) {
-        if (!_editor.Selection.IsEmpty && _editor.Selection.Text == _findBox.Text) {
+        if (!_editor.Selection.IsEmpty && _editor.Selection.Text == _findBox.Text)
             _editor.Selection.Text = _replaceBox.Text;
-        }
         FindNext(sender, e);
     }
 
@@ -128,7 +135,7 @@ public class FindReplaceDialog : Window {
         var term = _findBox.Text;
         var repl = _replaceBox.Text;
         if (string.IsNullOrEmpty(term)) return;
-        int count = 0;
+        var count = 0;
         var pos = _editor.Document.ContentStart;
         TextPointer? found;
         while ((found = FindText(pos, term)) != null) {
@@ -139,6 +146,7 @@ public class FindReplaceDialog : Window {
             pos = range.End;
             count++;
         }
+
         _resultText.Text = $"{count} remplacement(s) effectué(s).";
     }
 
@@ -150,8 +158,10 @@ public class FindReplaceDialog : Window {
                 var idx = text.IndexOf(term, StringComparison.OrdinalIgnoreCase);
                 if (idx >= 0) return pos.GetPositionAtOffset(idx);
             }
+
             pos = pos.GetNextContextPosition(LogicalDirection.Forward);
         }
+
         return null;
     }
 }

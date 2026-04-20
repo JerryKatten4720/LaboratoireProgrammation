@@ -22,7 +22,7 @@
         AllowsTransparency="{x:Static viewModels1:MainWindowConfiguration.AllowTransparency}">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="0" ResizeBorderThickness="5"/>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="5" />
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -50,35 +50,6 @@
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Margin" Value="5,0" />
             <Setter Property="Padding" Value="5,2" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Left"
-                                              VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource TerminalYellowBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource TerminalBlackBrush}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <Style x:Key="RobcoBtnTriggered" TargetType="Button">
-            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
-            <Setter Property="Foreground" Value="Black" />
-            <Setter Property="FontFamily" Value="{StaticResource TerminalFont}" />
-            <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Margin" Value="5,0" />
-            <Setter Property="Padding" Value="20,2,5,2" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -179,12 +150,12 @@
     </Window.Resources>
 
     <Grid x:Name="MainGrid">
-        
+
         <overseerWars:OverseerWarsUi x:Name="OverseerWarsMenu" Panel.ZIndex="101"
-                         Visibility="Hidden" 
-                         HorizontalAlignment="Stretch" 
-                         VerticalAlignment="Stretch" />
-        
+                                     Visibility="Hidden"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch" />
+
         <Rectangle x:Name="BackgroundRectangle" Fill="Black" Panel.ZIndex="100" Visibility="Collapsed" />
 
         <DockPanel LastChildFill="True" Margin="20">
@@ -211,17 +182,17 @@
                     <Button Style="{StaticResource RobcoBtn}"
                             Content="[ _ ]"
                             Click="MinimizeProgram"
-                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnMinimize"/>
+                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnMinimize" />
 
                     <Button Style="{StaticResource RobcoBtn}"
                             Content="[ □ ]"
                             Click="MaximizeProgram"
-                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnMaximize"/>
+                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnMaximize" />
 
                     <Button Style="{StaticResource RobcoBtn}"
                             Content="[ X ]"
                             Click="CloseProgram"
-                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnClose"/>
+                            WindowChrome.IsHitTestVisibleInChrome="True" x:Name="WinBtnClose" />
                 </StackPanel>
             </Grid>
 
@@ -230,6 +201,8 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+                
+                <Image Opacity="0.05" Source="/Assets/Backgrounds/PNG/main-menu.png" VerticalAlignment="Bottom" HorizontalAlignment="Right"></Image>
 
                 <TextBlock x:Name="Credits" />
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden" x:Name="TerminalScroller"
@@ -253,9 +226,16 @@
 
                 <exercices:Exo1B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
                                  VerticalAlignment="Top" Margin="0,400,0,0" x:Name="Exo1B" />
+
                 <laboratoire1:ConnectControl Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
                                              x:Name="Labo1B" />
+
+                <laboratoire1:LaboElectroniqueESP8266 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      Margin="0,0,0,0"
+                                                      x:Name="ESP8266" />
+
 
                 <exercices:Exo2 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
                                 VerticalAlignment="Top" Margin="0,100,0,0" x:Name="Exo2" />
@@ -266,35 +246,42 @@
                 <memfy1:MemfyAgreement Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" Margin="0,0,0,100" x:Name="MemfyAgreement" />
-                
+
                 <exercices:Exo5 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
-                                 HorizontalAlignment="Stretch"
-                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo5" />
-                    
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo5" />
+
                 <exercices:Exo6 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo6" />
-                
+
                 <exercices1:Exo7 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                  HorizontalAlignment="Stretch"
                                  VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo7" />
-                
+
                 <exercices1:Exo___8 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo8" />
+
+                <exercices1:Exo9 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                  HorizontalAlignment="Stretch"
-                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo8" />
-                
-                <exercices:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
-                <exercices:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
-                
+                                 VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo9" />
+
+                <exercices:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left"
+                                VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
+                <exercices:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
+
                 <Grid>
-                    <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo" Visibility="Collapsed">
+                    <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo"
+                           Visibility="Collapsed">
                         <Image.Effect>
                             <DropShadowEffect ShadowDepth="10" Color="White" Opacity="0.1" BlurRadius="10" />
                         </Image.Effect>
                     </Image>
                 </Grid>
-                
-                
+
+
                 <!-- Input Area -->
                 <Grid Grid.Row="1" Margin="0,5,0,0">
                     <Grid.ColumnDefinitions>
@@ -307,7 +294,7 @@
                                FontWeight="Bold"
                                FontSize="24"
                                Opacity="0.8"
-                               VerticalAlignment="Center" x:Name="InputBoxIndicator"/>
+                               VerticalAlignment="Center" x:Name="InputBoxIndicator" />
 
                     <TextBox x:Name="InputBox"
                              Panel.ZIndex="99"

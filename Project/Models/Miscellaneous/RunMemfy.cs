@@ -4,12 +4,10 @@ using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Models.Menu;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
-using LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy;
 
 namespace LaboratoireProgrammation.Project.Models.Miscellaneous;
 
 public class RunMemfy {
-    
     private static void MemfyAgreementLaunch(MainWindow win) {
         win.OutputBox.Document.Blocks.Clear();
 
@@ -21,10 +19,10 @@ public class RunMemfy {
 
         win.MemfyAgreement.Visibility = Visibility.Visible;
     }
-    
+
     public static async void Run(MainWindow win) {
         MemfyAgreementLaunch(win);
-        
+
         win.OutputBox.Document.Blocks.Clear();
 
         win.OutputBox.Visibility = Visibility.Collapsed;
@@ -61,6 +59,4 @@ public class RunMemfy {
 
         ConsoleBehavior.MemfyMode = true;
     }
-
-    
 }

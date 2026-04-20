@@ -5,12 +5,25 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
              mc:Ignorable="d" Background="Transparent"
-             d:DesignHeight="700" d:DesignWidth="1200">
+             d:DesignHeight="800" d:DesignWidth="1200"
+             Opacity="1">
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:1" />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
 
     <UserControl.Resources>
         <SolidColorBrush x:Key="TerminalBgBrush" Color="#09090B" />
         <SolidColorBrush x:Key="TerminalBorderBrush" Color="#2A2A2E" />
         <SolidColorBrush x:Key="TerminalPanelBrush" Color="#111113" />
+        <SolidColorBrush x:Key="LightColorBrush" Color="#FF2F41" />
+        <SolidColorBrush x:Key="TempColorBrush" Color="#3CDFFF" />
 
         <Style x:Key="RobcoButtonStyle" TargetType="Button">
             <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
@@ -25,21 +38,50 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource TerminalBgBrush}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style x:Key="RedBtnInactive" BasedOn="{StaticResource RobcoButtonStyle}" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource LightColorBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource LightColorBrush}" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#33FF0000" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RedBtnActive" BasedOn="{StaticResource RobcoButtonStyle}" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TerminalBgBrush}" />
+            <Setter Property="Background" Value="{StaticResource LightColorBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource LightColorBrush}" />
+        </Style>
+
+        <Style x:Key="WhiteBtnInactive" BasedOn="{StaticResource RobcoButtonStyle}" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="White" />
+        </Style>
+
+        <Style x:Key="BlueBtnInactive" BasedOn="{StaticResource RobcoButtonStyle}" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TempColorBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource TempColorBrush}" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#333399FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="BlueBtnActive" BasedOn="{StaticResource RobcoButtonStyle}" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TerminalBgBrush}" />
+            <Setter Property="Background" Value="{StaticResource TempColorBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource TempColorBrush}" />
         </Style>
 
         <Style x:Key="DataBlockStyle" TargetType="Border">
@@ -51,69 +93,270 @@
             <Setter Property="Padding" Value="20" />
             <Setter Property="Width" Value="250" />
         </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Background" Value="{StaticResource TerminalPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="false"
+                                          IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{StaticResource TerminalPanelBrush}"
+                                                BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                                BorderThickness="1">
+                                            <Path x:Name="Arrow"
+                                                  Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  Margin="0,0,5,0" Data="M 0 0 L 4 4 L 8 0 Z" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" SnapsToDevicePixels="True"
+                                      MinWidth="{TemplateBinding ActualWidth}"
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder" Background="{StaticResource TerminalBgBrush}"
+                                            BorderThickness="1"
+                                            BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True"
+                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Setter Property="Foreground" Value="{StaticResource TerminalBgBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Background" Value="{StaticResource TerminalPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Doto" />
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{StaticResource TerminalBgBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" BorderBrush="{StaticResource TerminalBorderBrush}" BorderThickness="0,0,0,1" Padding="20">
-            <Grid>
-                <TextBlock Text="[ ROB.CO - SENSOR LINK TERMINAL ]" FontFamily="pack://application:,,,/Assets/fonts/#Doto" 
-                           FontSize="28" FontWeight="Bold" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" 
-                           HorizontalAlignment="Left" VerticalAlignment="Center" />
-                
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="PORT COM :" FontFamily="pack://application:,,,/Assets/fonts/#Doto" 
-                               Foreground="White" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <ComboBox x:Name="CbxPorts" Width="100" Margin="0,0,10,0" FontFamily="pack://application:,,,/Assets/fonts/#Doto"/>
-                    <Button x:Name="BtnConnect" Content="CONNECT" Style="{StaticResource RobcoButtonStyle}" Click="BtnConnect_Click" Padding="15,5"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-            
-            <Border Style="{StaticResource DataBlockStyle}">
-                <StackPanel>
-                    <TextBlock Text="[ TEMPÉRATURE ]" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                    <TextBlock x:Name="TxtTemperature" Text="--.- °C" FontFamily="pack://application:,,,/Assets/fonts/#Doto" 
-                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"/>
-                </StackPanel>
+            <Border Grid.Row="0" BorderBrush="{StaticResource TerminalBorderBrush}" BorderThickness="0,0,0,1"
+                    Padding="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="[ ROB.CO - SENSOR LINK TERMINAL ]"
+                               FontFamily="pack://application:,,,/Assets/fonts/#Doto" FontSize="28" FontWeight="Bold"
+                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                               HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                               Margin="0,0,20,0" />
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <StackPanel Orientation="Vertical" Margin="0,0,20,0" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Ellipse x:Name="LedConnection" Width="10" Height="10" Fill="Red" Opacity="0.5"
+                                         Margin="0,0,5,0" />
+                                <TextBlock Text="STATUS" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                           Foreground="White" FontSize="12" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="LedRx" Width="10" Height="10"
+                                         Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}" Opacity="0.2"
+                                         Margin="0,0,5,0" />
+                                <TextBlock Text="RX" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                           Foreground="White" FontSize="12" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Text="PORT :" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="White" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <ComboBox x:Name="CbxPorts" Width="120" Margin="0,0,10,0"
+                                  FontFamily="pack://application:,,,/Assets/fonts/#Doto" FontSize="16" />
+                        <Button x:Name="BtnConnect" Content="CONNECT" Style="{StaticResource RobcoButtonStyle}"
+                                Click="BtnConnect_Click" Padding="15,5" />
+                    </StackPanel>
+                </Grid>
             </Border>
 
-            <Border Style="{StaticResource DataBlockStyle}">
-                <StackPanel>
-                    <TextBlock Text="[ HUMIDITÉ ]" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                    <TextBlock x:Name="TxtHumidite" Text="--.- %" FontFamily="pack://application:,,,/Assets/fonts/#Doto" 
-                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Margin="0,20,0,20">
+                <Border Style="{StaticResource DataBlockStyle}">
+                    <StackPanel>
+                        <TextBlock Text="[ TEMPÉRATURE ]" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20" />
+                        <TextBlock x:Name="TxtTemperature" Text="--.- °C"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" FontSize="38"
+                                   FontWeight="Bold" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
 
-            <Border Style="{StaticResource DataBlockStyle}">
-                <StackPanel>
-                    <TextBlock Text="[ LUMINOSITÉ ]" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                    <TextBlock x:Name="TxtLuminosite" Text="---- LUX" FontFamily="pack://application:,,,/Assets/fonts/#Doto" 
-                               Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-            
-        </StackPanel>
+                <Border Style="{StaticResource DataBlockStyle}">
+                    <StackPanel>
+                        <TextBlock Text="[ HUMIDITÉ ]" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20" />
+                        <TextBlock x:Name="TxtHumidite" Text="--.- %"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" FontSize="38"
+                                   FontWeight="Bold" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
 
-        <Border Grid.Row="2" Background="{StaticResource TerminalPanelBrush}" BorderBrush="{StaticResource TerminalBorderBrush}" BorderThickness="0,1,0,0" Padding="20">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Text=">_ SYSTEM OVERRIDE :" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                
-                <Button Content="LED ON" Tag="a" Style="{StaticResource RobcoButtonStyle}" Click="BtnCommand_Click"/>
-                <Button Content="LED OFF" Tag="e" Style="{StaticResource RobcoButtonStyle}" Click="BtnCommand_Click"/>
-                <Button Content="ANIMATION 1" Tag="p" Style="{StaticResource RobcoButtonStyle}" Click="BtnCommand_Click"/>
-                <Button Content="ANIMATION 2" Tag="m" Style="{StaticResource RobcoButtonStyle}" Click="BtnCommand_Click"/>
-                <Button Content="BUZZER ON" Tag="b" Style="{StaticResource RobcoButtonStyle}" Click="BtnCommand_Click"/>
-                <Button Content="BUZZER OFF" Tag="s" Style="{StaticResource RobcoButtonStyle}" Click="BtnCommand_Click"/>
+                <Border Style="{StaticResource DataBlockStyle}">
+                    <StackPanel>
+                        <TextBlock Text="[ LUMINOSITÉ ]" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20" />
+                        <TextBlock x:Name="TxtLuminosite" Text="---- LUX"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" FontSize="38"
+                                   FontWeight="Bold" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
             </StackPanel>
-        </Border>
+
+            <Border Grid.Row="2" Background="#050505" BorderBrush="{StaticResource TerminalBorderBrush}"
+                    BorderThickness="0,1,0,1" Padding="15">
+                <ScrollViewer x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                    <TextBlock x:Name="TxtLogs" FontFamily="pack://application:,,,/Assets/fonts/#Doto" FontSize="14"
+                               Foreground="#a8b2d1" TextWrapping="Wrap" />
+                </ScrollViewer>
+            </Border>
+
+            <Border Grid.Row="3" Background="{StaticResource TerminalPanelBrush}"
+                    BorderBrush="{StaticResource TerminalBorderBrush}" BorderThickness="0,1,0,0" Padding="20">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <TextBlock Text="> PANNEAU DE CONTRÔLE " FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="White" FontSize="20" VerticalAlignment="Center" />
+                        <TextBlock Text="█" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" FontSize="20"
+                                   VerticalAlignment="Center" Margin="0,0,20,0">
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0"
+                                                             Duration="0:0:0.5" AutoReverse="True"
+                                                             RepeatBehavior="Forever" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                        </TextBlock>
+                        <Button Content="TOGGLE LOGS" Style="{StaticResource RobcoButtonStyle}"
+                                Click="ToggleLogs_Click" Padding="10,5" Margin="50,0,0,0" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                        <Ellipse x:Name="IndicateurLumiere" Width="15" Height="15"
+                                 Fill="{StaticResource LightColorBrush}" Opacity="0.2" Margin="0,0,10,0" />
+                        <TextBlock Text="[ CAPTEUR DE LUMIÈRE ]" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="{StaticResource LightColorBrush}" FontSize="18"
+                                   VerticalAlignment="Center" Width="300" />
+
+                        <Button x:Name="BtnLightOn" Content="FORCE ON" Tag="a" Style="{StaticResource RedBtnInactive}"
+                                Click="BtnLight_Click" />
+                        <Button x:Name="BtnLightAuto" Content="AUTO" Tag="c" Style="{StaticResource RedBtnActive}"
+                                Click="BtnLight_Click" />
+                        <Button x:Name="BtnLightOff" Content="FORCE OFF" Tag="e"
+                                Style="{StaticResource RedBtnInactive}" Click="BtnLight_Click" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Ellipse x:Name="IndicateurTemp" Width="15" Height="15" Fill="{StaticResource TempColorBrush}"
+                                 Opacity="0.2" Margin="0,0,10,0" />
+                        <TextBlock Text="[ CAPTEUR TEMP / HUM ]" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="{StaticResource TempColorBrush}" FontSize="18"
+                                   VerticalAlignment="Center" Width="300" />
+
+                        <Button x:Name="BtnTempOn" Content="FORCE ON" Tag="b" Style="{StaticResource BlueBtnInactive}"
+                                Click="BtnTemp_Click" />
+                        <Button x:Name="BtnTempAuto" Content="AUTO" Tag="u" Style="{StaticResource BlueBtnActive}"
+                                Click="BtnTemp_Click" />
+                        <Button x:Name="BtnTempOff" Content="FORCE OFF" Tag="s"
+                                Style="{StaticResource BlueBtnInactive}" Click="BtnTemp_Click" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10" Opacity="1.0">
+                        <TextBlock Text="[COM.13] [ AFFICHAGE DE DATE ] (OFF)"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="White" FontSize="14" FontWeight="Bold"
+                                   VerticalAlignment="Center" Width="300" x:Name="DateBlock" />
+
+                        <Button x:Name="BtnDateToggle" Content="ACTIVER / DÉSACTIVER" FontWeight="Bold" Tag=""
+                                Style="{StaticResource WhiteBtnInactive}" Click="BtnDateToggle_Click" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
+                        <TextBlock Text="[COM.13] [ OVERRIDE ALARME ] >>>"
+                                   FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                                   Foreground="#fcfe4d" FontSize="14" FontWeight="Bold"
+                                   VerticalAlignment="Center" Width="300" />
+
+                        <TextBox x:Name="TxtPasswordInput" Width="120" Margin="0,0,10,0" FontSize="32" />
+                        <Button x:Name="BtnSendPassword" Content="ENVOYER MDP" FontWeight="Bold"
+                                Style="{StaticResource RobcoButtonStyle}" Click="BtnSendPassword_Click" />
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Rectangle IsHitTestVisible="False" Opacity="0.15">
+            <Rectangle.Fill>
+                <DrawingBrush TileMode="Tile" Viewport="0,0,4,4" ViewportUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <GeometryDrawing Brush="Black">
+                            <GeometryDrawing.Geometry>
+                                <RectangleGeometry Rect="0,0,4,2" />
+                            </GeometryDrawing.Geometry>
+                        </GeometryDrawing>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+
     </Grid>
 </UserControl>

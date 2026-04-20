@@ -40,9 +40,9 @@ public class smoke : ShaderEffect {
     public static readonly DependencyProperty CoverageProperty =
         DependencyProperty.Register("Coverage", typeof(double), typeof(smoke),
             new UIPropertyMetadata(1.0, PixelShaderConstantCallback(7)));
-    
-    public static readonly DependencyProperty InputProperty = 
-        ShaderEffect.RegisterPixelShaderSamplerProperty("Input", typeof(smoke), 0);
+
+    public static readonly DependencyProperty InputProperty =
+        RegisterPixelShaderSamplerProperty("Input", typeof(smoke), 0);
 
     static smoke() {
         // Path looks correct based on your previous messages
@@ -112,7 +112,7 @@ public class smoke : ShaderEffect {
         get => (double)GetValue(CoverageProperty);
         set => SetValue(CoverageProperty, value);
     }
-    
+
     public Brush Input {
         get => (Brush)GetValue(InputProperty);
         set => SetValue(InputProperty, value);

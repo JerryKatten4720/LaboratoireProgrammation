@@ -35,135 +35,306 @@
     </UserControl.Resources>
 
     <Grid Background="{StaticResource TerminalBgBrush}">
-        
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" /> 
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
-        <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20" Height="auto" x:Name="History">
-            <TextBlock TextWrapping="Wrap" Foreground="White" Padding="5" Width="150" TextAlignment="Center" FontSize="18" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Background="#0F0F0F">
-                [History] 
+
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20" Height="auto"
+                    x:Name="History">
+            <TextBlock TextWrapping="Wrap" Foreground="White" Padding="5" Width="150" TextAlignment="Center"
+                       FontSize="18" FontFamily="pack://application:,,,/Assets/fonts/#Doto" Background="#0F0F0F">
+                [History]
             </TextBlock>
         </StackPanel>
-        
+
         <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            
-            <TextBlock Text="[ ROB.CO - KEY.LOGGER ]" FontFamily="pack://application:,,,/Assets/fonts/#Doto" FontSize="32" FontWeight="Bold" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" Margin="0,0,0,40" HorizontalAlignment="Center" />
+
+            <TextBlock Text="[ ROB.CO - KEY.LOGGER ]" FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                       FontSize="32" FontWeight="Bold" Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                       Margin="0,0,0,40" HorizontalAlignment="Center" />
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Border x:Name="Key_Oem7" Style="{StaticResource KeyboardKey}"><TextBlock Text="²" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D1" Style="{StaticResource KeyboardKey}"><TextBlock Text="1 &amp;" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D2" Style="{StaticResource KeyboardKey}"><TextBlock Text="2 é" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D3" Style="{StaticResource KeyboardKey}"><TextBlock Text="3 &quot;" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D4" Style="{StaticResource KeyboardKey}"><TextBlock Text="4 '" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D5" Style="{StaticResource KeyboardKey}"><TextBlock Text="5 (" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D6" Style="{StaticResource KeyboardKey}"><TextBlock Text="6 §" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D7" Style="{StaticResource KeyboardKey}"><TextBlock Text="7 è" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D8" Style="{StaticResource KeyboardKey}"><TextBlock Text="8 !" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D9" Style="{StaticResource KeyboardKey}"><TextBlock Text="9 ç" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D0" Style="{StaticResource KeyboardKey}"><TextBlock Text="0 à" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_OemMinus" Style="{StaticResource KeyboardKey}"><TextBlock Text="° )" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Oem4" Style="{StaticResource KeyboardKey}"><TextBlock Text="- _" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Back" Style="{StaticResource KeyboardKey}" Width="88"><TextBlock Text="BACK" Style="{StaticResource KeyText}"/></Border>
-                
+                <Border x:Name="Key_Oem7" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="²" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D1" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="1 &amp;" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D2" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="2 é" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D3" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="3 &quot;" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D4" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="4 '" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D5" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="5 (" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D6" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="6 §" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D7" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="7 è" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D8" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="8 !" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D9" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="9 ç" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D0" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="0 à" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_OemMinus" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="° )" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Oem4" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="- _" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Back" Style="{StaticResource KeyboardKey}" Width="88">
+                    <TextBlock Text="BACK" Style="{StaticResource KeyText}" />
+                </Border>
+
                 <Border Width="20" Background="Transparent" />
-                
-                <Border x:Name="Key_NumLock" Style="{StaticResource KeyboardKey}"><TextBlock Text="NUM" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Divide" Style="{StaticResource KeyboardKey}"><TextBlock Text="/" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Multiply" Style="{StaticResource KeyboardKey}"><TextBlock Text="*" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Subtract" Style="{StaticResource KeyboardKey}"><TextBlock Text="-" Style="{StaticResource KeyText}"/></Border>
+
+                <Border x:Name="Key_NumLock" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="NUM" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Divide" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="/" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Multiply" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="*" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Subtract" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="-" Style="{StaticResource KeyText}" />
+                </Border>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Border x:Name="Key_Tab" Style="{StaticResource KeyboardKey}" Width="66"><TextBlock Text="TAB" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_A" Style="{StaticResource KeyboardKey}"><TextBlock Text="A" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Z" Style="{StaticResource KeyboardKey}"><TextBlock Text="Z" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_E" Style="{StaticResource KeyboardKey}"><TextBlock Text="E" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_R" Style="{StaticResource KeyboardKey}"><TextBlock Text="R" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_T" Style="{StaticResource KeyboardKey}"><TextBlock Text="T" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Y" Style="{StaticResource KeyboardKey}"><TextBlock Text="Y" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_U" Style="{StaticResource KeyboardKey}"><TextBlock Text="U" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_I" Style="{StaticResource KeyboardKey}"><TextBlock Text="I" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_O" Style="{StaticResource KeyboardKey}"><TextBlock Text="O" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_P" Style="{StaticResource KeyboardKey}"><TextBlock Text="P" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Oem6" Style="{StaticResource KeyboardKey}"><TextBlock Text="^ ¨" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Oem1" Style="{StaticResource KeyboardKey}"><TextBlock Text="$ *" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Return" Style="{StaticResource KeyboardKey}" Width="66"><TextBlock Text="ENTER" Style="{StaticResource KeyText}"/></Border>
+                <Border x:Name="Key_Tab" Style="{StaticResource KeyboardKey}" Width="66">
+                    <TextBlock Text="TAB" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_A" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="A" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Z" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="Z" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_E" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="E" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_R" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="R" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_T" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="T" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Y" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="Y" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_U" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="U" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_I" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="I" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_O" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="O" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_P" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="P" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Oem6" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="^ ¨" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Oem1" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="$ *" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Return" Style="{StaticResource KeyboardKey}" Width="66">
+                    <TextBlock Text="ENTER" Style="{StaticResource KeyText}" />
+                </Border>
 
                 <Border Width="20" Background="Transparent" />
 
-                <Border x:Name="Key_NumPad7" Style="{StaticResource KeyboardKey}"><TextBlock Text="7" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_NumPad8" Style="{StaticResource KeyboardKey}"><TextBlock Text="8" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_NumPad9" Style="{StaticResource KeyboardKey}"><TextBlock Text="9" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Add" Style="{StaticResource KeyboardKey}"><TextBlock Text="+" Style="{StaticResource KeyText}"/></Border>
+                <Border x:Name="Key_NumPad7" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="7" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_NumPad8" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="8" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_NumPad9" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="9" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Add" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="+" Style="{StaticResource KeyText}" />
+                </Border>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Border x:Name="Key_CapsLock" Style="{StaticResource KeyboardKey}" Width="80"><TextBlock Text="CAPS" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Q" Style="{StaticResource KeyboardKey}"><TextBlock Text="Q" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_S" Style="{StaticResource KeyboardKey}"><TextBlock Text="S" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_D" Style="{StaticResource KeyboardKey}"><TextBlock Text="D" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_F" Style="{StaticResource KeyboardKey}"><TextBlock Text="F" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_G" Style="{StaticResource KeyboardKey}"><TextBlock Text="G" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_H" Style="{StaticResource KeyboardKey}"><TextBlock Text="H" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_J" Style="{StaticResource KeyboardKey}"><TextBlock Text="J" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_K" Style="{StaticResource KeyboardKey}"><TextBlock Text="K" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_L" Style="{StaticResource KeyboardKey}"><TextBlock Text="L" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_M" Style="{StaticResource KeyboardKey}"><TextBlock Text="M" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_OemQuotes" Style="{StaticResource KeyboardKey}"><TextBlock Text="% ù" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Oem5" Style="{StaticResource KeyboardKey}"><TextBlock Text="µ £" Style="{StaticResource KeyText}"/></Border>
-                <Border Style="{StaticResource KeyboardKey}" Width="52" Opacity="0.2"><TextBlock Text="|" Style="{StaticResource KeyText}"/></Border> <Border Width="20" Background="Transparent" />
+                <Border x:Name="Key_CapsLock" Style="{StaticResource KeyboardKey}" Width="80">
+                    <TextBlock Text="CAPS" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Q" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="Q" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_S" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="S" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_D" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="D" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_F" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="F" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_G" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="G" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_H" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="H" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_J" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="J" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_K" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="K" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_L" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="L" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_M" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="M" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_OemQuotes" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="% ù" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Oem5" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="µ £" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border Style="{StaticResource KeyboardKey}" Width="52" Opacity="0.2">
+                    <TextBlock Text="|" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border Width="20" Background="Transparent" />
 
-                <Border x:Name="Key_NumPad4" Style="{StaticResource KeyboardKey}"><TextBlock Text="4" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_NumPad5" Style="{StaticResource KeyboardKey}"><TextBlock Text="5" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_NumPad6" Style="{StaticResource KeyboardKey}"><TextBlock Text="6" Style="{StaticResource KeyText}"/></Border>
-                <Border Width="44" Margin="2" Background="Transparent" /> </StackPanel>
+                <Border x:Name="Key_NumPad4" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="4" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_NumPad5" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="5" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_NumPad6" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="6" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border Width="44" Margin="2" Background="Transparent" />
+            </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Border x:Name="Key_LeftShift" Style="{StaticResource KeyboardKey}" Width="50"><TextBlock Text="SHIFT" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Oem102" Style="{StaticResource KeyboardKey}"><TextBlock Text="&lt; &gt;" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_W" Style="{StaticResource KeyboardKey}"><TextBlock Text="W" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_X" Style="{StaticResource KeyboardKey}"><TextBlock Text="X" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_C" Style="{StaticResource KeyboardKey}"><TextBlock Text="C" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_V" Style="{StaticResource KeyboardKey}"><TextBlock Text="V" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_B" Style="{StaticResource KeyboardKey}"><TextBlock Text="B" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_N" Style="{StaticResource KeyboardKey}"><TextBlock Text="N" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_OemComma" Style="{StaticResource KeyboardKey}"><TextBlock Text=", ?" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_OemPeriod" Style="{StaticResource KeyboardKey}"><TextBlock Text="; ." Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_OemQuestion" Style="{StaticResource KeyboardKey}"><TextBlock Text=": /" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_OemPlus" Style="{StaticResource KeyboardKey}"><TextBlock Text="= +" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_RightShift" Style="{StaticResource KeyboardKey}" Width="82"><TextBlock Text="SHIFT" Style="{StaticResource KeyText}"/></Border>
+                <Border x:Name="Key_LeftShift" Style="{StaticResource KeyboardKey}" Width="50">
+                    <TextBlock Text="SHIFT" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Oem102" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="&lt; &gt;" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_W" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="W" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_X" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="X" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_C" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="C" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_V" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="V" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_B" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="B" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_N" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="N" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_OemComma" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text=", ?" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_OemPeriod" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="; ." Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_OemQuestion" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text=": /" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_OemPlus" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="= +" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_RightShift" Style="{StaticResource KeyboardKey}" Width="82">
+                    <TextBlock Text="SHIFT" Style="{StaticResource KeyText}" />
+                </Border>
 
                 <Border Width="67" Background="Transparent" />
 
-                <Border x:Name="Key_NumPad1" Style="{StaticResource KeyboardKey}"><TextBlock Text="1" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_NumPad2" Style="{StaticResource KeyboardKey}"><TextBlock Text="2" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_NumPad3" Style="{StaticResource KeyboardKey}"><TextBlock Text="3" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Enter" Style="{StaticResource KeyboardKey}"><TextBlock Text="ENT" Style="{StaticResource KeyText}"/></Border>
+                <Border x:Name="Key_NumPad1" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="1" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_NumPad2" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="2" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_NumPad3" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="3" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Enter" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="ENT" Style="{StaticResource KeyText}" />
+                </Border>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Border x:Name="Key_LeftCtrl" Style="{StaticResource KeyboardKey}" Width="50"><TextBlock Text="CTRL" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_LWin" Style="{StaticResource KeyboardKey}" Width="50"><TextBlock Text="WIN" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_LeftAlt" Style="{StaticResource KeyboardKey}" Width="50"><TextBlock Text="ALT" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Space" Style="{StaticResource KeyboardKey}" Width="254"><TextBlock Text="" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_RightAlt" Style="{StaticResource KeyboardKey}" Width="50"><TextBlock Text="ALT GR" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_RightCtrl" Style="{StaticResource KeyboardKey}" Width="50"><TextBlock Text="CTRL" Style="{StaticResource KeyText}"/></Border>
-                
-                <Border x:Name="Key_Left" Style="{StaticResource KeyboardKey}"><TextBlock Text="◄" Style="{StaticResource KeyText}"/></Border>
+                <Border x:Name="Key_LeftCtrl" Style="{StaticResource KeyboardKey}" Width="50">
+                    <TextBlock Text="CTRL" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_LWin" Style="{StaticResource KeyboardKey}" Width="50">
+                    <TextBlock Text="WIN" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_LeftAlt" Style="{StaticResource KeyboardKey}" Width="50">
+                    <TextBlock Text="ALT" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Space" Style="{StaticResource KeyboardKey}" Width="254">
+                    <TextBlock Text="" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_RightAlt" Style="{StaticResource KeyboardKey}" Width="50">
+                    <TextBlock Text="ALT GR" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_RightCtrl" Style="{StaticResource KeyboardKey}" Width="50">
+                    <TextBlock Text="CTRL" Style="{StaticResource KeyText}" />
+                </Border>
+
+                <Border x:Name="Key_Left" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="◄" Style="{StaticResource KeyText}" />
+                </Border>
                 <StackPanel Orientation="Vertical" Margin="2,0,2,0">
-                    <Border x:Name="Key_Up" Style="{StaticResource KeyboardKey}" Height="21" Margin="0,2,0,0"><TextBlock Text="▲" FontSize="10" Style="{StaticResource KeyText}"/></Border>
-                    <Border x:Name="Key_Down" Style="{StaticResource KeyboardKey}" Height="21" Margin="0,0,0,2"><TextBlock Text="▼" FontSize="10" Style="{StaticResource KeyText}"/></Border>
+                    <Border x:Name="Key_Up" Style="{StaticResource KeyboardKey}" Height="21" Margin="0,2,0,0">
+                        <TextBlock Text="▲" FontSize="10" Style="{StaticResource KeyText}" />
+                    </Border>
+                    <Border x:Name="Key_Down" Style="{StaticResource KeyboardKey}" Height="21" Margin="0,0,0,2">
+                        <TextBlock Text="▼" FontSize="10" Style="{StaticResource KeyText}" />
+                    </Border>
                 </StackPanel>
-                <Border x:Name="Key_Right" Style="{StaticResource KeyboardKey}"><TextBlock Text="►" Style="{StaticResource KeyText}"/></Border>
+                <Border x:Name="Key_Right" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="►" Style="{StaticResource KeyText}" />
+                </Border>
 
                 <Border Width="62" Background="Transparent" />
 
-                <Border x:Name="Key_NumPad0" Style="{StaticResource KeyboardKey}" Width="92"><TextBlock Text="0" Style="{StaticResource KeyText}"/></Border>
-                <Border x:Name="Key_Decimal" Style="{StaticResource KeyboardKey}"><TextBlock Text="." Style="{StaticResource KeyText}"/></Border>
-                <Border Width="44" Margin="2" Background="Transparent" /> </StackPanel>
-            
+                <Border x:Name="Key_NumPad0" Style="{StaticResource KeyboardKey}" Width="92">
+                    <TextBlock Text="0" Style="{StaticResource KeyText}" />
+                </Border>
+                <Border x:Name="Key_Decimal" Style="{StaticResource KeyboardKey}">
+                    <TextBlock Text="." Style="{StaticResource KeyText}" />
+                </Border>
+                <Border Width="44" Margin="2" Background="Transparent" />
+            </StackPanel>
+
         </StackPanel>
     </Grid>
 </UserControl>

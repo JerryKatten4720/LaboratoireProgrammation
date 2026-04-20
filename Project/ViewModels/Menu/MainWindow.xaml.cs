@@ -1,32 +1,27 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.Helpers;
-using LaboratoireProgrammation.Project.Models.Exercices;
-using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.Models.Menu;
-using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
+using LaboratoireProgrammation.Project.Services;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Menu;
 
 public partial class MainWindow : Window {
-    
     private readonly ConsoleBehavior _behavior = new();
-    private readonly Color _terminalGreen = Color.FromRgb(51, 255, 51); 
-    public bool IsAnimating = false;
+    private readonly Color _terminalGreen = Color.FromRgb(51, 255, 51);
+    public bool IsAnimating;
 
     public MainWindow() {
         InitializeComponent();
-        //Exo4.RestartAsAdmin();
 
         SetupModelEvents();
-        
+
         TerminalDisplay.Init(OutputBox, InputBox);
         SizeHelper.setFullscreen(this);
-        
-        
+
+
         AnimateLoader();
     }
 
@@ -39,16 +34,16 @@ public partial class MainWindow : Window {
     public void MainInit() {
         OutputBox.Visibility = Visibility.Visible;
         InputBox.Visibility = Visibility.Visible;
-        
+
         Exo1.Visibility = Visibility.Collapsed;
         Exo1B.Visibility = Visibility.Collapsed;
         Exo2.Visibility = Visibility.Collapsed;
         Exo3.Visibility = Visibility.Collapsed;
         Exo5.Visibility = Visibility.Collapsed;
         Labo1B.Visibility = Visibility.Collapsed;
-        
+
         UpdateBabyModeUi();
-        
+
         Loaded += (s, e) => InputBox.Focus();
         OutputBox.Document.Blocks.Clear();
         TerminalDisplay.SeparationLine();
@@ -60,7 +55,8 @@ public partial class MainWindow : Window {
             OutputBox.Visibility = Visibility.Visible;
             InputBox.Visibility = Visibility.Visible;
             BabyMode.Visibility = Visibility.Collapsed;
-        } else {
+        }
+        else {
             VisualMode.Content = "Mode Visuel [ ✔ ]";
             OutputBox.Visibility = Visibility.Collapsed;
             InputBox.Visibility = Visibility.Collapsed;
@@ -73,7 +69,9 @@ public partial class MainWindow : Window {
         if (_behavior.GetIsAdjustingSize()) {
             HandleFontSizeMode(e);
             return;
-        } HandleStandardMode(e);
+        }
+
+        HandleStandardMode(e);
     }
 
     private void HandleFontSizeMode(KeyEventArgs e) {
@@ -135,23 +133,33 @@ public partial class MainWindow : Window {
     }
 
     // --- Window Control ---
-    
-    private void MinimizeProgram(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
-    private void MaximizeProgram(object sender, RoutedEventArgs e) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-    private void CloseProgram(object sender, RoutedEventArgs e) => Close();
+
+    private void MinimizeProgram(object sender, RoutedEventArgs e) {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void MaximizeProgram(object sender, RoutedEventArgs e) {
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
+
+    private void CloseProgram(object sender, RoutedEventArgs e) {
+        Close();
+    }
 
     private async void AnimateLoader() {
         IsAnimating = true;
-    
-        await MenuLoaders.Run_Main(this); 
-    
+
+        await MenuLoaders.Run_Main(this);
+
         MainInit();
         BlankSpace();
-    
-        IsAnimating = false; 
+
+        IsAnimating = false;
     }
 
-    private void BackToMenu(object sender, RoutedEventArgs e) => MainInit();
+    private void BackToMenu(object sender, RoutedEventArgs e) {
+        MainInit();
+    }
 
     private void BabyModeSwitch(object sender, RoutedEventArgs e) {
         if (IsAnimating) return;

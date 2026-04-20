@@ -22,7 +22,7 @@ public class ColorHelper {
         get => new(FancyText);
         set => FancyText = value.Color;
     }
-    
+
     public static SolidColorBrush HoverFancyTextBrush {
         get => new(HoverFancyText);
         set => HoverFancyText = value.Color;
@@ -67,7 +67,7 @@ public class ColorHelper {
         get => new(Success);
         set => Success = value.Color;
     }
-    
+
     public static SolidColorBrush FadeGreenBrush {
         get => new(FadeGreen);
         set => FadeGreen = value.Color;
@@ -77,7 +77,7 @@ public class ColorHelper {
         get => new(FadeRed);
         set => FadeRed = value.Color;
     }
-    
+
     public static SolidColorBrush SnowBrush {
         get => new(Snow);
         set => Snow = value.Color;
@@ -111,7 +111,7 @@ public class ColorHelper {
             Convert.ToInt32(hex.Substring(6, 2), 16) // B
         );
     }
-    
+
     public static SolidColorBrush HexToColorBrush(string hex) {
         return new SolidColorBrush(HexToColor(hex));
     }
@@ -131,6 +131,7 @@ public class ColorHelper {
             var b = (byte)(color.B + (byte)(255 * (amount / 100.0)));
             return new SolidColorBrush(Color.FromArgb(a, Math.Min(a, r), Math.Min(a, g), Math.Min(a, b)));
         }
+
         return new SolidColorBrush(Colors.Transparent);
     }
 }

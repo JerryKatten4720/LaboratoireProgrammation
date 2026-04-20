@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -14,7 +15,8 @@ public class TerminalDisplay {
 
     private static readonly Color TerminalGreen = Color.FromArgb(255, 51, 255, 51);
 
-    private static readonly FontFamily TerminalFont = new(new Uri("pack://application:,,,/LaboratoireProgrammation;component/"), "/Assets/fonts/#overseer");
+    private static readonly FontFamily TerminalFont =
+        new(new Uri("pack://application:,,,/LaboratoireProgrammation;component/"), "/Assets/fonts/#overseer");
 
     public static void Init(RichTextBox outp, TextBox inp) {
         if (_outputBox != null && _inputBox != null) return;
@@ -51,6 +53,7 @@ public class TerminalDisplay {
         else {
             _outputBox.Document.Blocks.Add(para);
         }
+
         _outputBox.ScrollToEnd();
     }
 
@@ -62,7 +65,7 @@ public class TerminalDisplay {
             return;
         }
 
-        double width = _outputBox.ActualWidth;
+        var width = _outputBox.ActualWidth;
         if (width <= 0) {
             RoutedEventHandler? loadedHandler = null;
             loadedHandler = (s, e) => {
@@ -73,12 +76,13 @@ public class TerminalDisplay {
             return;
         }
 
-        var availableWidth = width - (_outputBox.Document.PagePadding.Left + _outputBox.Document.PagePadding.Right + 30);
+        var availableWidth =
+            width - (_outputBox.Document.PagePadding.Left + _outputBox.Document.PagePadding.Right + 30);
 
         var typeface = new Typeface(TerminalFont, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
         var formattedText = new FormattedText(
             "- ",
-            System.Globalization.CultureInfo.InvariantCulture,
+            CultureInfo.InvariantCulture,
             FlowDirection.LeftToRight,
             typeface,
             _outputBox.FontSize,
@@ -86,11 +90,11 @@ public class TerminalDisplay {
             VisualTreeHelper.GetDpi(_outputBox).PixelsPerDip
         );
 
-        int charCount = (int)(availableWidth / formattedText.Width);
+        var charCount = (int)(availableWidth / formattedText.Width);
         if (charCount <= 0) charCount = 50;
 
         var line = "- ";
-        for (int i = 2; i < charCount - 2; i += 2) line += "- ";
+        for (var i = 2; i < charCount - 2; i += 2) line += "- ";
         var run = new Run(line) {
             FontFamily = TerminalFont,
             FontSize = _outputBox.FontSize,
@@ -101,7 +105,7 @@ public class TerminalDisplay {
             Margin = new Thickness(0),
             Padding = new Thickness(0)
         };
-        
+
         _outputBox.Document.Blocks.Add(para);
         _outputBox.ScrollToEnd();
     }
@@ -135,7 +139,7 @@ public class TerminalDisplay {
             VerticalAlignment = VerticalAlignment.Center
         };
     }
-    
+
     public static TextBlock CreateTitleBlock(string text, double size, Brush color, double yOffset) {
         if (!_initialized) throw new NullReferenceException("TerminalDisplay not initialized");
 
@@ -155,10 +159,10 @@ public class TerminalDisplay {
     public static void HideDisplay(MainWindow win) {
         _outputBox!.Visibility = Visibility.Collapsed;
         _inputBox!.Visibility = Visibility.Collapsed;
-    
-        win.TerminalOutputPanel.Visibility = Visibility.Collapsed; 
+
+        win.TerminalOutputPanel.Visibility = Visibility.Collapsed;
     }
-    
+
     public static void ShowDisplay() {
         _outputBox!.Visibility = Visibility.Visible;
         _inputBox!.Visibility = Visibility.Visible;

@@ -6,16 +6,13 @@
              xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
              mc:Ignorable="d" Background="Transparent"
              d:DesignHeight="*" d:DesignWidth="1000">
-    
+
     <UserControl.Resources>
-        
+
         <SolidColorBrush x:Key="TerminalYellowBrush" Color="{x:Static colorhelper:ColorHelper.FancyText}" />
-        <SolidColorBrush x:Key="TerminalBgBrush" Color="#09090B" />
-        <SolidColorBrush x:Key="TerminalPanelBrush" Color="#111113" />
-        <SolidColorBrush x:Key="TerminalBorderBrush" Color="#2A2A2E" />
         <FontFamily x:Key="TerminalFont">Consolas</FontFamily>
 
-        
+
         <Style x:Key="TerminalCombo" TargetType="ComboBox">
             <Setter Property="Background" Value="#111113" />
             <Setter Property="Foreground" Value="{StaticResource TerminalYellowBrush}" />
@@ -90,7 +87,8 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="{StaticResource TerminalYellowBrush}" />
+                                <Setter TargetName="MainBorder" Property="BorderBrush"
+                                        Value="{StaticResource TerminalYellowBrush}" />
                             </Trigger>
                             <Trigger Property="IsEditable" Value="True">
                                 <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />

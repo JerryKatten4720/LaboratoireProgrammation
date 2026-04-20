@@ -1,20 +1,20 @@
+using System.Windows.Media;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 
 namespace LaboratoireProgrammation.Project.Models.Menu;
 
 public class ConsoleBehavior {
-    public static bool SpeedLoad { get; set; } = true;
-    public static bool Babymode { get; set; } = false;
-    public static bool MemfyMode { get; set; } = false;
-    public static bool IsAdjustingSize { get; set; }
-
     private readonly List<string> _commandHistory = new();
     private int _historyIndex = -1;
-    
-    public Action<string, System.Windows.Media.Color?>? OnOutputRequest;
-    public Action<string, System.Windows.Media.Color?>? OnOutputSameLineRequest;
     public Action? OnClearInputRequest;
+
+    public Action<string, Color?>? OnOutputRequest;
+    public Action<string, Color?>? OnOutputSameLineRequest;
+    public static bool SpeedLoad { get; set; } = true;
+    public static bool Babymode { get; set; }
+    public static bool MemfyMode { get; set; }
+    public static bool IsAdjustingSize { get; set; }
 
     public async Task ProcessInput(string cmd, MainWindow context) {
         if (string.IsNullOrWhiteSpace(cmd)) return;
@@ -34,7 +34,7 @@ public class ConsoleBehavior {
 
     private async Task HandleMemfyConversation(string cmd) {
         OnClearInputRequest?.Invoke();
-        
+
         var memfyAi = new MemfyAI();
         var fullResponse = "";
 
@@ -61,23 +61,44 @@ public class ConsoleBehavior {
         _historyIndex += direction;
         _historyIndex = Math.Clamp(_historyIndex, 0, _commandHistory.Count);
 
-        if (_historyIndex < _commandHistory.Count) {
-            return _commandHistory[_historyIndex];
-        }
-        
+        if (_historyIndex < _commandHistory.Count) return _commandHistory[_historyIndex];
+
         return string.Empty;
     }
-    public void ToggleBabyMode() { Babymode = !Babymode; }
-    public bool GetBabyMode() { return Babymode; }
-    public bool GetSpeedLoad() { return SpeedLoad; }
-    public bool GetMemfyMode() { return MemfyMode; }
-    public bool GetIsAdjustingSize() { return IsAdjustingSize; }
-    
-    public void SetBabyMode(bool value) { Babymode = value; }
-    public void SetSpeedLoad(bool value) { SpeedLoad = value; }
-    public void SetMemfyMode(bool value) { MemfyMode = value; }
-    public void SetIsAdjustingSize(bool value) { IsAdjustingSize = value; }
-    
-    
-    
+
+    public void ToggleBabyMode() {
+        Babymode = !Babymode;
+    }
+
+    public bool GetBabyMode() {
+        return Babymode;
+    }
+
+    public bool GetSpeedLoad() {
+        return SpeedLoad;
+    }
+
+    public bool GetMemfyMode() {
+        return MemfyMode;
+    }
+
+    public bool GetIsAdjustingSize() {
+        return IsAdjustingSize;
+    }
+
+    public void SetBabyMode(bool value) {
+        Babymode = value;
+    }
+
+    public void SetSpeedLoad(bool value) {
+        SpeedLoad = value;
+    }
+
+    public void SetMemfyMode(bool value) {
+        MemfyMode = value;
+    }
+
+    public void SetIsAdjustingSize(bool value) {
+        IsAdjustingSize = value;
+    }
 }

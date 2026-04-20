@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -11,14 +12,13 @@ using Microsoft.Win32;
 namespace LaboratoireProgrammation.Project.ViewModels.Exercices;
 
 public partial class Exo5 : UserControl {
-
     private string _currentFilePath = string.Empty;
-    private bool _hasUnsavedChanges = false;
-    private bool _isLightMode = false;
-    private bool _isUpdatingToolbar = false;
-    private double _currentLineHeight = double.NaN;
     private Color _currentFontColor;
     private Color _currentHighlightColor = Colors.Yellow;
+    private double _currentLineHeight = double.NaN;
+    private bool _hasUnsavedChanges;
+    private bool _isLightMode;
+    private bool _isUpdatingToolbar;
 
     public Exo5() {
         InitializeComponent();
@@ -31,10 +31,12 @@ public partial class Exo5 : UserControl {
     }
 
     private void InitFonts() {
-        var fonts = new List<string> { "Ubuntu Mono", "Consolas", "Courier New", "Arial", "Calibri", "Times New Roman" };
+        var fonts = new List<string>
+            { "Ubuntu Mono", "Consolas", "Courier New", "Arial", "Calibri", "Times New Roman" };
         var systemFonts = Fonts.SystemFontFamilies.Select(f => f.Source).OrderBy(f => f).ToList();
         foreach (var sf in systemFonts)
-            if (!fonts.Contains(sf)) fonts.Add(sf);
+            if (!fonts.Contains(sf))
+                fonts.Add(sf);
         FontFamilyCombo.ItemsSource = fonts;
         FontFamilyCombo.SelectedItem = "Consolas";
     }
@@ -45,9 +47,17 @@ public partial class Exo5 : UserControl {
         FontSizeCombo.SelectedItem = 16.0;
     }
 
-    private void NewCmdExecuted(object sender, ExecutedRoutedEventArgs e) => NewFileClick(null, null);
-    private void OpenCmdExecuted(object sender, ExecutedRoutedEventArgs e) => OpenFileClick(null, null);
-    private void SaveCmdExecuted(object sender, ExecutedRoutedEventArgs e) => SaveFileClick(null, null);
+    private void NewCmdExecuted(object sender, ExecutedRoutedEventArgs e) {
+        NewFileClick(null, null);
+    }
+
+    private void OpenCmdExecuted(object sender, ExecutedRoutedEventArgs e) {
+        OpenFileClick(null, null);
+    }
+
+    private void SaveCmdExecuted(object sender, ExecutedRoutedEventArgs e) {
+        SaveFileClick(null, null);
+    }
 
     private void NewFileClick(object sender, RoutedEventArgs? e) {
         if (!EnsureSaved()) return;
@@ -66,11 +76,13 @@ public partial class Exo5 : UserControl {
         if (ofd.ShowDialog() != true) return;
         var range = new TextRange(Editor.Document.ContentStart, Editor.Document.ContentEnd);
         using var fs = new FileStream(ofd.FileName, FileMode.Open);
-        var fmt = ofd.FileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ? DataFormats.Text : DataFormats.Rtf;
+        var fmt = ofd.FileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
+            ? DataFormats.Text
+            : DataFormats.Rtf;
         range.Load(fs, fmt);
         _currentFilePath = ofd.FileName;
         _hasUnsavedChanges = false;
-        UpdateStatus($"[ OPEN ] — {System.IO.Path.GetFileName(_currentFilePath)}");
+        UpdateStatus($"[ OPEN ] — {Path.GetFileName(_currentFilePath)}");
     }
 
     private void SaveFileClick(object sender, RoutedEventArgs? e) {
@@ -78,6 +90,7 @@ public partial class Exo5 : UserControl {
             SaveAsFileClick(sender, e);
             return;
         }
+
         CommitSave(_currentFilePath);
     }
 
@@ -97,7 +110,7 @@ public partial class Exo5 : UserControl {
         var fmt = path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ? DataFormats.Text : DataFormats.Rtf;
         range.Save(fs, fmt);
         _hasUnsavedChanges = false;
-        UpdateStatus($"[ SAVED ] — {System.IO.Path.GetFileName(path)}");
+        UpdateStatus($"[ SAVED ] — {Path.GetFileName(path)}");
     }
 
     private void PrintClick(object sender, RoutedEventArgs e) {
@@ -148,12 +161,16 @@ public partial class Exo5 : UserControl {
         if (size != DependencyProperty.UnsetValue)
             FontSizeCombo.Text = size.ToString();
 
-        BtnBold.IsChecked = Editor.Selection.GetPropertyValue(TextElement.FontWeightProperty) is FontWeight fw && fw == FontWeights.Bold;
-        BtnItalic.IsChecked = Editor.Selection.GetPropertyValue(TextElement.FontStyleProperty) is FontStyle fs && fs == FontStyles.Italic;
+        BtnBold.IsChecked = Editor.Selection.GetPropertyValue(TextElement.FontWeightProperty) is FontWeight fw &&
+                            fw == FontWeights.Bold;
+        BtnItalic.IsChecked = Editor.Selection.GetPropertyValue(TextElement.FontStyleProperty) is FontStyle fs &&
+                              fs == FontStyles.Italic;
 
         var decorations = Editor.Selection.GetPropertyValue(Inline.TextDecorationsProperty) as TextDecorationCollection;
-        BtnUnderline.IsChecked = decorations != null && decorations.Any(d => d.Location == TextDecorationLocation.Underline);
-        BtnStrike.IsChecked = decorations != null && decorations.Any(d => d.Location == TextDecorationLocation.Strikethrough);
+        BtnUnderline.IsChecked =
+            decorations != null && decorations.Any(d => d.Location == TextDecorationLocation.Underline);
+        BtnStrike.IsChecked = decorations != null &&
+                              decorations.Any(d => d.Location == TextDecorationLocation.Strikethrough);
 
         var alignment = Editor.Selection.GetPropertyValue(Block.TextAlignmentProperty);
         BtnAlignLeft.IsChecked = alignment is TextAlignment taL && taL == TextAlignment.Left;
@@ -166,13 +183,14 @@ public partial class Exo5 : UserControl {
 
     private void FontFamilyCombo_SelectionChanged(object sender, SelectionChangedEventArgs e) {
         if (_isUpdatingToolbar || FontFamilyCombo.SelectedItem == null) return;
-        Editor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, new FontFamily(FontFamilyCombo.SelectedItem.ToString()));
+        Editor.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty,
+            new FontFamily(FontFamilyCombo.SelectedItem.ToString()));
         Editor.Focus();
     }
 
     private void FontSizeCombo_TextChanged(object sender, TextChangedEventArgs e) {
         if (_isUpdatingToolbar) return;
-        if (double.TryParse((string?)FontSizeCombo.Text, out double size) && size > 0)
+        if (double.TryParse((string?)FontSizeCombo.Text, out var size) && size > 0)
             Editor.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, size);
     }
 
@@ -183,14 +201,14 @@ public partial class Exo5 : UserControl {
     }
 
     private void IncreaseFontSizeClick(object sender, RoutedEventArgs e) {
-        if (double.TryParse((string?)FontSizeCombo.Text, out double size)) {
+        if (double.TryParse((string?)FontSizeCombo.Text, out var size)) {
             FontSizeCombo.Text = (size + 2).ToString();
             Editor.Focus();
         }
     }
 
     private void DecreaseFontSizeClick(object sender, RoutedEventArgs e) {
-        if (double.TryParse((string?)FontSizeCombo.Text, out double size) && size > 2) {
+        if (double.TryParse((string?)FontSizeCombo.Text, out var size) && size > 2) {
             FontSizeCombo.Text = (size - 2).ToString();
             Editor.Focus();
         }
@@ -198,14 +216,14 @@ public partial class Exo5 : UserControl {
 
     private void BoldClick(object sender, RoutedEventArgs e) {
         var current = Editor.Selection.GetPropertyValue(TextElement.FontWeightProperty);
-        var newWeight = (current is FontWeight fw && fw == FontWeights.Bold) ? FontWeights.Normal : FontWeights.Bold;
+        var newWeight = current is FontWeight fw && fw == FontWeights.Bold ? FontWeights.Normal : FontWeights.Bold;
         Editor.Selection.ApplyPropertyValue(TextElement.FontWeightProperty, newWeight);
         Editor.Focus();
     }
 
     private void ItalicClick(object sender, RoutedEventArgs e) {
         var current = Editor.Selection.GetPropertyValue(TextElement.FontStyleProperty);
-        var newStyle = (current is FontStyle fs && fs == FontStyles.Italic) ? FontStyles.Normal : FontStyles.Italic;
+        var newStyle = current is FontStyle fs && fs == FontStyles.Italic ? FontStyles.Normal : FontStyles.Italic;
         Editor.Selection.ApplyPropertyValue(TextElement.FontStyleProperty, newStyle);
         Editor.Focus();
     }
@@ -213,20 +231,22 @@ public partial class Exo5 : UserControl {
     private void UnderlineClick(object sender, RoutedEventArgs e) {
         var current = Editor.Selection.GetPropertyValue(Inline.TextDecorationsProperty) as TextDecorationCollection;
         var hasUnderline = current != null && current.Any(d => d.Location == TextDecorationLocation.Underline);
-        Editor.Selection.ApplyPropertyValue(Inline.TextDecorationsProperty, hasUnderline ? null : TextDecorations.Underline);
+        Editor.Selection.ApplyPropertyValue(Inline.TextDecorationsProperty,
+            hasUnderline ? null : TextDecorations.Underline);
         Editor.Focus();
     }
 
     private void StrikeClick(object sender, RoutedEventArgs e) {
         var current = Editor.Selection.GetPropertyValue(Inline.TextDecorationsProperty) as TextDecorationCollection;
         var hasStrike = current != null && current.Any(d => d.Location == TextDecorationLocation.Strikethrough);
-        Editor.Selection.ApplyPropertyValue(Inline.TextDecorationsProperty, hasStrike ? null : TextDecorations.Strikethrough);
+        Editor.Selection.ApplyPropertyValue(Inline.TextDecorationsProperty,
+            hasStrike ? null : TextDecorations.Strikethrough);
         Editor.Focus();
     }
 
     private void SuperscriptClick(object sender, RoutedEventArgs e) {
         var current = Editor.Selection.GetPropertyValue(Inline.BaselineAlignmentProperty);
-        var newAlign = (current is BaselineAlignment ba && ba == BaselineAlignment.Superscript)
+        var newAlign = current is BaselineAlignment ba && ba == BaselineAlignment.Superscript
             ? BaselineAlignment.Baseline
             : BaselineAlignment.Superscript;
         Editor.Selection.ApplyPropertyValue(Inline.BaselineAlignmentProperty, newAlign);
@@ -235,7 +255,7 @@ public partial class Exo5 : UserControl {
 
     private void SubscriptClick(object sender, RoutedEventArgs e) {
         var current = Editor.Selection.GetPropertyValue(Inline.BaselineAlignmentProperty);
-        var newAlign = (current is BaselineAlignment ba && ba == BaselineAlignment.Subscript)
+        var newAlign = current is BaselineAlignment ba && ba == BaselineAlignment.Subscript
             ? BaselineAlignment.Baseline
             : BaselineAlignment.Subscript;
         Editor.Selection.ApplyPropertyValue(Inline.BaselineAlignmentProperty, newAlign);
@@ -310,9 +330,9 @@ public partial class Exo5 : UserControl {
         picker.IsOpen = true;
     }
 
-    private System.Windows.Controls.Primitives.Popup BuildColorPicker(Color[] colors, Action<Color> onPick) {
+    private Popup BuildColorPicker(Color[] colors, Action<Color> onPick) {
         var panel = new WrapPanel { Width = 130, Background = new SolidColorBrush(Color.FromRgb(17, 17, 19)) };
-        var popup = new System.Windows.Controls.Primitives.Popup {
+        var popup = new Popup {
             Child = new Border {
                 Background = new SolidColorBrush(Color.FromRgb(17, 17, 19)),
                 BorderBrush = new SolidColorBrush(Color.FromRgb(42, 42, 46)),
@@ -320,7 +340,7 @@ public partial class Exo5 : UserControl {
                 Child = panel
             },
             AllowsTransparency = true,
-            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+            Placement = PlacementMode.Bottom,
             StaysOpen = false
         };
         foreach (var c in colors) {
@@ -333,9 +353,13 @@ public partial class Exo5 : UserControl {
                 Cursor = Cursors.Hand,
                 ToolTip = col == Colors.Transparent ? "Aucun" : col.ToString()
             };
-            btn.Click += (_, _) => { popup.IsOpen = false; onPick(col); };
+            btn.Click += (_, _) => {
+                popup.IsOpen = false;
+                onPick(col);
+            };
             panel.Children.Add(btn);
         }
+
         return popup;
     }
 
@@ -375,7 +399,8 @@ public partial class Exo5 : UserControl {
             Editor.Background = Brushes.White;
             Editor.Foreground = Brushes.Black;
             Editor.CaretBrush = Brushes.Black;
-        } else {
+        }
+        else {
             Editor.Background = Brushes.Transparent;
             Editor.Foreground = ColorHelper.FancyTextBrush;
             Editor.CaretBrush = ColorHelper.FancyTextBrush;
