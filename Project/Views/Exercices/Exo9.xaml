@@ -89,7 +89,8 @@
                 <Button Content="DÉMARRER LA RÉGULATION" Style="{StaticResource TerminalButton}"
                         Click="BtnRegulate_Click" HorizontalAlignment="Left" Margin="0,20,0,0" />
 
-                <TextBlock Text="PRESSION DU COEUR (Cible: 200)" Style="{StaticResource TerminalText}" Margin="0,30,0,0"
+                <TextBlock Text="PRESSION DU COEUR (Cible: 200)" Style="{StaticResource TerminalText}"
+                           Margin="0,30,0,0"
                            Foreground="{StaticResource TerminalDimBrush}" />
                 <TextBlock x:Name="TxtPressure" Text="000" FontSize="60" FontWeight="Bold"
                            Style="{StaticResource TerminalText}" />

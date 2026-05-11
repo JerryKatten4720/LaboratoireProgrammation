@@ -9,6 +9,7 @@
         xmlns:memfy1="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Miscellaneous.Memfy"
         xmlns:exercices1="clr-namespace:LaboratoireProgrammation.Project.Views.Exercices"
         xmlns:overseerWars="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars"
+        xmlns:microController="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.MicroController"
         Title="{x:Static viewModels1:MainWindowConfiguration.Title}"
         Height="{x:Static viewModels1:MainWindowConfiguration.Height}"
         Width="{x:Static viewModels1:MainWindowConfiguration.Width}"
@@ -201,8 +202,9 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                
-                <Image Opacity="0.05" Source="/Assets/Backgrounds/PNG/main-menu.png" VerticalAlignment="Bottom" HorizontalAlignment="Right"></Image>
+
+                <Image Opacity="0.015" Source="/Assets/Backgrounds/PNG/main-menu.png" VerticalAlignment="Bottom"
+                       HorizontalAlignment="Right" />
 
                 <TextBlock x:Name="Credits" />
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden" x:Name="TerminalScroller"
@@ -267,10 +269,19 @@
                                  HorizontalAlignment="Stretch"
                                  VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo9" />
 
+                <exercices1:Exo___10 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch" Margin="0,0,0,-40" x:Name="Exo10" />
+
                 <exercices:Exo3 Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Left"
                                 VerticalAlignment="Top" Margin="0,50,0,0" x:Name="Exo3" />
                 <exercices:Exo3B Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0" HorizontalAlignment="Center"
                                  VerticalAlignment="Center" Margin="0,0,0,0" x:Name="Exo3B" />
+
+
+                <microController:FlashMaster Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                                             x:Name="FlashMaster" />
 
                 <Grid>
                     <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo"
@@ -332,6 +343,6 @@
                       FlickerIntensity="0.06"
                       FlickerSpeed="0.6"
                       PhosphorDecay="0.5"
-                      ScreenResolution="1080,720" />
+                      ScreenResolution="108,72" />
     </Window.Effect>
 </Window>

@@ -1,0 +1,271 @@
+<UserControl x:Class="LaboratoireProgrammation.Project.ViewModels.Laboratoires.MicroController.FlashMaster"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
+             mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="800"
+             Background="Transparent">
+
+    <UserControl.Resources>
+
+        <Style x:Key="TerminalCard" TargetType="Button">
+            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="GlowBorder"
+                                    Margin="-4"
+                                    Background="Transparent"
+                                    Opacity="0"
+                                    CornerRadius="2">
+                                <Border.Effect>
+                                    <DropShadowEffect x:Name="GlowEffect"
+                                                      Color="{x:Static colorhelper:ColorHelper.FancyText}"
+                                                      ShadowDepth="0"
+                                                      BlurRadius="18"
+                                                      Opacity="0.85" />
+                                </Border.Effect>
+                            </Border>
+
+                            <Border x:Name="CardBody"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Border x:Name="FillLayer"
+                                            HorizontalAlignment="Left"
+                                            Width="0"
+                                            Background="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                            Opacity="0.15" />
+                                    <ContentPresenter />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                To="White" Duration="0:0:0.05" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                To="{x:Static colorhelper:ColorHelper.FancyText}"
+                                                Duration="0:0:0.05" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FillLayer" Property="Opacity" Value="0.05" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="false"
+                                          IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent"
+                                                BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                                BorderThickness="1">
+                                            <Path x:Name="Arrow"
+                                                  Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                                                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  Margin="0,0,5,0" Data="M 0 0 L 4 4 L 8 0 Z" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" SnapsToDevicePixels="True"
+                                      MinWidth="{TemplateBinding ActualWidth}"
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder" Background="Transparent"
+                                            BorderThickness="1"
+                                            BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True"
+                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RobcoButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Doto" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="15,10" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="[ MODULE DE FLASHAGE : FLASH.MASTER ]"
+                       FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                       FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                       Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.FancyTextBrush}" Opacity="0.2"
+                       Margin="0,10,0,0" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="5">
+                        <TextBlock Text="TARGET MCU" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   Foreground="White" Opacity="0.5" Margin="0,0,0,5" />
+                        <ComboBox x:Name="CbxMcu" SelectedIndex="0">
+                            <ComboBoxItem Content="ATMega.328P" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="5">
+                        <TextBlock Text="BAUDRATE (ISP)" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   Foreground="White" Opacity="0.5" Margin="0,0,0,5" />
+                        <ComboBox x:Name="CbxBaud">
+                            <ComboBoxItem Content="9600" />
+                            <ComboBoxItem Content="19200" IsSelected="True" />
+                            <ComboBoxItem Content="57600" />
+                            <ComboBoxItem Content="115200" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="5">
+                        <TextBlock Text="SERIAL PORT" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   Foreground="White" Opacity="0.5" Margin="0,0,0,5" />
+                        <ComboBox x:Name="CbxPorts" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Margin="5">
+                        <TextBlock Text="MAIN PROGRAMS" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   Foreground="White" Opacity="0.5" Margin="0,0,0,5" />
+                        <ComboBox x:Name="CbxProgram">
+                            <ComboBoxItem Content="[ - Tester - ]" IsSelected="True" />
+                            <ComboBoxItem Content="Laboratoire - 1 " />
+                            <ComboBoxItem Content="Laboratoire - 2 " />
+                            <ComboBoxItem Content="Laboratoire - 3 " />
+                            <ComboBoxItem Content="Laboratoire - 4 " />
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="SOURCE FILE (.HEX)" FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                           Foreground="White" Opacity="0.5" Margin="5,0,0,5" />
+                <Grid Margin="5,0,5,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="TxtHexPath" IsReadOnly="True" VerticalContentAlignment="Center"
+                             BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}" Background="Black"
+                             Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+                    <Button Grid.Column="1" Content="BROWSE" Style="{StaticResource RobcoButtonStyle}"
+                            Click="Browse_Click" Margin="10,0,0,0" />
+                </Grid>
+
+                <Border Background="#050505" BorderBrush="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                        BorderThickness="1" Height="150" Padding="10">
+                    <ScrollViewer x:Name="ScrollLogs" VerticalScrollBarVisibility="Hidden">
+                        <TextBlock x:Name="TxtLogs" Text=">>> AWAITING CONNECTION ..."
+                                   FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono"
+                                   FontSize="12" Foreground="#a8b2d1" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Style="{StaticResource TerminalCard}"
+                Click="Upload_Click" Margin="0,20,0,0" MinHeight="80">
+            <TextBlock Text="- INITIATE UPLOAD SEQUENCE - "
+                       FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                       FontSize="32" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" />
+        </Button>
+    </Grid>
+</UserControl>

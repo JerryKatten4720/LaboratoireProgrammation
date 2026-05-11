@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Models.Menu;
+using LaboratoireProgrammation.Project.ModernOverseerWars;
 using LaboratoireProgrammation.Project.Services;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Menu;
@@ -20,7 +21,6 @@ public partial class MainWindow : Window {
 
         TerminalDisplay.Init(OutputBox, InputBox);
         SizeHelper.setFullscreen(this);
-
 
         AnimateLoader();
     }
@@ -39,14 +39,33 @@ public partial class MainWindow : Window {
         Exo1B.Visibility = Visibility.Collapsed;
         Exo2.Visibility = Visibility.Collapsed;
         Exo3.Visibility = Visibility.Collapsed;
+        Exo3B.Visibility = Visibility.Collapsed;
         Exo5.Visibility = Visibility.Collapsed;
+        Exo6.Visibility = Visibility.Collapsed;
+        Exo7.Visibility = Visibility.Collapsed;
+        Exo8.Visibility = Visibility.Collapsed;
+        Exo9.Visibility = Visibility.Collapsed;
+        Exo10.Visibility = Visibility.Collapsed;
         Labo1B.Visibility = Visibility.Collapsed;
+        ESP8266.Visibility = Visibility.Collapsed;
+        FlashMaster.Visibility = Visibility.Collapsed;
+        MemfyAgreement.Visibility = Visibility.Collapsed;
+        OverseerWarsMenu.Visibility = Visibility.Collapsed;
+        BackgroundRectangle.Visibility = Visibility.Collapsed;
+        BethesdaLogo.Visibility = Visibility.Collapsed;
+        BabyMode.Visibility = Visibility.Collapsed;
 
         UpdateBabyModeUi();
 
         Loaded += (s, e) => InputBox.Focus();
         OutputBox.Document.Blocks.Clear();
+        TerminalOutputPanel.Children.Clear();
         TerminalDisplay.SeparationLine();
+        
+        var window = new OverseerWarsWindow();
+        window.Show();
+        
+        this.Close();
     }
 
     private void UpdateBabyModeUi() {
@@ -157,7 +176,7 @@ public partial class MainWindow : Window {
         IsAnimating = false;
     }
 
-    private void BackToMenu(object sender, RoutedEventArgs e) {
+    public void BackToMenu(object sender, RoutedEventArgs e) {
         MainInit();
     }
 

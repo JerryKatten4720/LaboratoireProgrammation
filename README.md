@@ -76,38 +76,55 @@ environnement de terminal phosphorescent vert.
 - Permutation de position d'images dans une grille
 - Basculement de visibilité indépendant pour chaque image
 
-**Concepts clés** :
-
-```csharp
-// Manipulation de la grille en temps réel
-if (Grid.GetColumn(IMG1) == 0) {
-    Grid.SetColumn(IMG1, 2);
-    Grid.SetColumn(IMG2, 0);
-}
-```
-
 #### **Exercice 2** - Simulation de transfert de fichiers
 
 - Système de double barre de progression (globale + fichier actuel)
 - Animation de transfert de dossiers
 - Exécution de tâches asynchrones
-- Délais aléatoires pour un comportement réaliste
-- État de succès avec feedback visuel
 
-**Architecture asynchrone** :
+#### **Exercice 3** - Gestion du personnel
 
-```csharp
-private async Task StartBackgroundWork() {
-    while (!_isComplete) {
-        for (int i = 0; i < 100; i++) {
-            ProgressBar2.Dispatcher.Invoke(() => { 
-                ProgressBar2.Value++; 
-            });
-            await Task.Delay(random.Next(10, 80));
-        }
-    }
-}
-```
+- CRUD complet sur fichiers JSON
+- Tri dynamique (Nom, Date)
+- Interface de création de personnel (Exo 3B)
+
+#### **Exercice 4** - Simulation Virus (Désactivé)
+
+- Effets visuels de distorsion CRT
+- Verrouillage du curseur et de la fenêtre
+- Simulations d'erreurs système
+
+#### **Exercice 5** - Éditeur de texte (RobCo.Term.Write)
+
+- Gestion complète de fichiers .txt et .rtf
+- Mise en forme de texte (Gras, Italique, Souligné)
+- Changement de police et de taille
+
+#### **Exercice 6** - Spirographie
+
+- Dessins mathématiques complexes
+- Personnalisation des paramètres (R, r, d)
+
+#### **Exercice 7** - KeyLogger Visuel
+
+- Clavier virtuel interactif
+- Enregistrement des touches pressées en temps réel
+
+#### **Exercice 8** - Explorateur RobCo
+
+- Navigation dans le système de fichiers local
+- Interface inspirée de Windows Explorer style Pip-Boy
+
+#### **Exercice 9** - Réacteur Abri 101
+
+- Simulation de gestion de réacteur nucléaire
+- Authentification et niveaux d'accès
+
+#### **Exercice 10** - Intégration Numérique
+
+- Calcul d'intégrales par la méthode des trapèzes
+- Utilisation de délégués pour les fonctions mathématiques
+- Logs détaillés de convergence
 
 #### **Laboratoire 1** - Système de gestion de base de données 🚧
 
@@ -402,6 +419,185 @@ cliquables pour tous les exercices.
 
 ### Exercice 8 : Explorateur Rob.Co
 
+---
+
+### 🗄️ Laboratoire 1 : Washington Memorial Safezone
+
+#### 1. Structure hierarchique
+
+**L'objectif de ce laboratoire est de réaliser une base de données à relier à un programme en C#.**
+**J'ai décidé pour ce projet de réaliser la base de données localement, mysql dans un fichier dans le programme.**
+**Je vais donc devoir générer toutes les tables pour chaque échelon hierarchique, entité individuelle**
+
+**<!> Je vais avoir besoin que tu me génères le code SQL pour créer le base de donnée de cet hôpital<!>**
+**<!> Pour le personnel, j'ai besoin que tu fasses une table "To-Hire" dans laquelle on retrouvera des membres de
+personnel avec chacun leur spécialité etc... mais ne travaillant pas encore dans l'hôpital <!>, n'en inclus que 5 au
+départ**
+**<!> J'ai également besoin d'une table avec des maladies possibles, comment les traiter, et comment les diagnostier,
+n'en inclus que 10 au départ**
+
+Hopital -> Aile - Département -> Service -> Unité
+
+#### 2. Description des hierarchies :
+
+- Hôpital : **Sa fonction** est de définir la stratégie globale de l'établissement, gérer les budgets massifs, les
+  ressources humaines, les relations avec les entités administratives, et maintenir l'infrastricture | **Qui dirige ?**
+  Un directeur Général, un conseil d'administration et un directeur médical qui supervise l'ensemble des médecins.
+- Aile : **Sa fonction** est de regrouper physiquement les départements ayant des besoins techniques similaires. | **Qui
+  dirige ?**
+- Département :
+- Service :
+- Unité :
+
+#### 3. Entités individuelles :
+
+##### [ - Corps Médical - ]
+
+- Titulaire : C'est le médecin en chef ou le spécialiste confirmé. Il a l'autorité légale et médicale finale sur les
+  patients de son service et supervise les médecins en formation. (Ex : Dr House, Dr Shepherd).
+- Spécialiste en formation : Un médecin qui a déjà terminé son internat de base et qui suit une sur-spécialisation (ex :
+  chirurgie cardiaque après avoir fait chirurgie générale).
+- Interne (Résident) : Un médecin diplômé en cours de spécialisation (qui dure de 3 à 7 ans selon la discipline). Ils
+  font le gros du travail clinique quotidien, posent les diagnostics et opèrent sous supervision.
+- Interne de première année : Le tout jeune médecin qui vient de sortir de la faculté. Il est en bas de l'échelle,
+  souvent surchargé de travail basique et de paperasse, sous la surveillance étroite des "Residents".
+- Externe : Encore étudiant en médecine (souvent en 3ème ou 4ème année). Il observe, suit les "tournées" (rounds) pour
+  apprendre, et réalise des actes médicaux très mineurs.
+
+##### [ - Personnel Soignant - ]
+
+- L'Infirmier en Pratique Avancée (Nurse Practitioner - NP) : Spécificité très nord-américaine, c'est un(e)
+  super-infirmier(e) qui a le droit de prescrire des traitements, de demander des examens et de poser des diagnostics de
+  base, avec un rôle qui s'approche de celui d'un médecin généraliste.
+- Le Cadre de Santé (Charge Nurse) : Le chef d'orchestre de l'unité. Il ou elle gère les plannings, l'attribution des
+  lits et fait le pont hiérarchique entre les médecins et l'équipe infirmière.
+- L'Infirmier(e) Diplômé(e) (Registered Nurse - RN) : Administre les médicaments, perfuse, surveille les constantes
+  vitales en continu, effectue les soins complexes et alerte les médecins au moindre changement d'état du patient.
+- L'Aide-Soignant(e) (CNA / Orderly) : Gère l'hygiène du patient, le confort, l'aide aux repas et aux déplacements
+  physiques dans la chambre.
+
+##### [ - Spécialistes Médico-Techniques - ]
+
+**1. Imagerie, Radiologie et Médecine Nucléaire**
+
+* **Échographiste (Diagnostic Medical Sonographer) :** Spécialiste des ultrasons, réalise les échographies (cardiaques,
+  fœtales, abdominales, vasculaires).
+* **Technologue en IRM (MRI Technologist) :** Expert dans la manipulation des champs magnétiques de l'Imagerie par
+  Résonance Magnétique.
+* **Technologue en Tomodensitométrie (CT Tech) :** Spécialiste des scanners à rayons X tridimensionnels pour les
+  diagnostics d'urgence.
+* **Technologue en Médecine Nucléaire (Nuclear Medicine Technologist) :** Prépare et administre les traceurs radioactifs
+  pour observer le métabolisme (ex : TEP scan).
+* **Dosimétriste (Dosimetrist) :** Calcule avec une précision extrême les doses de radiations à délivrer pour détruire
+  les tumeurs en oncologie.
+
+**2. Laboratoire, Biologie et Pathologie**
+
+* **Phlébotomiste (Phlebotomist) :** Spécialiste exclusif des prélèvements sanguins (effectue les tournées dans les
+  étages).
+* **Technologue de Laboratoire Médical (Med Tech) :** Réalise les analyses complexes sur le sang, l'urine ou le liquide
+  céphalo-rachidien.
+* **Technicien en Histologie (Histotechnician) :** Prépare et colore les coupes microscopiques ultra-fines de tissus (
+  biopsies) pour analyse.
+* **Cytotechnologiste (Cytotechnologist) :** Analyse les cellules au microscope pour détecter des anomalies précoces (
+  comme les cellules cancéreuses).
+
+**3. Explorations Fonctionnelles (Cardio / Neuro)**
+
+* **Technicien ECG (EKG Technician) :** Installe les électrodes et enregistre l'électrocardiogramme pour l'activité du
+  cœur.
+* **Technologue en Neurodiagnostic (EEG Technologist) :** Mesure l'activité électrique du cerveau (épilepsie, sommeil,
+  mort cérébrale).
+* **Technologue Cardiovasculaire (Cardiovascular Technologist) :** Assiste les cardiologues lors des procédures
+  invasives guidées par imagerie (cathétérisme, pose de stents).
+
+**4. Bloc Opératoire et Maintien en Vie**
+
+* **Perfusionniste (Cardiovascular Perfusionist) :** Contrôle la machine circulation extracorporelle (cœur-poumon) lors
+  des chirurgies à cœur ouvert.
+* **Technicien de Bloc Opératoire (Surgical Technologist) :** Prépare la salle stérile, anticipe les gestes du
+  chirurgien et gère les instruments à la seconde près.
+* **Technicien d'Anesthésie (Anesthesia Technician) :** Prépare et calibre les moniteurs, gaz anesthésiants et le
+  matériel d'intubation pour l'anesthésiste.
+
+**5. Ingénierie et Soutien Médicamenteux**
+
+* **Technicien Biomédical (BMET) :** Répare, calibre et maintient tous les équipements vitaux de l'hôpital (
+  respirateurs, pompes, défibrillateurs).
+* **Préparateur en Pharmacie Hospitalière (Pharmacy Technician) :** Conditionne les médicaments, prépare les piluliers
+  et les mélanges complexes (chimiothérapie) sous supervision du pharmacien.
+
+**6. Réhabilitation et Diététique**
+
+* **Diététicien Clinicien (Clinical Dietitian) :** Calcule les besoins nutritionnels complexes (régimes spécifiques,
+  nutrition par sonde).
+* **Ergothérapeute (Occupational Therapist) :** Aide les patients post-traumatiques ou amputés à réapprendre les gestes
+  du quotidien.
+* **Orthophoniste (Speech-Language Pathologist) :** Évalue et rééduque la parole, mais surtout la déglutition (post-AVC,
+  post-intubation) pour éviter les étouffements.
+
+##### [ - Soutien Logistique, Social et Administration - ]
+
+**1. Accompagnement Social, Éthique et Spirituel**
+
+* **Travailleur Social (Social Worker) :** Gère les problèmes d'assurance, prépare les placements en centre de
+  rééducation après l'hospitalisation, et gère les signalements (maltraitance, précarité extrême).
+* **Représentant des Patients (Patient Advocate) :** Agit comme médiateur indépendant entre le patient et l'hôpital pour
+  résoudre les conflits, expliquer les droits et aider à la prise de décision.
+* **Interprète Médical (Medical Interpreter) :** Traduit avec une précision clinique absolue les échanges entre les
+  médecins et les patients allophones ou malentendants (langue des signes).
+* **Aumônier / Conseiller Spirituel (Chaplain) :** Offre un soutien moral et religieux (toutes confessions) aux patients
+  et familles confrontés à l'angoisse, aux dilemmes éthiques de fin de vie ou au deuil.
+
+**2. Logistique des Flux et Transports**
+
+* **Brancardier (Transporter / Porter) :** Assure le déplacement physique, rapide et sécurisé des patients entre les
+  urgences, la radiologie, les blocs opératoires et les chambres.
+* **Régulateur des Flux (Dispatcher) :** Véritable tour de contrôle, il gère le trafic interne, coordonne les
+  brancardiers et l'acheminement du matériel roulant (lits, fauteuils).
+* **Chauffeur / Paramédic (Ambulance Driver / EMT) :** Assure le transport d'urgence pré-hospitalier ou le transfert de
+  patients sous assistance entre différentes structures médicales.
+
+**3. Hygiène, Environnement et Restauration**
+
+* **Agent de Bio-nettoyage (Environmental Services - EVS) :** Garant de la stérilisation des espaces (notamment les
+  blocs opératoires et chambres d'isolement). Son rôle est vital contre les maladies nosocomiales.
+* **Gestionnaire des Déchets Biomédicaux (Biohazard Waste Technician) :** Manipule, stocke et détruit de manière
+  hautement sécurisée les déchets infectieux, chimiques, anatomiques ou radioactifs.
+* **Employé de Restauration Hospitalière (Dietary Aide) :** Prépare et distribue les repas en respectant scrupuleusement
+  les restrictions (sans sel, texture modifiée, allergies) dictées par les diététiciens.
+
+**4. Sécurité et Administration**
+
+* **Agent de Sécurité (Security Officer) :** Sécurise l'établissement, gère les patients agressifs ou confus, protège
+  les zones sous tension (urgences, psychiatrie, maternité) et applique les confinements (lockdowns).
+* **Secrétaire d'Unité (Unit Clerk) :** Gère l'accueil de l'unité, classe les dossiers médicaux, répond aux appels de la
+  station infirmière et coordonne la paperasse d'admission/sortie.
+* **Spécialiste du Codage Médical (Medical Coder / Biller) :** (Très important aux USA) Traduit chaque diagnostic et
+  acte médical en un code alphanumérique standardisé pour facturer les assurances de santé.
+
+##### [ - Le Centre du Système - ]
+
+**1. Les Patients**
+
+* **Patient Hospitalisé (Inpatient) :** Admis à l'hôpital pour au moins une nuit, nécessitant l'occupation d'un lit et
+  une surveillance médicale continue.
+* **Patient Ambulatoire (Outpatient) :** Se rend à l'hôpital pour une consultation, un examen (IRM) ou une chirurgie de
+  jour, et rentre chez lui le jour même.
+* **Patient aux Urgences (ER Patient) :** Cas aigu non programmé, en cours de triage, d'examens d'urgence ou en attente
+  qu'un lit se libère pour une admission.
+
+**2. L'Entourage et Représentants**
+
+* **Mandataire / Représentant Légal (Healthcare Proxy / Power of Attorney) :** La personne légalement désignée pour
+  prendre les décisions médicales (y compris d'arrêt des soins) si le patient est inconscient ou jugé inapte.
+* **Proche Aidant (Caregiver) :** Membre de la famille qui soutient le patient au quotidien. Les infirmières doivent
+  souvent les former aux soins de base avant la sortie de l'hôpital.
+* **Visiteurs (Visitors) :** Famille, amis ou collègues. Leur flux et leurs horaires sont strictement encadrés par la
+  sécurité et les cadres de santé pour garantir le repos des malades et la sécurité sanitaire.
+
+---
+
 ### 🗄️ Laboratoire 1 : Système de gestion de base de données
 
 **Statut** : 🚧 *En développement actif*
@@ -667,3 +863,10 @@ Année : 2026
 **[⬆ Retour en haut](#-laboratoire-de-programmation)**
 
 </div>
+
+
+C'est vraiment super, cela étant, j'ai quelques remarques :
+
+- La gestion de temps est trop rapide, impossible de gérer le truc.
+- Il faudra pouvoir décider de dans quel département
+- 

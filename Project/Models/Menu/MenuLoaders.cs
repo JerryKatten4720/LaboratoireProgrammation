@@ -48,11 +48,17 @@ public class MenuLoaders {
     private const string _title_exo9 = "Exercice [ 9 ]";
     private const string _sub_exo9 = ": // DATE : APR . 2026  //  RÉACTEUR ABRI 101";
 
+    private const string _title_exo10 = "Exercice [ 10 ]";
+    private const string _sub_exo10 = ": // DATE : MAY . 2026  //  HISTO.EN.FOLIES";
+
     private const string _title_lab1 = "Laboratoire [ 1 ]";
     private const string _sub_lab1 = ": // DATE : FEB . 2026  //  MISE EN PRATIQUE";
 
     private const string _title_esp8266 = "Capteurs [ ESP.8266 ]";
     private const string _sub_esp8266 = ": // DATE : APR . 2026  //  MISE EN PRATIQUE";
+
+    private const string _title_flashZ = "FlashMaster [ Zeta ]";
+    private const string _sub_flashZ = ": // DATE : APR . 2026  //  ⟊⟊☌⎅⎎⊑⍾ ⎅⟊⌇⎎⊑⌇ ⊑⎅⌇⟊☍⊑";
 
     private const string _title_main = "TERMINAL ROB:CO";
     private const string _sub_main = "//: WELCOME -  USER ://";
@@ -88,6 +94,9 @@ public class MenuLoaders {
 
     private static readonly SolidColorBrush _exo9_title = Brush("54FFED");
     private static readonly SolidColorBrush _exo9_sub = Brush("82E0D5");
+
+    private static readonly SolidColorBrush _exo10_title = Brush("294DFF");
+    private static readonly SolidColorBrush _exo10_sub = Brush("788DFF");
 
     private static readonly SolidColorBrush _lab1_title = Brush("FD47FF");
     private static readonly SolidColorBrush _lab1_sub = Brush("FD91FF");
@@ -419,6 +428,11 @@ public class MenuLoaders {
         win.Exo9.Visibility = Visibility.Visible;
     }
 
+    public static async Task Run_Exo10(MainWindow win) {
+        await RunIntro(win, _title_exo10, _sub_exo10, _author, _exo10_title, _exo10_sub, _exo1_author);
+        win.Exo10.Visibility = Visibility.Visible;
+    }
+
     public static async Task Run_Lab1(MainWindow win) {
         await RunIntro(win, _title_lab1, _sub_lab1, _author, _lab1_title, _lab1_sub, _exo1_author);
         win.Labo1B.Visibility = Visibility.Visible;
@@ -433,5 +447,13 @@ public class MenuLoaders {
         await RunIntro(win, _title_main, _sub_main, _author2, _main_title, _main_sub, _main_author,
             IntroStyle.FadeOnly);
         win.BabyMode.Visibility = ConsoleBehavior.Babymode ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public static async Task RunHospital(MainWindow win) { }
+
+    public static async Task RunFlashMaster(MainWindow win) {
+        await RunIntro(win, _title_flashZ, _title_flashZ, _author2, _lab1_title, _lab1_sub, _main_author,
+            IntroStyle.FadeOnly);
+        win.FlashMaster.Visibility = Visibility.Visible;
     }
 }

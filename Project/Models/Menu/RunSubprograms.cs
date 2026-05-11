@@ -13,10 +13,13 @@ public class RunSubprograms {
         Exercice7,
         Exercice8,
         Exercice9,
+        Exercice10,
         Labo1,
         Memfy,
         OverseerWars,
-        ESP8266
+        ESP8266,
+        LabHospital,
+        FlashMaster
     }
 
     public static void RunSub(Subprograms sub, MainWindow win) {
@@ -34,7 +37,7 @@ public class RunSubprograms {
                 break;
 
             case Subprograms.Exercice4:
-                _ = MenuLoaders.Run_Exo4(win);
+                // _ = MenuLoaders.Run_Exo4(win);
                 break;
 
             case Subprograms.Exercice5:
@@ -57,11 +60,23 @@ public class RunSubprograms {
                 _ = MenuLoaders.Run_Exo9(win);
                 break;
 
+            case Subprograms.Exercice10:
+                _ = MenuLoaders.Run_Exo10(win);
+                break;
+
             case Subprograms.Labo1:
                 RunLab1.Run(win);
                 break;
 
             case Subprograms.OverseerWars:
+                break;
+
+            case Subprograms.LabHospital:
+                _ = MenuLoaders.RunHospital(win);
+                break;
+
+            case Subprograms.FlashMaster:
+                _ = MenuLoaders.RunFlashMaster(win);
                 break;
 
             case Subprograms.ESP8266:

@@ -34,10 +34,10 @@ public partial class BabyMode : UserControl {
     }
 
     private void Exo4(object sender, RoutedEventArgs e) {
-        if (ParentWindow is { } window) {
-            Visibility = Visibility.Collapsed;
-            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice4, window);
-        }
+        // if (ParentWindow is { } window) {
+        //     Visibility = Visibility.Collapsed;
+        //     RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice4, window);
+        // }
     }
 
     private void Exo5(object sender, RoutedEventArgs e) {
@@ -75,6 +75,13 @@ public partial class BabyMode : UserControl {
         }
     }
 
+    private void Exo9(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice9, window);
+        }
+    }
+
     private void MemfyAI(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
@@ -97,10 +104,24 @@ public partial class BabyMode : UserControl {
         }
     }
 
-    private void Exo9(object sender, RoutedEventArgs e) {
+    private void Exo10(object sender, RoutedEventArgs e) {
         if (ParentWindow is { } window) {
             Visibility = Visibility.Collapsed;
-            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice9, window);
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Exercice10, window);
+        }
+    }
+
+    private void LabHospital(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.LabHospital, window);
+        }
+    }
+
+    private void FlashMaster(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.FlashMaster, window);
         }
     }
 }

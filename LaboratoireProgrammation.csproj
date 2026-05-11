@@ -69,6 +69,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
         <PackageReference Include="Dapper" Version="2.1.66"/>
         <PackageReference Include="HandyControl" Version="3.6.0-rc3"/>
         <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0-preview3.25342.7"/>
@@ -264,9 +265,9 @@
         <Resource Include="Assets\data\dwellers.json"/>
         <None Remove="Assets\images\overseerWars\dwellers\white.png"/>
         <Resource Include="Assets\images\overseerWars\dwellers\white.png"/>
-        <None Remove="Assets\Backgrounds\PNG\main-menu.png" />
+        <None Remove="Assets\Backgrounds\PNG\main-menu.png"/>
         <Content Include="Assets\Backgrounds\PNG\main-menu.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 
@@ -318,6 +319,7 @@
 
     <ItemGroup>
         <Folder Include="Assets\images\overseerWars\dwellers\"/>
+        <Folder Include="Project\ViewModels\Laboratoires\Laboratoire - DB\"/>
         <Folder Include="Project\ViewModels\Laboratoires\OverseerWars\VaultManagement\"/>
         <Folder Include="Project\Views\Laboratoires\OverseerWars\"/>
     </ItemGroup>

@@ -5,13 +5,26 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Services;
+using LaboratoireProgrammation.Project.ViewModels.Menu;
 using Microsoft.Data.SqlClient;
 using MySqlConnector;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Laboratoires.Laboratoire___1;
 
 public partial class ConnectControl : UserControl {
+    private static readonly string server = "localhost";
+    private static readonly string database = "LAB_HOPITAL";
+    private static readonly string user = "root";
+    private static readonly string password = "";
+
+    public static string SuccessfulConnectionString =
+        $"Server={server};Database={database};User Id={user};Password={password};";
+
+    private static Func<IDbConnection> connectionFactory;
+    private static IDbConnection connectionInterface;
+    private static MySqlConnection mySqlConnection;
     private bool isTrying;
+    private MySqlDataReader myReader;
     private int TrialsLeft = 4;
 
     public ConnectControl() {
@@ -43,20 +56,16 @@ public partial class ConnectControl : UserControl {
 
         await Task.Delay(1800);
 
-        // Define our factory based on the ComboBox selection
-        Func<IDbConnection> connectionFactory;
 
-        if (DbTypeInput.SelectedIndex == 1) // SQL Server (MSSQL)
-        {
-            // Note: TrustServerCertificate is often required for modern MSSQL instances on local dev environments
+        if (DbTypeInput.SelectedIndex == 1) {
             var msSqlConnString =
                 $"Server={server};Database={database};User Id={user};Password={password};TrustServerCertificate=True;";
             connectionFactory = () => new SqlConnection(msSqlConnString);
         }
-        else // MySQL (Default)
-        {
+        else {
             var mySqlConnString = $"Server={server};Database={database};User={user};Password={password};";
             connectionFactory = () => new MySqlConnection(mySqlConnString);
+            mySqlConnection = new MySqlConnection(mySqlConnString);
         }
 
         var db = new SqlUtils(connectionFactory);
@@ -92,10 +101,14 @@ public partial class ConnectControl : UserControl {
         Label.Content = "[SUCCESS] > Connexion à la base de données effectuée avec succès !";
         Label.Visibility = Visibility.Visible;
         pbStatus.Visibility = Visibility.Hidden;
-        ConfirmConnection();
 
-        // At this point, you might want to store your 'db' instance in a singleton
-        // or a global Dependency Injection container so the rest of your app uses the same DbType.
+        if (DbTypeInput.SelectedIndex == 1)
+            SuccessfulConnectionString =
+                $"Server={server};Database={database};User Id={user};Password={password};TrustServerCertificate=True;";
+        else
+            SuccessfulConnectionString = $"Server={server};Database={database};User={user};Password={password};";
+
+        ConfirmConnection();
     }
 
     private void LockTrials() {
@@ -122,7 +135,7 @@ public partial class ConnectControl : UserControl {
         DbTypeInput.BorderBrush = ColorHelper.CriticalBrush;
     }
 
-    private void ConfirmConnection() {
+    private async void ConfirmConnection() {
         pbStatus.Visibility = Visibility.Hidden;
         RemainingTrials.Visibility = Visibility.Hidden;
         RemainingTrialsBar.Visibility = Visibility.Hidden;
@@ -142,5 +155,34 @@ public partial class ConnectControl : UserControl {
         TitleLabel.Foreground = ColorHelper.SuccessBrush;
         DbTypeLabel.Foreground = ColorHelper.SuccessBrush;
         DbTypeInput.BorderBrush = ColorHelper.SuccessBrush;
+
+        await Task.Delay(3000);
+
+        var cmd = new MySqlCommand("SELECT * FROM To_Hire", mySqlConnection);
+
+        try {
+            mySqlConnection.Open();
+            myReader = cmd.ExecuteReader();
+
+            while (myReader.Read()) {
+                if (Label.Content.ToString().Length > 0)
+                    Label.Content += Environment.NewLine;
+
+                for (var i = 0; i < myReader.FieldCount; i++)
+                    Label.Content += myReader[i] + "    ";
+            }
+        }
+        catch (Exception ex) {
+            MessageBox.Show(ex.Message);
+        }
+
+        mySqlConnection.Close();
+
+        await Task.Delay(5000);
+
+
+        var parentWindow = WindowHelper.getParentWindow(this);
+        var mainWindow = (MainWindow)parentWindow;
+        mainWindow.BackToMenu(null, null);
     }
 }
