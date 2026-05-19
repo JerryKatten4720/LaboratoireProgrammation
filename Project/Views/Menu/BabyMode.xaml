@@ -801,7 +801,7 @@
                                    Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}" />
                         <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.WarningBrush}"
                                    Opacity="0.25" Margin="0,6,0,8" />
-                        <TextBlock Grid.Row="2" Text="Laboratoire 1 — mise en pratique et intégration des concepts."
+                        <TextBlock Grid.Row="2" Text="Laboratoire 1 : mise en pratique et intégration des concepts."
                                    FontFamily="Consolas" FontSize="13"
                                    Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}"
                                    Opacity="0.55" TextWrapping="Wrap" />
@@ -835,7 +835,7 @@
                         <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.WarningBrush}"
                                    Opacity="0.25" Margin="0,6,0,8" />
                         <TextBlock Grid.Row="2"
-                                   Text="Assistant mémoire intelligent — gestion et révision de vos notes."
+                                   Text="Assistant mémoire intelligent : gestion et révision de vos notes."
                                    FontFamily="Consolas" FontSize="13"
                                    Foreground="{x:Static colorhelper:ColorHelper.WarningBrush}"
                                    Opacity="0.55" TextWrapping="Wrap" />
@@ -975,7 +975,7 @@
 
             <StackPanel Margin="0,24,0,0">
                 <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.FadeRedBrush}" Opacity="0.12" />
-                <TextBlock Text="@anto.cldl — Terminal.UI v1.0  |  MODE VISUEL ACTIF"
+                <TextBlock Text="@anto.cldl : Terminal.UI v1.0  |  MODE VISUEL ACTIF"
                            FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="16"
                            Foreground="{x:Static colorhelper:ColorHelper.FadeRedBrush}"
                            Opacity="0.4" HorizontalAlignment="Center"

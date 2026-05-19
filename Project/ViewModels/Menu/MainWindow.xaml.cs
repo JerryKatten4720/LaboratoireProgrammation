@@ -2,8 +2,10 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using HandyControl.Tools.Extension;
 using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Models.Menu;
+using LaboratoireProgrammation.Project.ModernHospital;
 using LaboratoireProgrammation.Project.ModernOverseerWars;
 using LaboratoireProgrammation.Project.Services;
 
@@ -62,10 +64,11 @@ public partial class MainWindow : Window {
         TerminalOutputPanel.Children.Clear();
         TerminalDisplay.SeparationLine();
         
-        var window = new OverseerWarsWindow();
+        var window = new HospitalWindow();
         window.Show();
         
         this.Close();
+        
     }
 
     private void UpdateBabyModeUi() {

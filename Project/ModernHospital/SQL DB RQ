@@ -1,0 +1,417 @@
+DROP DATABASE IF EXISTS LAB_HOPITAL;
+CREATE DATABASE LAB_HOPITAL;
+USE LAB_HOPITAL;
+
+CREATE TABLE Hopital (
+                         IdHopital INT AUTO_INCREMENT PRIMARY KEY,
+                         Nom VARCHAR(150) NOT NULL,
+                         DirecteurGeneral VARCHAR(100),
+                         DirecteurMedical VARCHAR(100),
+                         Budget DECIMAL(15, 2) DEFAULT 500000.00,
+                         Reputation INT DEFAULT 50,
+                         JourSimulation INT DEFAULT 1,
+                         HeureSimulation TIME DEFAULT '08:00:00',
+                         MontantEmprunt DECIMAL(15, 2) DEFAULT 0.00,
+                         TauxInteret DECIMAL(5, 2) DEFAULT 0.05
+);
+
+CREATE TABLE Aile (
+                      IdAile INT AUTO_INCREMENT PRIMARY KEY,
+                      IdHopital INT NOT NULL,
+                      Nom VARCHAR(100) NOT NULL,
+                      FonctionPrincipale VARCHAR(255),
+                      FOREIGN KEY (IdHopital) REFERENCES Hopital(IdHopital) ON DELETE CASCADE
+);
+
+CREATE TABLE Departement (
+                             IdDepartement INT AUTO_INCREMENT PRIMARY KEY,
+                             IdAile INT NOT NULL,
+                             Nom VARCHAR(100) NOT NULL,
+                             ChefDeDepartement VARCHAR(100),
+                             FOREIGN KEY (IdAile) REFERENCES Aile(IdAile) ON DELETE CASCADE
+);
+
+CREATE TABLE Service (
+                         IdService INT AUTO_INCREMENT PRIMARY KEY,
+                         IdDepartement INT NOT NULL,
+                         Nom VARCHAR(100) NOT NULL,
+                         ChefDeService VARCHAR(100),
+                         FOREIGN KEY (IdDepartement) REFERENCES Departement(IdDepartement) ON DELETE CASCADE
+);
+
+CREATE TABLE Unite (
+                       IdUnite INT AUTO_INCREMENT PRIMARY KEY,
+                       IdService INT NOT NULL,
+                       Nom VARCHAR(100) NOT NULL,
+                       CadreDeSante VARCHAR(100),
+                       CoutEntretienJour DECIMAL(10, 2) DEFAULT 500.00,
+                       FOREIGN KEY (IdService) REFERENCES Service(IdService) ON DELETE CASCADE
+);
+
+CREATE TABLE Salle_Attente (
+                               IdSalle INT AUTO_INCREMENT PRIMARY KEY,
+                               IdUnite INT NOT NULL,
+                               CapaciteMax INT DEFAULT 20,
+                               IdPersonnelAccueil INT,
+                               FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE CASCADE
+);
+
+CREATE TABLE Chambre (
+                         IdChambre INT AUTO_INCREMENT PRIMARY KEY,
+                         IdUnite INT NOT NULL,
+                         NumeroChambre VARCHAR(20) NOT NULL,
+                         TypeChambre ENUM('Standard', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL,
+                         NiveauEquipement INT DEFAULT 1,
+                         NiveauSalete INT DEFAULT 0,
+                         FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE CASCADE
+);
+
+CREATE TABLE Lit (
+                     IdLit INT AUTO_INCREMENT PRIMARY KEY,
+                     IdChambre INT NOT NULL,
+                     NumeroLit VARCHAR(10) NOT NULL,
+                     Statut ENUM('Libre', 'Occupé', 'En Nettoyage', 'Maintenance') DEFAULT 'Libre',
+                     FOREIGN KEY (IdChambre) REFERENCES Chambre(IdChambre) ON DELETE CASCADE
+);
+
+INSERT INTO Hopital (Nom, DirecteurGeneral, DirecteurMedical) VALUES ('Washington Memorial Safezone', 'Dr. Webber', 'Dr. Bailey');
+
+INSERT INTO Aile (IdHopital, Nom, FonctionPrincipale) VALUES
+                                                          (1, 'Aile Est', 'Urgences et Traumatologie'),
+                                                          (1, 'Aile Ouest', 'Chirurgie et Soins Spécialisés'),
+                                                          (1, 'Sous-sol', 'Logistique et Mortuaire');
+
+INSERT INTO Departement (IdAile, Nom, ChefDeDepartement) VALUES
+                                                             (1, 'Département des Urgences', 'Dr. Carter'),
+                                                             (2, 'Département de Chirurgie', 'Dr. Shepherd'),
+                                                             (3, 'Services Funéraires', 'Mr. Filch');
+
+INSERT INTO Service (IdDepartement, Nom, ChefDeService) VALUES
+                                                            (1, 'Urgences Générales', 'Dr. Greene'),
+                                                            (2, 'Chirurgie Générale', 'Dr. Grey'),
+                                                            (3, 'Morgue Centrale', 'Dr. Mallard');
+
+INSERT INTO Unite (IdService, Nom, CadreDeSante) VALUES
+                                                     (1, 'Triage Urgences', 'Hathaway'),
+                                                     (1, 'Soins Intensifs Urgences', 'Taggart'),
+                                                     (2, 'Bloc Opératoire A', 'Espinosa'),
+                                                     (3, 'Chambre Froide', 'NC');
+
+INSERT INTO Salle_Attente (IdUnite, CapaciteMax) VALUES
+                                                     (1, 50),
+                                                     (3, 10);
+
+INSERT INTO Chambre (IdUnite, NumeroChambre, TypeChambre) VALUES
+                                                              (1, 'URG-101', 'Standard'),
+                                                              (1, 'URG-102', 'Standard'),
+                                                              (2, 'SI-201', 'Soins Intensifs'),
+                                                              (2, 'SI-202', 'Soins Intensifs'),
+                                                              (3, 'BLOC-01', 'Bloc Opératoire'),
+                                                              (4, 'MORGUE-01', 'Isolement');
+
+INSERT INTO Lit (IdChambre, NumeroLit) VALUES
+                                           (1, 'L1-101'), (1, 'L2-101'),
+                                           (2, 'L1-102'), (2, 'L2-102'),
+                                           (3, 'L1-201'), (3, 'L2-201'),
+                                           (4, 'L1-202'), (4, 'L2-202'),
+                                           (5, 'TABLE-01'),
+                                           (6, 'CASIER-1'), (6, 'CASIER-2'), (6, 'CASIER-3'), (6, 'CASIER-4');
+
+CREATE TABLE TraitsPersona (
+                               IdTrait INT AUTO_INCREMENT PRIMARY KEY,
+                               Nom VARCHAR(50) NOT NULL
+);
+
+INSERT INTO TraitsPersona (Nom) VALUES
+                                    ('Génie Précoce'), ('Minutieux'), ('Expéditif'), ('Maladroit'), ('Acharné'),
+                                    ('Paresseux'), ('Constitution de Fer'), ('Fragile'), ('Sang-Froid'), ('Paniqué'),
+                                    ('Empathique'), ('Arrogant'), ('Mentor'), ('Bavard'), ('Loup-Solitaire'),
+                                    ('Cupide'), ('Altruiste'), ('Germophobe'), ('Noctambule'), ('Matinier');
+
+CREATE TABLE To_Hire (
+                         IdCandidat INT AUTO_INCREMENT PRIMARY KEY,
+                         Nom VARCHAR(50) NOT NULL,
+                         Prenom VARCHAR(50) NOT NULL,
+                         Categorie VARCHAR(100) NOT NULL,
+                         RoleExact VARCHAR(100) NOT NULL,
+                         Specialite VARCHAR(100),
+                         NiveauCompetence INT NOT NULL,
+                         SalaireJour DECIMAL(10, 2) NOT NULL,
+                         PrimeEmbauche DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE Personnel_Actif (
+                                 IdEmploye INT AUTO_INCREMENT PRIMARY KEY,
+                                 IdUnite INT,
+                                 Nom VARCHAR(50) NOT NULL,
+                                 Prenom VARCHAR(50) NOT NULL,
+                                 Categorie VARCHAR(100) NOT NULL,
+                                 RoleExact VARCHAR(100) NOT NULL,
+                                 Specialite VARCHAR(100),
+                                 NiveauCompetence INT NOT NULL,
+                                 Experience INT DEFAULT 0,
+                                 Energie INT DEFAULT 100,
+                                 Faim INT DEFAULT 100,
+                                 Vessie INT DEFAULT 100,
+                                 Stress INT DEFAULT 0,
+                                 SalaireJour DECIMAL(10, 2) NOT NULL,
+                                 Shift ENUM('Jour', 'Nuit') DEFAULT 'Jour',
+                                 Statut ENUM('En poste', 'En pause', 'Absent', 'Épuisé') DEFAULT 'En poste',
+                                 FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE SET NULL
+);
+
+CREATE TABLE Candidat_Trait (
+                                IdCandidat INT,
+                                IdTrait INT,
+                                PRIMARY KEY (IdCandidat, IdTrait),
+                                FOREIGN KEY (IdCandidat) REFERENCES To_Hire(IdCandidat) ON DELETE CASCADE,
+                                FOREIGN KEY (IdTrait) REFERENCES TraitsPersona(IdTrait) ON DELETE CASCADE
+);
+
+CREATE TABLE Employe_Trait (
+                               IdEmploye INT,
+                               IdTrait INT,
+                               PRIMARY KEY (IdEmploye, IdTrait),
+                               FOREIGN KEY (IdEmploye) REFERENCES Personnel_Actif(IdEmploye) ON DELETE CASCADE,
+                               FOREIGN KEY (IdTrait) REFERENCES TraitsPersona(IdTrait) ON DELETE CASCADE
+);
+
+CREATE TABLE Competence_Candidat (
+                                     IdCandidat INT,
+                                     IdUnite INT,
+                                     Score INT DEFAULT 0 CHECK (Score >= 0 AND Score <= 10),
+                                     PRIMARY KEY (IdCandidat, IdUnite),
+                                     FOREIGN KEY (IdCandidat) REFERENCES To_Hire(IdCandidat) ON DELETE CASCADE,
+                                     FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE CASCADE
+);
+
+CREATE TABLE Competence_Employe (
+                                    IdEmploye INT,
+                                    IdUnite INT,
+                                    Score INT DEFAULT 0 CHECK (Score >= 0 AND Score <= 10),
+                                    PRIMARY KEY (IdEmploye, IdUnite),
+                                    FOREIGN KEY (IdEmploye) REFERENCES Personnel_Actif(IdEmploye) ON DELETE CASCADE,
+                                    FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE CASCADE
+);
+
+INSERT INTO To_Hire (Nom, Prenom, Categorie, RoleExact, Specialite, NiveauCompetence, SalaireJour, PrimeEmbauche) VALUES
+                                                                                                                      ('House', 'Gregory', 'Corps Médical', 'Titulaire', 'Diagnostic', 99, 1500.00, 10000.00),
+                                                                                                                      ('Shepherd', 'Derek', 'Corps Médical', 'Titulaire', 'Neurochirurgie', 98, 1600.00, 12000.00),
+                                                                                                                      ('Taub', 'Chris', 'Corps Médical', 'Fellow', 'Chirurgie Plastique', 85, 1100.00, 5000.00),
+                                                                                                                      ('Hadley', 'Remy', 'Corps Médical', 'Fellow', 'Médecine Interne', 82, 950.00, 4000.00),
+                                                                                                                      ('Karev', 'Alex', 'Corps Médical', 'Interne', 'Pédiatrie', 75, 600.00, 2000.00),
+                                                                                                                      ('Avery', 'Jackson', 'Corps Médical', 'Interne', 'Chirurgie', 78, 650.00, 2500.00),
+                                                                                                                      ('Dorian', 'John', 'Corps Médical', 'Interne 1ère année', 'Médecine Générale', 50, 300.00, 500.00),
+                                                                                                                      ('Murphy', 'Shaun', 'Corps Médical', 'Interne 1ère année', 'Chirurgie', 90, 400.00, 1000.00),
+                                                                                                                      ('Knight', 'Lucy', 'Corps Médical', 'Externe', 'Général', 30, 150.00, 0.00),
+                                                                                                                      ('OMalley', 'George', 'Corps Médical', 'Externe', 'Général', 35, 150.00, 0.00),
+                                                                                                                      ('Oswald', 'Clara', 'Corps Médical', 'Sage-Femme', 'Obstétrique', 88, 700.00, 3000.00),
+                                                                                                                      ('Smith', 'Anna', 'Corps Médical', 'Sage-Femme', 'Gynécologie', 80, 650.00, 2500.00),
+                                                                                                                      ('Hathaway', 'Carol', 'Corps Médical', 'Infirmier NP', 'Urgences', 92, 500.00, 1500.00),
+                                                                                                                      ('Taggart', 'Samantha', 'Corps Médical', 'Infirmier NP', 'Soins Intensifs', 85, 480.00, 1200.00),
+                                                                                                                      ('Espinosa', 'Carla', 'Personnel Soignant', 'Cadre de Santé', 'Chirurgie', 95, 400.00, 1000.00),
+                                                                                                                      ('McCall', 'Melissa', 'Personnel Soignant', 'Cadre de Santé', 'Urgences', 90, 380.00, 900.00),
+                                                                                                                      ('Barton', 'Clint', 'Personnel Soignant', 'Infirmier RN', 'Traumatologie', 80, 300.00, 500.00),
+                                                                                                                      ('Romanoff', 'Natasha', 'Personnel Soignant', 'Infirmier RN', 'Oncologie', 85, 320.00, 600.00),
+                                                                                                                      ('Gamgee', 'Sam', 'Personnel Soignant', 'Aide-Soignant', 'Gériatrie', 70, 200.00, 200.00),
+                                                                                                                      ('Weasley', 'Ron', 'Personnel Soignant', 'Aide-Soignant', 'Médecine Interne', 60, 180.00, 150.00),
+                                                                                                                      ('White', 'Walter', 'Médico-Technique', 'Pharmacien', 'Oncologie', 99, 800.00, 4000.00),
+                                                                                                                      ('Pinkman', 'Jesse', 'Médico-Technique', 'Pharmacien', 'Général', 65, 400.00, 500.00),
+                                                                                                                      ('Fring', 'Gustavo', 'Médico-Technique', 'Préparateur Pharmacie', 'Chimiothérapie', 95, 600.00, 2000.00),
+                                                                                                                      ('Ehrmantraut', 'Mike', 'Médico-Technique', 'Préparateur Pharmacie', 'Logistique', 90, 500.00, 1500.00),
+                                                                                                                      ('Geller', 'Ross', 'Médico-Technique', 'Échographiste', 'Cardiologie', 80, 450.00, 1000.00),
+                                                                                                                      ('Bing', 'Chandler', 'Médico-Technique', 'Échographiste', 'Général', 75, 400.00, 800.00),
+                                                                                                                      ('Cooper', 'Sheldon', 'Médico-Technique', 'Technologue IRM', 'Neuroimagerie', 99, 750.00, 3000.00),
+                                                                                                                      ('Hofstadter', 'Leonard', 'Médico-Technique', 'Technologue IRM', 'Général', 85, 550.00, 1500.00),
+                                                                                                                      ('Stark', 'Tony', 'Médico-Technique', 'Technologue CT', 'Urgences', 98, 900.00, 5000.00),
+                                                                                                                      ('Banner', 'Bruce', 'Médico-Technique', 'Technologue CT', 'Traumatologie', 95, 850.00, 4500.00),
+                                                                                                                      ('Curie', 'Marie', 'Médico-Technique', 'Dosimétriste', 'Oncologie', 100, 1000.00, 10000.00),
+                                                                                                                      ('Feynman', 'Richard', 'Médico-Technique', 'Dosimétriste', 'Médecine Nucléaire', 97, 950.00, 8000.00),
+                                                                                                                      ('Cullen', 'Carlisle', 'Médico-Technique', 'Phlébotomiste', 'Prélèvements', 99, 500.00, 2000.00),
+                                                                                                                      ('Black', 'Sirius', 'Médico-Technique', 'Phlébotomiste', 'Prélèvements', 75, 350.00, 500.00),
+                                                                                                                      ('Sciuto', 'Abby', 'Médico-Technique', 'Technologue Labo', 'Hématologie', 92, 600.00, 2500.00),
+                                                                                                                      ('Mallard', 'Ducky', 'Médico-Technique', 'Technologue Labo', 'Pathologie', 96, 700.00, 3500.00),
+                                                                                                                      ('Lecter', 'Hannibal', 'Médico-Technique', 'Perfusionniste', 'Chirurgie Cardiaque', 99, 1200.00, 8000.00),
+                                                                                                                      ('Wayne', 'Bruce', 'Médico-Technique', 'Perfusionniste', 'Chirurgie Cardiaque', 88, 900.00, 4000.00),
+                                                                                                                      ('Grimes', 'Rick', 'Médico-Technique', 'Technicien de Bloc', 'Traumatologie', 85, 450.00, 1000.00),
+                                                                                                                      ('Dixon', 'Daryl', 'Médico-Technique', 'Technicien de Bloc', 'Orthopédie', 82, 420.00, 900.00),
+                                                                                                                      ('Baggins', 'Frodo', 'Médico-Technique', 'Inhalothérapeute', 'Soins Intensifs', 70, 380.00, 600.00),
+                                                                                                                      ('Baggins', 'Bilbo', 'Médico-Technique', 'Inhalothérapeute', 'Urgences', 85, 450.00, 1200.00),
+                                                                                                                      ('Oliver', 'Jamie', 'Médico-Technique', 'Diététicien', 'Nutrition entérale', 80, 400.00, 800.00),
+                                                                                                                      ('Ramsay', 'Gordon', 'Médico-Technique', 'Diététicien', 'Général', 95, 600.00, 2000.00),
+                                                                                                                      ('Kent', 'Clark', 'Médico-Technique', 'Ergothérapeute', 'Rééducation Motrice', 85, 450.00, 1000.00),
+                                                                                                                      ('Prince', 'Diana', 'Médico-Technique', 'Kiné/Ergo', 'Post-Traumatique', 92, 500.00, 1500.00),
+                                                                                                                      ('Logue', 'Lionel', 'Médico-Technique', 'Orthophoniste', 'Déglutition post-AVC', 98, 550.00, 2000.00),
+                                                                                                                      ('Poppins', 'Mary', 'Médico-Technique', 'Orthophoniste', 'Pédiatrie', 90, 480.00, 1200.00),
+                                                                                                                      ('Valjean', 'Jean', 'Logistique & Support', 'Brancardier', 'Transport', 85, 250.00, 300.00),
+                                                                                                                      ('Javert', 'Inspecteur', 'Logistique & Support', 'Brancardier', 'Urgences', 88, 280.00, 400.00),
+                                                                                                                      ('Gordon', 'Jim', 'Logistique & Support', 'Régulateur Flux', 'Coordination', 92, 450.00, 1000.00),
+                                                                                                                      ('Danvers', 'Carol', 'Logistique & Support', 'Régulateur Flux', 'Urgences', 85, 400.00, 800.00),
+                                                                                                                      ('Moss', 'Maurice', 'Logistique & Support', 'Gestionnaire Dossiers', 'Archives', 80, 350.00, 500.00),
+                                                                                                                      ('Trenneman', 'Roy', 'Logistique & Support', 'Gestionnaire Dossiers', 'Sécurité Données', 82, 380.00, 600.00),
+                                                                                                                      ('Alderson', 'Elliot', 'Logistique & Support', 'Support IT', 'Cybersécurité', 98, 700.00, 3000.00),
+                                                                                                                      ('Lovelace', 'Ada', 'Logistique & Support', 'Support IT', 'Réseaux', 95, 650.00, 2500.00),
+                                                                                                                      ('Murdock', 'Matt', 'Logistique & Support', 'Travailleur Social', 'Droit', 92, 500.00, 1500.00),
+                                                                                                                      ('Walters', 'Jennifer', 'Logistique & Support', 'Travailleur Social', 'Assurances', 88, 480.00, 1200.00),
+                                                                                                                      ('Skywalker', 'Luke', 'Logistique & Support', 'Représentant Patient', 'Médiation', 85, 450.00, 1000.00),
+                                                                                                                      ('Kenobi', 'Obi-Wan', 'Logistique & Support', 'Interprète', 'Multilingue', 95, 550.00, 2000.00),
+                                                                                                                      ('Brown', 'Dan', 'Logistique & Support', 'Aumônier', 'Soutien Spirituel', 80, 300.00, 500.00),
+                                                                                                                      ('Cleary', 'Ralph', 'Logistique & Support', 'Aumônier', 'Éthique', 85, 320.00, 600.00),
+                                                                                                                      ('MacGyver', 'Angus', 'Logistique & Support', 'Technicien Biomédical', 'Maintenance', 99, 600.00, 2500.00),
+                                                                                                                      ('Scott', 'Montgomery', 'Logistique & Support', 'Technicien Biomédical', 'Équipement lourd', 96, 580.00, 2000.00),
+                                                                                                                      ('Filch', 'Argus', 'Logistique & Support', 'Agent EVS', 'Infectiologie', 75, 200.00, 200.00),
+                                                                                                                      ('Muntz', 'Nelson', 'Logistique & Support', 'Gestionnaire Déchets', 'Risque Biologique', 60, 250.00, 300.00),
+                                                                                                                      ('McClane', 'John', 'Logistique & Support', 'Agent Sécurité', 'Urgences', 90, 350.00, 800.00),
+                                                                                                                      ('Wick', 'John', 'Logistique & Support', 'Agent Sécurité', 'Psychiatrie', 95, 400.00, 1000.00),
+                                                                                                                      ('Scrooge', 'Ebenezer', 'Logistique & Support', 'Spécialiste Codage', 'Facturation', 99, 500.00, 1500.00),
+                                                                                                                      ('Krabs', 'Eugene', 'Logistique & Support', 'Spécialiste Codage', 'Assurances', 90, 450.00, 1000.00);
+
+CREATE TABLE Recherche (
+                           IdRecherche INT AUTO_INCREMENT PRIMARY KEY,
+                           Nom VARCHAR(100) NOT NULL,
+                           Description TEXT,
+                           Coute DECIMAL(10, 2) NOT NULL,
+                           EstDebloque BOOLEAN DEFAULT FALSE
+);
+
+INSERT INTO Recherche (Nom, Description, Coute, EstDebloque) VALUES
+                                                                 ('Imagerie Avancée', 'Débloque les IRM et Scanners CT', 50000.00, FALSE),
+                                                                 ('Chirurgie Spécialisée', 'Permet les opérations à cœur ouvert et neurochirurgie', 100000.00, FALSE),
+                                                                 ('Soins Intensifs', 'Débloque l''unité de réanimation', 25000.00, TRUE);
+
+CREATE TABLE Equipements (
+IdEquipement INT AUTO_INCREMENT PRIMARY KEY,
+Nom VARCHAR(100) NOT NULL,
+IdUnite INT,
+Usure INT DEFAULT 0,
+ConsommationEnergie INT DEFAULT 0,
+FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE SET NULL
+);
+
+INSERT INTO Equipements (Nom, IdUnite, ConsommationEnergie) VALUES
+('Générateur Électrique Principal', 4, 0),
+('Centrale Oxygène', 2, 50),
+('Scanner IRM', 1, 150);
+
+CREATE TABLE Evenements_Actifs (
+IdEvenement INT AUTO_INCREMENT PRIMARY KEY,
+Nom VARCHAR(100) NOT NULL,
+Type VARCHAR(50) NOT NULL,
+HeuresRestantes INT NOT NULL
+);
+
+CREATE TABLE Cas_Cliniques (
+                               IdCas INT AUTO_INCREMENT PRIMARY KEY,
+                               IdService INT NOT NULL,
+                               Maladie VARCHAR(100) NOT NULL,
+                               Symptomes TEXT NOT NULL,
+                               Diagnostic TEXT NOT NULL,
+                               Traitements TEXT NOT NULL,
+                               TempsTraitementHeures INT NOT NULL,
+                               RevenuPatient DECIMAL(10, 2) NOT NULL,
+                               RisqueErreurMedicale INT DEFAULT 5,
+                               FOREIGN KEY (IdService) REFERENCES Service(IdService) ON DELETE CASCADE
+);
+
+INSERT INTO Cas_Cliniques (IdService, Maladie, Symptomes, Diagnostic, Traitements, TempsTraitementHeures, RevenuPatient, RisqueErreurMedicale) VALUES
+                                                                                                                                                   (1, 'Infarctus du Myocarde', 'Douleur thoracique irradiante', 'ECG, Troponine', 'Angioplastie, Stent', 48, 15000.00, 15),
+                                                                                                                                                   (1, 'Pneumonie Bactérienne', 'Toux grasse, fièvre élevée', 'Radio thorax', 'Antibiotiques, Oxygène', 168, 5000.00, 5),
+                                                                                                                                                   (2, 'Appendicite Aiguë', 'Douleur fosse iliaque droite', 'Échographie', 'Appendicectomie', 72, 8000.00, 8),
+                                                                                                                                                   (1, 'AVC Ischémique', 'Hémiplégie, aphasie', 'Scanner cérébral', 'Thrombolyse', 336, 25000.00, 20),
+                                                                                                                                                   (1, 'Diabète Type 1', 'Polydipsie, confusion', 'Glycémie, Cétonémie', 'Insuline IV', 120, 6000.00, 5),
+                                                                                                                                                   (1, 'Sepsis', 'Fièvre, hypotension', 'Hémocultures', 'Antibiotiques IV', 240, 20000.00, 25),
+                                                                                                                                                   (2, 'Fracture du Fémur', 'Douleur aiguë, déformation', 'Radiographie', 'Chirurgie orthopédique', 144, 18000.00, 10),
+                                                                                                                                                   (1, 'Asthme (Crise)', 'Détresse respiratoire', 'Spirométrie', 'Salbutamol, Corticoïdes', 48, 3000.00, 5),
+                                                                                                                                                   (1, 'Insuffisance Rénale', 'Oligurie, œdèmes', 'Créatinine élevée', 'Hémodialyse', 96, 12000.00, 10),
+                                                                                                                                                   (1, 'Ulcère Gastroduodénal', 'Douleurs épigastriques', 'Endoscopie', 'Inhibiteurs Pompe à Protons', 72, 4500.00, 5),
+                                                                                                                                                   (1, 'Embolie Pulmonaire', 'Douleur thoracique, dyspnée', 'Angio-Scanner', 'Anticoagulants', 120, 14000.00, 15),
+                                                                                                                                                   (1, 'Méningite Bactérienne', 'Raideur nuque, photophobie', 'Ponction lombaire', 'Ceftriaxone IV', 240, 16000.00, 15),
+                                                                                                                                                   (1, 'Choc Anaphylactique', 'Urticaire, chute tension', 'Clinique', 'Adrénaline IM', 24, 5000.00, 10),
+                                                                                                                                                   (1, 'Cirrhose Hépatique', 'Ictère, ascite', 'Échographie', 'Diurétiques, Ponction', 168, 9000.00, 8),
+                                                                                                                                                   (2, 'Péritonite', 'Ventre de bois, fièvre', 'Scanner abdominal', 'Chirurgie, Lavage', 240, 22000.00, 12),
+                                                                                                                                                   (1, 'Leucémie Aiguë', 'Infections, saignements', 'Myélogramme', 'Chimiothérapie', 504, 40000.00, 25),
+                                                                                                                                                   (1, 'Glaucome Aigu', 'Douleur oculaire extrême', 'Tonométrie', 'Collyres hypotenseurs', 48, 6000.00, 5),
+                                                                                                                                                   (1, 'Tuberculose', 'Toux chronique, sueurs', 'PCR crachats', 'Quadrithérapie', 336, 15000.00, 10),
+                                                                                                                                                   (1, 'Insuffisance Cardiaque', 'Dyspnée, œdèmes', 'Échographie', 'Diurétiques', 120, 8000.00, 10),
+                                                                                                                                                   (1, 'Maladie de Crohn', 'Diarrhées, douleurs', 'Coloscopie', 'Immunosuppresseurs', 168, 11000.00, 8),
+                                                                                                                                                   (1, 'Sclérose en Plaques', 'Troubles moteurs', 'IRM cérébrale', 'Corticoïdes IV', 120, 14000.00, 12),
+                                                                                                                                                   (1, 'Épilepsie', 'Convulsions', 'EEG', 'Antiépileptiques', 48, 4000.00, 5),
+                                                                                                                                                   (1, 'Brûlure 3ème degré', 'Peau carbonisée', 'Examen clinique', 'Greffe de peau', 336, 30000.00, 20),
+                                                                                                                                                   (1, 'Pancréatite Aiguë', 'Douleur transfixiante', 'Lipase x3', 'À jeun, Antalgiques', 168, 12000.00, 10),
+                                                                                                                                                   (1, 'Endocardite', 'Souffle cardiaque nouveau', 'Échographie ETO', 'Antibiotiques IV', 336, 25000.00, 15),
+                                                                                                                                                   (1, 'Anémie Falciforme', 'Crises vaso-occlusives', 'Électrophorèse', 'Transfusions, Opiacés', 96, 7500.00, 8),
+                                                                                                                                                   (1, 'Hypothyroïdie', 'Prise de poids, frilosité', 'TSH élevée', 'Lévothyroxine', 24, 2000.00, 2),
+                                                                                                                                                   (1, 'Arthrite Rhumatoïde', 'Gonflement articulaire', 'Radiographie', 'Méthotrexate', 72, 5000.00, 5),
+                                                                                                                                                   (1, 'Psoriasis Sévère', 'Plaques étendues', 'Clinique', 'UV, Biothérapies', 96, 6000.00, 3),
+                                                                                                                                                   (1, 'COVID-19 Sévère', 'Détresse respiratoire (SDRA)', 'Test PCR', 'Oxygénothérapie, Corticoïdes', 336, 28000.00, 15);
+
+CREATE TABLE Patients_Actifs (
+                                 IdPatient INT AUTO_INCREMENT PRIMARY KEY,
+                                 Nom VARCHAR(100) NOT NULL,
+                                 IdMaladie INT NOT NULL,
+                                 IdLit INT,
+                                 IdMedecinAssigné INT,
+                                 SanteActuelle INT DEFAULT 100,
+                                 Satisfaction INT DEFAULT 100,
+                                 Classe ENUM('Standard', 'VIP', 'Non-assuré') DEFAULT 'Standard',
+                                 TempsTraitementRestant INT,
+                                 Statut ENUM('En Attente', 'En Diagnostic', 'En Traitement', 'Guéri', 'Décédé') DEFAULT 'En Attente',
+                                 FOREIGN KEY (IdMaladie) REFERENCES Cas_Cliniques(IdCas),
+                                 FOREIGN KEY (IdLit) REFERENCES Lit(IdLit) ON DELETE SET NULL,
+                                 FOREIGN KEY (IdMedecinAssigné) REFERENCES Personnel_Actif(IdEmploye) ON DELETE SET NULL
+);
+
+CREATE TABLE Transactions_Financieres (
+                                          IdTransaction INT AUTO_INCREMENT PRIMARY KEY,
+                                          JourSimulation INT NOT NULL,
+                                          TypeTransaction ENUM('Revenu Patient', 'Paiement Salaire', 'Achat Équipement', 'Embauche', 'Frais Entretien', 'Remboursement Prêt') NOT NULL,
+                                          Montant DECIMAL(15, 2) NOT NULL,
+                                          Description VARCHAR(255)
+);
+
+CREATE VIEW Helper_Structure_Hopital AS
+SELECT
+    h.Nom AS Hopital,
+    a.Nom AS Aile,
+    d.Nom AS Departement,
+    s.Nom AS Service,
+    u.Nom AS Unite,
+    u.CadreDeSante,
+    u.CoutEntretienJour
+FROM Hopital h
+         JOIN Aile a ON h.IdHopital = a.IdHopital
+         JOIN Departement d ON a.IdAile = d.IdAile
+         JOIN Service s ON d.IdDepartement = s.IdDepartement
+         JOIN Unite u ON s.IdService = u.IdService;
+
+CREATE VIEW Helper_Disponibilite_Lits AS
+SELECT
+    u.Nom AS Unite,
+    c.NumeroChambre,
+    c.TypeChambre,
+    c.NiveauSalete,
+    l.IdLit,
+    l.NumeroLit,
+    l.Statut
+FROM Lit l
+         JOIN Chambre c ON l.IdChambre = c.IdChambre
+         JOIN Unite u ON c.IdUnite = u.IdUnite
+WHERE l.Statut = 'Libre';
+
+CREATE VIEW Helper_Patients_Dashboard AS
+SELECT
+    p.IdPatient,
+    p.Nom AS Patient,
+    m.Maladie,
+    p.SanteActuelle,
+    p.Satisfaction,
+    p.Classe,
+    p.Statut,
+    c.NumeroChambre,
+    l.NumeroLit,
+    med.Nom AS MedecinEnCharge
+FROM Patients_Actifs p
+         JOIN Cas_Cliniques m ON p.IdMaladie = m.IdCas
+         LEFT JOIN Lit l ON p.IdLit = l.IdLit
+         LEFT JOIN Chambre c ON l.IdChambre = c.IdChambre
+         LEFT JOIN Personnel_Actif med ON p.IdMedecinAssigné = med.IdEmploye;

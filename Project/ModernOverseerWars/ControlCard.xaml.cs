@@ -7,16 +7,16 @@ using System.Windows.Media.Animation;
 namespace LaboratoireProgrammation.Project.ModernOverseerWars;
 
 public partial class ControlCard : UserControl {
-    public static readonly DependencyProperty CardImageProperty =
-        DependencyProperty.Register("CardImage", typeof(string), typeof(ControlCard), new PropertyMetadata("Default"));
+    public static readonly DependencyProperty CardImageProperty = DependencyProperty.Register("CardImage", typeof(string), typeof(ControlCard), new PropertyMetadata("Default"));
 
-    public static readonly DependencyProperty PowerProperty =
-        DependencyProperty.Register("Power", typeof(int), typeof(ControlCard), new PropertyMetadata(0));
+    public static readonly DependencyProperty PowerProperty = DependencyProperty.Register("Power", typeof(int), typeof(ControlCard), new PropertyMetadata(0));
 
     private static readonly List<ControlCard> _instances = new();
 
     private Canvas _parentCanvas;
     private Point _relativeMousePos;
+
+    private CardStack? stack;
 
     public ControlCard() {
         InitializeComponent();
@@ -62,6 +62,11 @@ public partial class ControlCard : UserControl {
     protected override void OnMouseLeave(MouseEventArgs e) {
         base.OnMouseLeave(e);
         ApplyScaleAnimation(1.0, 0.2);
+    }
+
+    private bool isInStack() {
+        if (stack != null) return true;
+        return false;
     }
 
     protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
@@ -125,7 +130,12 @@ public partial class ControlCard : UserControl {
         var currentPos = GetCurrentPosition();
         var targetPos = closest.GetCurrentPosition();
 
-        if (GetDistanceSquared(currentPos, targetPos) < 2400) AnimateToPosition(targetPos, 0.4);
+        if (GetDistanceSquared(currentPos, targetPos) < 10000) AnimateToPosition(targetPos, 0.4);
+
+        if (closest.isInStack()) {
+            var closestStack = closest.stack;
+            closestStack?.AddCard(this);
+        }
     }
 
     private void AnimateToPosition(Point target, double durationSeconds) {

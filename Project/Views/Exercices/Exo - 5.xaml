@@ -502,7 +502,7 @@
         <Border Grid.Row="3" Background="#111113" BorderBrush="#2A2A2E" BorderThickness="0,1,0,0" Padding="8,3">
             <Grid>
                 <TextBlock x:Name="StatusText"
-                           Text="[ READY ] — Aucun fichier ouvert"
+                           Text="[ READY ] : Aucun fichier ouvert"
                            Foreground="#606060"
                            FontFamily="Consolas"
                            FontSize="12"

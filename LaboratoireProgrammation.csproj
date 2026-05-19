@@ -269,6 +269,10 @@
         <Content Include="Assets\Backgrounds\PNG\main-menu.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <None Remove="Assets\fonts\PressStart2P.ttf" />
+        <Resource Include="Assets\fonts\pressstart2p.ttf" />
+        <None Remove="Assets\images\cursor.png" />
+        <Resource Include="Assets\images\cursor.png" />
     </ItemGroup>
 
     <ItemGroup>

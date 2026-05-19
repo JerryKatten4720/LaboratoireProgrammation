@@ -64,7 +64,7 @@ public partial class Exo5 : UserControl {
         Editor.Document.Blocks.Clear();
         _currentFilePath = string.Empty;
         _hasUnsavedChanges = false;
-        UpdateStatus("[ NEW ] — Nouveau document");
+        UpdateStatus("[ NEW ] : Nouveau document");
     }
 
     private void OpenFileClick(object sender, RoutedEventArgs? e) {
@@ -82,7 +82,7 @@ public partial class Exo5 : UserControl {
         range.Load(fs, fmt);
         _currentFilePath = ofd.FileName;
         _hasUnsavedChanges = false;
-        UpdateStatus($"[ OPEN ] — {Path.GetFileName(_currentFilePath)}");
+        UpdateStatus($"[ OPEN ] : {Path.GetFileName(_currentFilePath)}");
     }
 
     private void SaveFileClick(object sender, RoutedEventArgs? e) {
@@ -110,7 +110,7 @@ public partial class Exo5 : UserControl {
         var fmt = path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ? DataFormats.Text : DataFormats.Rtf;
         range.Save(fs, fmt);
         _hasUnsavedChanges = false;
-        UpdateStatus($"[ SAVED ] — {Path.GetFileName(path)}");
+        UpdateStatus($"[ SAVED ] : {Path.GetFileName(path)}");
     }
 
     private void PrintClick(object sender, RoutedEventArgs e) {
