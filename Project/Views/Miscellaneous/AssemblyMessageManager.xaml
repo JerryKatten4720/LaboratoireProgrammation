@@ -1,0 +1,108 @@
+<UserControl x:Class="LaboratoireProgrammation.Project.Views.Miscellaneous.AssemblyMessageManager"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:colorhelper="clr-namespace:LaboratoireProgrammation.Project.Helpers"
+             mc:Ignorable="d" Background="Transparent"
+             d:DesignHeight="500" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="TerminalBgBrush" Color="#09090B" />
+        <SolidColorBrush x:Key="ControlBg" Color="#111113" />
+        <SolidColorBrush x:Key="ControlBorder" Color="#2A2A2E" />
+        
+        <Style x:Key="TerminalText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Doto" />
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="TerminalInput" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Doto" />
+            <Setter Property="Foreground" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="Background" Value="{StaticResource ControlBg}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ControlBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="CaretBrush" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="MaxLength" Value="16" />
+        </Style>
+
+        <Style x:Key="TerminalButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/fonts/#Doto" />
+            <Setter Property="Foreground" Value="#09090B" />
+            <Setter Property="Background" Value="{x:Static colorhelper:ColorHelper.FancyTextBrush}" />
+            <Setter Property="FontSize" Value="30" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="20,10" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.8" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource TerminalBgBrush}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="600">
+            
+            <TextBlock Text="[ ROB.CO - UPLINK.LCD_MODULE ]" 
+                       FontFamily="pack://application:,,,/Assets/fonts/#Doto"
+                       FontSize="28" 
+                       FontWeight="Bold" 
+                       Foreground="{x:Static colorhelper:ColorHelper.FancyTextBrush}"
+                       Margin="0,0,0,40" 
+                       HorizontalAlignment="Center" />
+
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="LIGNE 1 > " Style="{StaticResource TerminalText}" Margin="0,0,10,0" />
+                <TextBox Grid.Column="1" x:Name="InputLine1" Style="{StaticResource TerminalInput}" TextChanged="InputLine_TextChanged" />
+                <TextBlock Grid.Column="2" x:Name="CounterLine1" Text="(16 CHARACTÈRES RESTANT)" Style="{StaticResource TerminalText}" Margin="15,0,0,0" Opacity="0.5" />
+            </Grid>
+
+            <Grid Margin="0,0,0,40">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="LIGNE 2 > " Style="{StaticResource TerminalText}" Margin="0,0,10,0" />
+                <TextBox Grid.Column="1" x:Name="InputLine2" Style="{StaticResource TerminalInput}" TextChanged="InputLine_TextChanged" />
+                <TextBlock Grid.Column="2" x:Name="CounterLine2" Text="(16 CHARACTÈRES RESTANT)" Style="{StaticResource TerminalText}" Margin="15,0,0,0" Opacity="0.5" />
+            </Grid>
+
+            <Grid Margin="0,0,0,20" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="PORT > " Style="{StaticResource TerminalText}" Margin="0,0,10,0" />
+                <TextBox Grid.Column="1" x:Name="InputComPort" Style="{StaticResource TerminalInput}" Text="COM9" Width="80" MaxLength="5" HorizontalAlignment="Left" />
+            </Grid>
+
+            <Button x:Name="BtnPush" Content="&nbsp; >>>&nbsp; &nbsp; PUSH &nbsp; &nbsp; &lt;&lt;&lt; &nbsp;" Style="{StaticResource TerminalButton}" Click="BtnPush_Click" HorizontalAlignment="Center" Margin="0,20,0,0" Padding="20" />
+
+        </StackPanel>
+    </Grid>
+</UserControl>

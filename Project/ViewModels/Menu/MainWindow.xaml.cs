@@ -64,10 +64,7 @@ public partial class MainWindow : Window {
         TerminalOutputPanel.Children.Clear();
         TerminalDisplay.SeparationLine();
         
-        var window = new HospitalWindow();
-        window.Show();
         
-        this.Close();
         
     }
 

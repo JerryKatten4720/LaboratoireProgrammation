@@ -19,7 +19,8 @@ public class RunSubprograms {
         OverseerWars,
         ESP8266,
         LabHospital,
-        FlashMaster
+        FlashMaster,
+        Uplink
     }
 
     public static void RunSub(Subprograms sub, MainWindow win) {
@@ -81,6 +82,10 @@ public class RunSubprograms {
 
             case Subprograms.ESP8266:
                 _ = MenuLoaders.Run_ESP8266(win);
+                break;
+            
+            case Subprograms.Uplink:
+                _ = MenuLoaders.RunUplink(win);
                 break;
         }
     }

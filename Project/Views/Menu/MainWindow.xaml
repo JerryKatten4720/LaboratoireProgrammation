@@ -10,6 +10,7 @@
         xmlns:exercices1="clr-namespace:LaboratoireProgrammation.Project.Views.Exercices"
         xmlns:overseerWars="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars"
         xmlns:microController="clr-namespace:LaboratoireProgrammation.Project.ViewModels.Laboratoires.MicroController"
+        xmlns:miscellaneous="clr-namespace:LaboratoireProgrammation.Project.Views.Miscellaneous"
         Title="{x:Static viewModels1:MainWindowConfiguration.Title}"
         Height="{x:Static viewModels1:MainWindowConfiguration.Height}"
         Width="{x:Static viewModels1:MainWindowConfiguration.Width}"
@@ -282,6 +283,10 @@
                 <microController:FlashMaster Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
                                              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
                                              x:Name="FlashMaster" />
+                
+                <miscellaneous:AssemblyMessageManager Visibility="Collapsed" Panel.ZIndex="0" Grid.Row="0"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                                             x:Name="Uplink" />
 
                 <Grid>
                     <Image Source="../../../Assets/images/bethesdaWhite.png" x:Name="BethesdaLogo"

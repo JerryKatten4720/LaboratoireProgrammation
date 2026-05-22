@@ -124,4 +124,11 @@ public partial class BabyMode : UserControl {
             RunSubprograms.RunSub(RunSubprograms.Subprograms.FlashMaster, window);
         }
     }
+
+    private void Uplink(object sender, RoutedEventArgs e) {
+        if (ParentWindow is { } window) {
+            Visibility = Visibility.Collapsed;
+            RunSubprograms.RunSub(RunSubprograms.Subprograms.Uplink, window);
+        }
+    }
 }

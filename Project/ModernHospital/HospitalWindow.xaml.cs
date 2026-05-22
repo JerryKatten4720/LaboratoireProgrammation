@@ -245,12 +245,18 @@ public partial class HospitalWindow : Window {
 
     private void ShowAlert(string message) {
         var alertPopup = PopupFactory.CreateConfirmationPopup(
-            message,
-            "#FFB347",
-            () => { },
-            () => { }
+            message, "#FFB347", () => { }, () => { }
         );
+
+        alertPopup.Loaded += (s, e) => {
+            double left = (MainPanel.ActualWidth - alertPopup.ActualWidth) / 2;
+            double top = (MainPanel.ActualHeight - alertPopup.ActualHeight) / 2;
+
+            Canvas.SetLeft(alertPopup, left);
+            Canvas.SetTop(alertPopup, top);
+        };
 
         MainPanel.Children.Add(alertPopup);
     }
+
 }

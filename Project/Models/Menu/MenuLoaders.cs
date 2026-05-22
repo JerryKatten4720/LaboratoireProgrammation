@@ -59,6 +59,9 @@ public class MenuLoaders {
 
     private const string _title_flashZ = "FlashMaster [ Zeta ]";
     private const string _sub_flashZ = ": // DATE : APR . 2026  //  ⟊⟊☌⎅⎎⊑⍾ ⎅⟊⌇⎎⊑⌇ ⊑⎅⌇⟊☍⊑";
+    
+    private const string _title_uplink = "Up.Link [ LCD ] ";
+    private const string _sub_uplink = ": // DATE : MAY . 2026  //  ⟊⟊☌⎅⎎⊑⍾ ⎅⟊⌇⎎⊑⌇ ⊑⎅⌇⟊☍⊑";
 
     private const string _title_main = "TERMINAL ROB:CO";
     private const string _sub_main = "//: WELCOME -  USER ://";
@@ -455,5 +458,11 @@ public class MenuLoaders {
         await RunIntro(win, _title_flashZ, _title_flashZ, _author2, _lab1_title, _lab1_sub, _main_author,
             IntroStyle.FadeOnly);
         win.FlashMaster.Visibility = Visibility.Visible;
+    }
+
+    public static async Task RunUplink(MainWindow win) {
+        await RunIntro(win, _title_uplink, _title_uplink, _author2, _lab1_title, _lab1_sub, _main_author,
+            IntroStyle.FadeOnly);
+        win.Uplink.Visibility = Visibility.Visible;
     }
 }
