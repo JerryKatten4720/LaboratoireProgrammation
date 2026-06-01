@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:LaboratoireProgrammation.Project.ModernHospital"
         mc:Ignorable="d" WindowStyle="None" WindowState="Maximized"
         Title="HospitalWindow" Height="900" Width="1600"
         Background="#0d0d0f">
@@ -182,7 +183,8 @@
                                     <Border x:Name="DropDownBorder" Background="#18181e"
                                             BorderThickness="1"
                                             BorderBrush="{StaticResource Border}" />
-                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True"
+                                                  ScrollViewer.VerticalScrollBarVisibility="Hidden">
                                         <StackPanel IsItemsHost="True"
                                                     KeyboardNavigation.DirectionalNavigation="Contained" />
                                     </ScrollViewer>
@@ -276,6 +278,8 @@
                                 Click="Nav_Click" Tag="recruter" />
                         <Button x:Name="BtnFinances" Content="💹  Finances" Style="{StaticResource NavBtn}"
                                 Click="Nav_Click" Tag="finances" />
+                        <Button x:Name="BtnChambres" Content="🛏  Chambres &amp; Lits" Style="{StaticResource NavBtn}"
+                                Click="Nav_Click" Tag="chambres" />
                     </StackPanel>
 
                     <Border DockPanel.Dock="Bottom" Margin="12,0,12,20">
@@ -346,7 +350,7 @@
                                     <TextBlock x:Name="KpiLitsLibres" Text="0"
                                                Foreground="{StaticResource AccentTeal}"
                                                FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock x:Name="KpiLitsOccupes" Text="0 occupés"
+                                    <TextBlock x:Name="KpiLitsOccupes" Text="occupés"
                                                Foreground="{StaticResource TextDim}" FontSize="11" />
                                 </StackPanel>
                             </Border>
@@ -359,8 +363,8 @@
                                                FontSize="11" />
                                     <TextBlock x:Name="KpiRevenu" Text="$0"
                                                Foreground="{StaticResource AccentTeal}"
-                                               FontFamily="Consolas" FontSize="28" FontWeight="Bold" />
-                                    <TextBlock x:Name="KpiDepenses" Text="$0 dépenses"
+                                               FontFamily="Segoe UI Black" FontSize="36" />
+                                    <TextBlock x:Name="KpiDepenses" Text="dépenses"
                                                Foreground="{StaticResource AccentRed}" FontSize="11" />
                                 </StackPanel>
                             </Border>
@@ -396,7 +400,7 @@
                                     <TextBlock Text="Budget" Foreground="{StaticResource TextSecondary}" FontSize="11" />
                                     <TextBlock x:Name="KpiBudget" Text="$0"
                                                Foreground="{StaticResource AccentAmber}"
-                                               FontFamily="Consolas" FontSize="22" FontWeight="Bold" />
+                                               FontFamily="Segoe UI Black" FontSize="36" />
                                     <TextBlock Text="solde actuel" Foreground="{StaticResource TextDim}" FontSize="11" />
                                 </StackPanel>
                             </Border>
@@ -421,6 +425,7 @@
                             <TextBlock DockPanel.Dock="Top" Text="Journal des Événements"
                                        Foreground="{StaticResource TextPrimary}"
                                        FontFamily="Segoe UI Semibold" FontSize="15" Margin="0,0,0,14" />
+
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <ItemsControl x:Name="IcEventLog">
                                     <ItemsControl.ItemTemplate>
@@ -466,7 +471,7 @@
                                 <StackPanel Margin="0,0,12,0" Width="200">
                                     <TextBlock Text="Maladie" Foreground="{StaticResource TextSecondary}" FontSize="11"
                                                Margin="0,0,0,4" />
-                                    <ComboBox x:Name="CbMaladie" DisplayMemberPath="Maladie"/>
+                                    <ComboBox x:Name="CbMaladie" DisplayMemberPath="Maladie" />
                                 </StackPanel>
                                 <StackPanel Margin="0,0,12,0" Width="180">
                                     <TextBlock Text="Lit" Foreground="{StaticResource TextSecondary}" FontSize="11"
@@ -503,28 +508,25 @@
                                         Style="{StaticResource ActionBtn}" Width="110"
                                         Click="RefreshPatients_Click" />
                             </DockPanel>
-                            <ListView x:Name="LvPatients" BorderThickness="0">
+                            <ListView x:Name="LvPatients" BorderThickness="0"
+                                      MouseRightButtonUp="LvPatients_MouseRightButtonUp">
                                 <ListView.View>
                                     <GridView>
+                                        <GridViewColumn Header="!" Width="30"
+                                                        DisplayMemberBinding="{Binding WarningIcon}" />
                                         <GridViewColumn Header="ID" Width="45"
                                                         DisplayMemberBinding="{Binding IdPatient}" />
-                                        <GridViewColumn Header="Nom" Width="130" DisplayMemberBinding="{Binding Nom}" />
+                                        <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding Nom}" />
                                         <GridViewColumn Header="Maladie" Width="160"
                                                         DisplayMemberBinding="{Binding Maladie}" />
                                         <GridViewColumn Header="Statut" Width="110"
                                                         DisplayMemberBinding="{Binding Statut}" />
-                                        <GridViewColumn Header="Santé" Width="60"
-                                                        DisplayMemberBinding="{Binding SanteActuelle}" />
-                                        <GridViewColumn Header="Satisfaction" Width="80"
-                                                        DisplayMemberBinding="{Binding Satisfaction}" />
                                         <GridViewColumn Header="Classe" Width="90"
                                                         DisplayMemberBinding="{Binding Classe}" />
                                         <GridViewColumn Header="Chambre" Width="90"
                                                         DisplayMemberBinding="{Binding NumeroChambre}" />
                                         <GridViewColumn Header="Médecin" Width="140"
                                                         DisplayMemberBinding="{Binding MedecinEnCharge}" />
-                                        <GridViewColumn Header="Temps Restant" Width="110"
-                                                        DisplayMemberBinding="{Binding TempsTraitementRestant}" />
                                     </GridView>
                                 </ListView.View>
                             </ListView>
@@ -554,25 +556,19 @@
                                         Style="{StaticResource DangerBtn}" Width="110"
                                         Click="BtnFire_Click" />
                             </DockPanel>
-                            <ListView x:Name="LvPersonnel">
+                            <ListView x:Name="LvPersonnel" MouseRightButtonUp="LvPersonnel_MouseRightButtonUp">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="ID" Width="45"
                                                         DisplayMemberBinding="{Binding IdEmploye}" />
-                                        <GridViewColumn Header="Nom" Width="140"
+                                        <GridViewColumn Header="Nom" Width="150"
                                                         DisplayMemberBinding="{Binding NomComplet}" />
                                         <GridViewColumn Header="Catégorie" Width="140"
                                                         DisplayMemberBinding="{Binding Categorie}" />
                                         <GridViewColumn Header="Rôle" Width="160"
                                                         DisplayMemberBinding="{Binding RoleExact}" />
-                                        <GridViewColumn Header="Spécialité" Width="130"
+                                        <GridViewColumn Header="Spécialité" Width="140"
                                                         DisplayMemberBinding="{Binding Specialite}" />
-                                        <GridViewColumn Header="Niveau" Width="60"
-                                                        DisplayMemberBinding="{Binding NiveauCompetence}" />
-                                        <GridViewColumn Header="Énergie" Width="60"
-                                                        DisplayMemberBinding="{Binding Energie}" />
-                                        <GridViewColumn Header="Stress" Width="60"
-                                                        DisplayMemberBinding="{Binding Stress}" />
                                         <GridViewColumn Header="Statut" Width="100"
                                                         DisplayMemberBinding="{Binding Statut}" />
                                         <GridViewColumn Header="Salaire/J" Width="90"
@@ -671,6 +667,91 @@
                         </DockPanel>
                     </Border>
                 </Grid>
+
+                <Grid x:Name="PanelChambres" Visibility="Collapsed" Margin="28,24,28,24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                        <TextBlock Text="Chambres &amp; Lits" Foreground="{StaticResource TextPrimary}"
+                                   FontFamily="Segoe UI Black" FontSize="28" />
+                        <TextBlock Text="Gestion des infrastructures hospitalières"
+                                   Foreground="{StaticResource TextSecondary}" FontSize="13" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Content="➕ Ajouter Chambre" Style="{StaticResource ActionBtn}" Width="130"
+                                    Margin="0,0,8,0" Click="BtnAddChambre_Click" />
+                            <Button Content="🗑 Supprimer Chambre" Style="{StaticResource DangerBtn}" Width="150"
+                                    Margin="0,0,16,0" Click="BtnRemoveChambre_Click" />
+                            <Button Content="➕ Ajouter Lit" Style="{StaticResource ActionBtn}" Width="110"
+                                    Margin="0,0,8,0" Click="BtnAddLit_Click" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" x:Name="SvChambres" VerticalScrollBarVisibility="Auto" AllowDrop="True"
+                                  DragOver="SvChambres_DragOver">
+                        <ItemsControl x:Name="IcChambres">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="20"
+                                            Margin="0,0,0,16"
+                                            BorderBrush="{StaticResource Border}" BorderThickness="1"
+                                            AllowDrop="True" Drop="Chambre_Drop" Tag="{Binding}">
+
+                                        <DockPanel>
+                                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+                                                <TextBlock Text="{Binding NumeroChambre}"
+                                                           Foreground="{StaticResource AccentTeal}"
+                                                           FontFamily="Segoe UI Black" FontSize="18" />
+                                                <TextBlock Text="{Binding TypeChambre}"
+                                                           Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                            </StackPanel>
+
+                                            <ItemsControl ItemsSource="{Binding Lits}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#111116" CornerRadius="6" Padding="12,8"
+                                                                Margin="0,0,10,10"
+                                                                BorderBrush="#2a2a38" BorderThickness="1" Cursor="Hand"
+                                                                MouseMove="Lit_MouseMove"
+                                                                ContextMenuOpening="Lit_ContextMenuOpening">
+                                                            <Border.ContextMenu>
+                                                                <ContextMenu x:Name="CtxLit" />
+                                                            </Border.ContextMenu>
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding NumeroLit}"
+                                                                           Foreground="{StaticResource TextPrimary}"
+                                                                           FontFamily="Segoe UI Semibold" FontSize="13" />
+                                                                <TextBlock Text="{Binding Statut}"
+                                                                           Foreground="{StaticResource TextDim}"
+                                                                           FontSize="10" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+
+                <Popup x:Name="PatientPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
+                    <local:PatientActionMenu x:Name="PatientMenu" ActionTriggered="PatientMenu_ActionTriggered" />
+                </Popup>
+
+                <Popup x:Name="PersonnelPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
+                    <local:PersonnelActionMenu x:Name="PersonnelMenu" ActionTriggered="PersonnelMenu_ActionTriggered" />
+                </Popup>
 
                 <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
                         Background="#0e0e14" Height="40" Padding="16,2" Margin="0,0">

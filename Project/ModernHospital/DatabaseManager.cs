@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using MySqlConnector;
 
 namespace LaboratoireProgrammation.Project.ModernHospital;
@@ -16,7 +17,6 @@ public class DatabaseManager {
     private MySqlConnection GetConnection() {
         return new MySqlConnection(_connectionString);
     }
-
 
     public HospitalInfo? GetHospital() {
         using var conn = GetConnection();
@@ -697,8 +697,214 @@ public class DatabaseManager {
     public void FireEmploye(int empIdEmploye) {
         using var conn = GetConnection();
         conn.Open();
-        using var cmd = new MySqlCommand("UPDATE Personnel_Actif SET Statut='Licencié' WHERE IdEmploye=@id", conn);
+        using var cmd = new MySqlCommand("DELETE FROM Personnel_Actif WHERE IdEmploye=@id", conn);
         cmd.Parameters.AddWithValue("@id", empIdEmploye);
         cmd.ExecuteNonQuery();
+    }
+
+    public void ExecuteNonQuery(string query) {
+        using var conn = GetConnection();
+        conn.Open();
+        using var cmd = new MySqlCommand(query, conn);
+        cmd.ExecuteNonQuery();
+    }
+
+    public T? ExecuteScalar<T>(string query) {
+        using var conn = GetConnection();
+        conn.Open();
+        using var cmd = new MySqlCommand(query, conn);
+        var result = cmd.ExecuteScalar();
+        if (result == null || result == DBNull.Value) return default;
+        return (T)Convert.ChangeType(result, typeof(T));
+    }
+
+    public void RecordTransaction(string type, decimal montant, string description) {
+        var hospital = GetHospital();
+        if (hospital == null) return;
+        using var conn = GetConnection();
+        conn.Open();
+        LogTransaction(conn, hospital.JourSimulation, type, montant, description);
+    }
+
+    public void ReleaseBed(int idPatient) {
+        using var conn = GetConnection();
+        conn.Open();
+        // On récupère le lit occupé par le patient
+        int? idLit = null;
+        using (var cmd = new MySqlCommand("SELECT IdLit FROM Patients_Actifs WHERE IdPatient=@id", conn)) {
+            cmd.Parameters.AddWithValue("@id", idPatient);
+            var result = cmd.ExecuteScalar();
+            if (result != null && result != DBNull.Value) idLit = Convert.ToInt32(result);
+        }
+
+        if (idLit.HasValue) {
+            using var cmd = new MySqlCommand("UPDATE Lit SET Statut='Libre' WHERE IdLit=@id", conn);
+            cmd.Parameters.AddWithValue("@id", idLit.Value);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    public List<LitInventaire> GetLitsInventaire() {
+        var list = new List<LitInventaire>();
+        using var conn = GetConnection();
+        conn.Open();
+
+        var sql = @"
+        SELECT 
+            l.IdLit, 
+            l.NumeroLit, 
+            c.NumeroChambre, 
+            c.TypeChambre, 
+            u.Nom AS Unite, 
+            l.Statut 
+        FROM Lit l 
+        JOIN Chambre c ON l.IdChambre = c.IdChambre 
+        JOIN Unite u ON c.IdUnite = u.IdUnite";
+
+        using var cmd = new MySqlCommand(sql, conn);
+        using var r = cmd.ExecuteReader();
+
+        while (r.Read())
+            list.Add(new LitInventaire {
+                IdLit = r.GetInt32("IdLit"),
+                NumeroLit = r.GetString("NumeroLit"),
+                NumeroChambre = r.GetString("NumeroChambre"),
+                TypeChambre = r.GetString("TypeChambre"),
+                Unite = r.GetString("Unite"),
+                Statut = r.GetString("Statut")
+            });
+
+        return list;
+    }
+
+    public ObservableCollection<ChambreGroup> GetChambresHierarchiques() {
+        var chambres = new Dictionary<int, ChambreGroup>();
+        using var conn = GetConnection();
+        conn.Open();
+
+        var sqlChambres = @"
+            SELECT c.IdChambre, c.NumeroChambre, c.TypeChambre, u.Nom AS Unite 
+            FROM Chambre c JOIN Unite u ON c.IdUnite = u.IdUnite ORDER BY c.NumeroChambre";
+        using var cmdC = new MySqlCommand(sqlChambres, conn);
+        using var rC = cmdC.ExecuteReader();
+        while (rC.Read()) {
+            var id = rC.GetInt32("IdChambre");
+            chambres[id] = new ChambreGroup {
+                IdChambre = id,
+                NumeroChambre = rC.GetString("NumeroChambre"),
+                TypeChambre = rC.GetString("TypeChambre"),
+                Unite = rC.GetString("Unite")
+            };
+        }
+
+        rC.Close();
+
+        var sqlLits = "SELECT IdLit, IdChambre, NumeroLit, Statut FROM Lit";
+        using var cmdL = new MySqlCommand(sqlLits, conn);
+        using var rL = cmdL.ExecuteReader();
+        while (rL.Read()) {
+            var idChambre = rL.GetInt32("IdChambre");
+            if (chambres.TryGetValue(idChambre, out var chambreGroup))
+                chambreGroup.Lits.Add(new LitInventaire {
+                    IdLit = rL.GetInt32("IdLit"),
+                    IdChambre = idChambre,
+                    NumeroLit = rL.GetString("NumeroLit"),
+                    Statut = rL.GetString("Statut")
+                });
+        }
+
+        return new ObservableCollection<ChambreGroup>(chambres.Values);
+    }
+
+    public void UpdateLitChambre(int idLit, int nouvelleIdChambre) {
+        using var conn = GetConnection();
+        conn.Open();
+        using var cmd = new MySqlCommand("UPDATE Lit SET IdChambre = @idC WHERE IdLit = @idL", conn);
+        cmd.Parameters.AddWithValue("@idC", nouvelleIdChambre);
+        cmd.Parameters.AddWithValue("@idL", idLit);
+        cmd.ExecuteNonQuery();
+    }
+
+    public List<ChambreBase> GetChambresList() {
+        var list = new List<ChambreBase>();
+        using var conn = GetConnection();
+        conn.Open();
+
+        using var cmd =
+            new MySqlCommand("SELECT IdChambre, NumeroChambre, TypeChambre FROM Chambre ORDER BY NumeroChambre", conn);
+        using var r = cmd.ExecuteReader();
+
+        while (r.Read())
+            list.Add(new ChambreBase {
+                IdChambre = r.GetInt32("IdChambre"),
+                NumeroChambre = r.GetString("NumeroChambre"),
+                TypeChambre = r.GetString("TypeChambre")
+            });
+
+        return list;
+    }
+
+    public void AddLit(int idChambre, string numeroLit) {
+        using var conn = GetConnection();
+        conn.Open();
+
+        using var cmd = new MySqlCommand("INSERT INTO Lit (IdChambre, NumeroLit, Statut) VALUES (@id, @num, 'Libre')",
+            conn);
+        cmd.Parameters.AddWithValue("@id", idChambre);
+        cmd.Parameters.AddWithValue("@num", numeroLit);
+
+        cmd.ExecuteNonQuery();
+    }
+
+    public List<UniteBase> GetUnitesList() {
+        var list = new List<UniteBase>();
+        using var conn = GetConnection();
+        conn.Open();
+
+        using var cmd = new MySqlCommand("SELECT IdUnite, Nom FROM Unite ORDER BY Nom", conn);
+        using var r = cmd.ExecuteReader();
+
+        while (r.Read())
+            list.Add(new UniteBase {
+                IdUnite = r.GetInt32("IdUnite"),
+                Nom = r.GetString("Nom")
+            });
+
+        return list;
+    }
+
+    public void AddChambre(int idUnite, string numeroChambre, string typeChambre) {
+        using var conn = GetConnection();
+        conn.Open();
+
+        using var cmd = new MySqlCommand(
+            "INSERT INTO Chambre (IdUnite, NumeroChambre, TypeChambre) VALUES (@id, @num, @type)", conn);
+        cmd.Parameters.AddWithValue("@id", idUnite);
+        cmd.Parameters.AddWithValue("@num", numeroChambre);
+        cmd.Parameters.AddWithValue("@type", typeChambre);
+
+        cmd.ExecuteNonQuery();
+    }
+
+    public void RemoveChambre(int idChambre) {
+        using var conn = GetConnection();
+        conn.Open();
+
+        using var cmd = new MySqlCommand("DELETE FROM Chambre WHERE IdChambre = @id", conn);
+        cmd.Parameters.AddWithValue("@id", idChambre);
+
+        cmd.ExecuteNonQuery();
+    }
+
+    public class ChambreBase {
+        public int IdChambre { get; set; }
+        public string NumeroChambre { get; set; } = string.Empty;
+        public string TypeChambre { get; set; } = string.Empty;
+        public string Display => $"{NumeroChambre} - {TypeChambre}";
+    }
+
+    public class UniteBase {
+        public int IdUnite { get; set; }
+        public string Nom { get; set; } = string.Empty;
     }
 }

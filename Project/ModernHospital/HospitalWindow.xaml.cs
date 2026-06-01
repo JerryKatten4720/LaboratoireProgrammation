@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Color = System.Windows.Media.Color;
@@ -16,6 +17,7 @@ public partial class HospitalWindow : Window {
     private readonly ObservableCollection<string> _eventLog = new();
 
     private Button? _activeNavBtn;
+    private ObservableCollection<ChambreGroup> _chambresGroupes = new();
     private DispatcherTimer? _clockTimer;
     private HospitalInfo? _hospital;
 
@@ -76,6 +78,7 @@ public partial class HospitalWindow : Window {
         PanelPersonnel.Visibility = Visibility.Collapsed;
         PanelRecruter.Visibility = Visibility.Collapsed;
         PanelFinances.Visibility = Visibility.Collapsed;
+        PanelChambres.Visibility = Visibility.Collapsed;
 
         switch (tag) {
             case "dashboard":
@@ -95,6 +98,10 @@ public partial class HospitalWindow : Window {
             case "finances":
                 PanelFinances.Visibility = Visibility.Visible;
                 RefreshFinances();
+                break;
+            case "chambres":
+                PanelChambres.Visibility = Visibility.Visible;
+                RefreshChambres();
                 break;
         }
     }
@@ -121,7 +128,7 @@ public partial class HospitalWindow : Window {
         KpiAttente.Text = $"{stats.PatientsEnAttente} en attente";
         KpiPersonnel.Text = stats.TotalPersonnel.ToString();
         KpiLitsLibres.Text = stats.LitsLibres.ToString();
-        KpiLitsOccupes.Text = $"{stats.LitsOccupes} occupés";
+        KpiLitsOccupes.Text = "occupés";
         KpiRevenu.Text = $"${stats.RevenuJour:N0}";
         KpiDepenses.Text = $"${stats.DepensesJour:N0} dépenses";
         KpiGueris.Text = stats.PatientsGueris.ToString();
@@ -139,8 +146,21 @@ public partial class HospitalWindow : Window {
         LvPersonnel.ItemsSource = _db.GetPersonnel();
     }
 
+    private void RefreshChambres() {
+        _chambresGroupes = _db.GetChambresHierarchiques();
+        IcChambres.ItemsSource = _chambresGroupes;
+    }
+
     private void RefreshFinances() {
         LvTransactions.ItemsSource = _db.GetRecentTransactions(50);
+    }
+
+    private void RefreshAllData() {
+        RefreshPatients();
+        RefreshPersonnel();
+        RefreshChambres();
+        RefreshDashboard();
+        RefreshFinances();
     }
 
     private void LoadAdmitForm() {
@@ -249,8 +269,8 @@ public partial class HospitalWindow : Window {
         );
 
         alertPopup.Loaded += (s, e) => {
-            double left = (MainPanel.ActualWidth - alertPopup.ActualWidth) / 2;
-            double top = (MainPanel.ActualHeight - alertPopup.ActualHeight) / 2;
+            var left = (MainPanel.ActualWidth - alertPopup.ActualWidth) / 2;
+            var top = (MainPanel.ActualHeight - alertPopup.ActualHeight) / 2;
 
             Canvas.SetLeft(alertPopup, left);
             Canvas.SetTop(alertPopup, top);
@@ -259,4 +279,152 @@ public partial class HospitalWindow : Window {
         MainPanel.Children.Add(alertPopup);
     }
 
+    private void LvPatients_MouseRightButtonUp(object sender, MouseButtonEventArgs e) {
+        if (LvPatients.SelectedItem is PatientActif patient) {
+            PatientMenu.Patient = patient;
+            PatientPopup.IsOpen = true;
+        }
+    }
+
+    private void PatientMenu_ActionTriggered(string action) {
+        PatientPopup.IsOpen = false;
+        if (PatientMenu.Patient is not PatientActif patient) return;
+
+        switch (action) {
+            case "Gueri":
+                PatientHelper.HandlePatientStatusChange(_db, patient, "Guéri");
+                LogEvent($"✨ Patient guéri: {patient.Nom}");
+                break;
+            case "Decede":
+                PatientHelper.HandlePatientStatusChange(_db, patient, "Décédé");
+                LogEvent($"☠ Patient décédé: {patient.Nom}");
+                break;
+            case "Supprimer":
+                _db.ReleaseBed(patient.IdPatient);
+                _db.ExecuteNonQuery($"DELETE FROM Patients_Actifs WHERE IdPatient = {patient.IdPatient}");
+                LogEvent($"🗑 Patient supprimé: {patient.Nom}");
+                break;
+            default:
+                PatientHelper.HandlePatientStatusChange(_db, patient, action);
+                break;
+        }
+
+        RefreshAllData();
+    }
+
+    private void LvPersonnel_MouseRightButtonUp(object sender, MouseButtonEventArgs e) {
+        if (LvPersonnel.SelectedItem is Employe emp) {
+            PersonnelMenu.Employe = emp;
+            PersonnelPopup.IsOpen = true;
+        }
+    }
+
+    private void PersonnelMenu_ActionTriggered(string action) {
+        PersonnelPopup.IsOpen = false;
+        if (PersonnelMenu.Employe is not Employe emp) return;
+
+        if (action == "Licencier") {
+            BtnFire_Click(null!, null!);
+        }
+        else {
+            _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET Statut = '{action}' WHERE IdEmploye = {emp.IdEmploye}");
+            RefreshPersonnel();
+        }
+    }
+
+    private void BtnAddLit_Click(object sender, RoutedEventArgs e) {
+        var addLitForm = new AddLitForm(_db) {
+            Width = MainPanel.ActualWidth,
+            Height = MainPanel.ActualHeight,
+            OnLitCreated = () => {
+                RefreshChambres();
+                RefreshDashboard();
+                SetStatus("✅ Nouveau lit installé avec succès", Color.FromRgb(0, 212, 170));
+                LogEvent("🛏 Ajout d'un nouveau lit dans l'inventaire");
+            },
+            OnCancelled = () => { }
+        };
+
+        MainPanel.Children.Add(addLitForm);
+    }
+
+    private void BtnAddChambre_Click(object sender, RoutedEventArgs e) {
+        var addChambreForm = new AddChambreForm(_db) {
+            Width = MainPanel.ActualWidth,
+            Height = MainPanel.ActualHeight,
+            OnChambreCreated = () => {
+                SetStatus("✅ Nouvelle chambre construite avec succès", Color.FromRgb(0, 212, 170));
+                LogEvent("🏗 Construction d'une nouvelle chambre terminée");
+            },
+            OnCancelled = () => { }
+        };
+
+        MainPanel.Children.Add(addChambreForm);
+    }
+
+    private void BtnRemoveLit_Click(object sender, RoutedEventArgs e) { }
+
+    private void BtnRemoveChambre_Click(object sender, RoutedEventArgs e) { }
+
+    private void Lit_MouseMove(object sender, MouseEventArgs e) {
+        if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement fe &&
+            fe.DataContext is LitInventaire lit) DragDrop.DoDragDrop(fe, lit, DragDropEffects.Move);
+    }
+
+    private void SvChambres_DragOver(object sender, DragEventArgs e) {
+        DragDropHelper.HandleAutoScroll(SvChambres, e);
+    }
+
+    private void Chambre_Drop(object sender, DragEventArgs e) {
+        if (sender is FrameworkElement fe && fe.DataContext is ChambreGroup chambreCible)
+            if (e.Data.GetData(typeof(LitInventaire)) is LitInventaire litDragged) {
+                if (litDragged.IdChambre == chambreCible.IdChambre) return;
+
+                _db.UpdateLitChambre(litDragged.IdLit, chambreCible.IdChambre);
+                LogEvent($"🛏 Lit {litDragged.NumeroLit} transféré vers {chambreCible.NumeroChambre}");
+                RefreshChambres();
+            }
+    }
+
+    private void Lit_ContextMenuOpening(object sender, ContextMenuEventArgs e) {
+        if (sender is FrameworkElement fe && fe.DataContext is LitInventaire lit && fe.ContextMenu != null) {
+            fe.ContextMenu.Items.Clear();
+
+            var menuTitle = new MenuItem { Header = "Assigner à la chambre...", IsEnabled = false };
+            fe.ContextMenu.Items.Add(menuTitle);
+            fe.ContextMenu.Items.Add(new Separator());
+
+            foreach (var chambre in _chambresGroupes) {
+                if (chambre.IdChambre == lit.IdChambre) continue;
+
+                var menuItem = new MenuItem {
+                    Header = chambre.NumeroChambre,
+                    Foreground = new SolidColorBrush(Color.FromRgb(240, 240, 245))
+                };
+
+                menuItem.Click += (s, args) => {
+                    _db.UpdateLitChambre(lit.IdLit, chambre.IdChambre);
+                    LogEvent($"🛏 Lit {lit.NumeroLit} réassigné à {chambre.NumeroChambre}");
+                    RefreshChambres();
+                };
+
+                fe.ContextMenu.Items.Add(menuItem);
+            }
+
+            fe.ContextMenu.Items.Add(new Separator());
+
+            var deleteItem = new MenuItem {
+                Header = "Supprimer le lit",
+                Foreground = new SolidColorBrush(Color.FromRgb(255, 77, 106))
+            };
+
+            deleteItem.Click += (s, args) => {
+                _db.ExecuteNonQuery($"DELETE FROM Lit WHERE IdLit = {lit.IdLit}");
+                LogEvent($"🗑 Lit {lit.NumeroLit} détruit");
+                RefreshChambres();
+            };
+
+            fe.ContextMenu.Items.Add(deleteItem);
+        }
+    }
 }
