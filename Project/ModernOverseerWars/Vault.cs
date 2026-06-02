@@ -17,7 +17,7 @@ public class Room {
     public List<Dweller> AssignedDwellers { get; } = new();
     public int Level     { get; set; } = 1;
     public int BuildCost { get; set; } = 10;
-    public int Produce() => AssignedDwellers.Count(d => d.IsAlive) * Level;
+    public int ProduceValue => AssignedDwellers.Count(d => d.IsAlive) * Level;
 }
 
 public class Vault {
@@ -49,10 +49,16 @@ public class Vault {
     public void ProduceResources() {
         foreach (var room in Rooms)
             switch (room.Type) {
-                case RoomType.Generator:     Electricity += room.Produce(); break;
-                case RoomType.Garden:        Food        += room.Produce(); break;
-                case RoomType.WaterPurifier: Water       += room.Produce(); break;
+                case RoomType.Generator:     Electricity += room.ProduceValue; break;
+                case RoomType.Garden:        Food        += room.ProduceValue; break;
+                case RoomType.WaterPurifier: Water       += room.ProduceValue; break;
             }
+            
+        int livingDwellers = Dwellers.Count(d => d.IsAlive);
+        Food -= livingDwellers;
+        Water -= livingDwellers;
+        Electricity -= Rooms.Count;
+
         if (Water <= 0 || Food <= 0)
             foreach (var d in Dwellers.Where(d => d.IsAlive)) {
                 if (Water <= 0) d.CurrentHp -= 2;

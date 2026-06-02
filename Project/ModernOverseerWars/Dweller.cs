@@ -45,7 +45,7 @@ public class Dweller : IDweller {
 
     public static Dweller CreateRandom(string name, bool isSupervisor = false) {
         if (GameDataRepository.Dwellers.Count > 0) {
-            var dj = GameDataRepository.Dwellers[new Random().Next(GameDataRepository.Dwellers.Count)];
+            var dj = GameDataRepository.Dwellers[Random.Shared.Next(GameDataRepository.Dwellers.Count)];
             var d = new Dweller {
                 FirstName = dj.FirstName,
                 LastName = dj.LastName,
@@ -63,7 +63,7 @@ public class Dweller : IDweller {
             d.CurrentHp = d.MaxHp;
             return d;
         }
-        var rng = new Random();
+        var rng = Random.Shared;
         var d2 = new Dweller {
             FirstName = name,
             IsSupervisor = isSupervisor,

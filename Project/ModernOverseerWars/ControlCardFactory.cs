@@ -9,7 +9,7 @@ public static class ControlCardFactory {
             CardImage = image,
             Power = power
         };
-        card.RenderTransform = new RotateTransform(new Random().Next(-2, 1));
+        card.RenderTransform = new RotateTransform(Random.Shared.Next(-2, 1));
         return card;
     }
 

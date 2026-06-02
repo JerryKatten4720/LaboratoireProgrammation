@@ -151,7 +151,7 @@ public partial class ControlCard : UserControl {
                 baseDir = Path.GetDirectoryName(baseDir)!;
             }
             if (string.IsNullOrEmpty(absPath)) {
-                absPath = Path.Combine(@"C:\Users\antoi\Documents\GitHub\LaboratoireProgrammation", cleaned);
+                absPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cleaned);
             }
             if (File.Exists(absPath)) {
                 var bitmap = new BitmapImage();

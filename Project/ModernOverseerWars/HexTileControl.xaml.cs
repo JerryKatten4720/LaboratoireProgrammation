@@ -63,7 +63,7 @@ public partial class HexTileControl : UserControl {
         for (int i = 0; i < p1Alive.Count; i++) {
             var card = new ControlCard(); card.BindDweller(p1Alive[i]); card.IsHitTestVisible = false;
             var tg = new TransformGroup();
-            tg.Children.Add(new RotateTransform(new Random().Next(-5, 6)));
+            tg.Children.Add(new RotateTransform(Random.Shared.Next(-5, 6)));
             tg.Children.Add(new TranslateTransform(i * 3, i * 3));
             card.RenderTransform = tg;
             card.RenderTransformOrigin = new Point(0.5, 0.5);
@@ -73,7 +73,7 @@ public partial class HexTileControl : UserControl {
         for (int i = 0; i < p2Alive.Count; i++) {
             var card = new ControlCard(); card.BindDweller(p2Alive[i]); card.IsHitTestVisible = false;
             var tg = new TransformGroup();
-            tg.Children.Add(new RotateTransform(new Random().Next(-5, 6)));
+            tg.Children.Add(new RotateTransform(Random.Shared.Next(-5, 6)));
             tg.Children.Add(new TranslateTransform(i * 3, i * 3));
             card.RenderTransform = tg;
             card.RenderTransformOrigin = new Point(0.5, 0.5);

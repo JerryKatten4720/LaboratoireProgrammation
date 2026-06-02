@@ -38,6 +38,7 @@ public partial class OverseerWarsWindow : Window {
 
     private Panel? _originalCardParent;
     private int _originalCardIndex;
+    private UIElement? _dragPlaceholder;
 
     public OverseerWarsWindow(PlayerProfile p1, PlayerProfile p2) {
         InitializeComponent();
@@ -58,10 +59,10 @@ public partial class OverseerWarsWindow : Window {
         _combat = new CombatManager(_state);
 
         _turns.TurnTick    += OnTick;
-        _turns.TurnExpired += () => Dispatcher.Invoke(OnEndTurn_Internal);
-        _combat.CombatEvent += msg => Dispatcher.Invoke(() => AppendLog(msg));
+        _turns.TurnExpired += () => Dispatcher.InvokeAsync(OnEndTurn_Internal);
+        _combat.CombatEvent += msg => Dispatcher.InvokeAsync(() => AppendLog(msg));
         _combat.DamagePopup += (text, _, _, _) =>
-            Dispatcher.Invoke(() => SpawnDamagePopup(text));
+            Dispatcher.InvokeAsync(() => SpawnDamagePopup(text));
 
         SetupPlayers();
         BuildMapUI();
@@ -109,7 +110,7 @@ public partial class OverseerWarsWindow : Window {
             GameDataRepository.Outfits = JsonSerializer.Deserialize<List<OutfitJson>>(File.ReadAllText(op)) ?? new();
             GameDataRepository.Scraps = JsonSerializer.Deserialize<List<ScrapJson>>(File.ReadAllText(sp)) ?? new();
 
-            var rng = new Random();
+            var rng = Random.Shared;
             var sh = GameDataRepository.Dwellers.OrderBy(_ => rng.Next()).ToList();
             int count = Math.Min(GameConfigManager.Config.StarterDwellersCount, sh.Count / 2);
 
@@ -311,22 +312,28 @@ public partial class OverseerWarsWindow : Window {
         InfoBody.Text = revealed
             ? $"P1 dwellers: {tile.Player1Dwellers.Count(d => d.IsAlive)}\nP2 dwellers: {tile.Player2Dwellers.Count(d => d.IsAlive)}"
             : "Unexplored";
-
-        bool canAct = _state.ActiveVault.ActionPoints > 0;
+                var canAct = _state.ActiveVault.ActionPoints > 0;
         if (canAct) {
             DeployButton.Visibility = Visibility.Visible;
         }
     }
 
     private int GetDeploymentCost(Dweller d, HexTile target) {
-        HexTile? current = FindDwellerTile(d);
+        var current = _state.Map.Tiles.Cast<HexTile>().FirstOrDefault(t => t.Player1Dwellers.Contains(d) || t.Player2Dwellers.Contains(d));
         if (current == null) {
-            bool isP1 = _state.IsPlayer1Turn;
-            current = isP1
+            current = _state.IsPlayer1Turn 
                 ? _state.Map.Get(0, _state.Map.Rows / 2)
                 : _state.Map.Get(_state.Map.Cols - 1, _state.Map.Rows / 2);
         }
-        return Math.Abs(current.Col - target.Col) + Math.Abs(current.Row - target.Row);
+        return GetHexDistance(current, target);
+    }
+
+    private int GetHexDistance(HexTile a, HexTile b) {
+        int qa = a.Col - (a.Row - (a.Row & 1)) / 2;
+        int ra = a.Row;
+        int qb = b.Col - (b.Row - (b.Row & 1)) / 2;
+        int rb = b.Row;
+        return (Math.Abs(qa - qb) + Math.Abs(qa + ra - (qb + rb)) + Math.Abs(ra - rb)) / 2;
     }
 
     private HexTile? FindDwellerTile(Dweller d) {
@@ -475,7 +482,7 @@ public partial class OverseerWarsWindow : Window {
     }
 
     private void SpawnDamagePopup(string text) {
-        var rng = new Random();
+        var rng = Random.Shared;
         double x = rng.Next(50, (int)PopupCanvas.ActualWidth - 50);
         double y = rng.Next(50, (int)PopupCanvas.ActualHeight - 80);
         Color col = _state.IsPlayer1Turn ? _p1Color : _p2Color;
@@ -641,6 +648,8 @@ public partial class OverseerWarsWindow : Window {
             if (_state.ActiveVault.ActionPoints <= 0) { ShowWarning("No action points left!"); return; }
             _res.TryAssignDweller(_state.ActiveVault, dw, _targetRoomForAssignment);
             _state.ActiveVault.ActionPoints--;
+            RemoveDwellerFromMap(dw);
+            if (dw == _dwellerInAssignmentSlot) _dwellerInAssignmentSlot = null;
             RefreshAll();
         }
         else if (_targetTileForDeployment != null) {
@@ -651,6 +660,7 @@ public partial class OverseerWarsWindow : Window {
             if (cost > vault.ActionPoints) { ShowWarning("Tile too far away, you need more PA"); return; }
             vault.ActionPoints -= cost;
             RemoveDwellerFromMap(dw);
+            if (dw == _dwellerInAssignmentSlot) _dwellerInAssignmentSlot = null;
             bool isP1 = _state.IsPlayer1Turn;
             bool isHomeVault = (isP1 && tile.Type == TileType.Player1Vault) || (!isP1 && tile.Type == TileType.Player2Vault);
             if (!isHomeVault) {
@@ -852,8 +862,8 @@ public partial class OverseerWarsWindow : Window {
         _originalCardParent = VisualTreeHelper.GetParent(card) as Panel;
         if (_originalCardParent != null) {
             int idx = _originalCardParent.Children.IndexOf(card);
-            card.Tag = new Border { Width = card.ActualWidth, Height = card.ActualHeight, Margin = card.Margin };
-            _originalCardParent.Children.Insert(idx, card.Tag as UIElement);
+            _dragPlaceholder = new Border { Width = card.ActualWidth, Height = card.ActualHeight, Margin = card.Margin };
+            _originalCardParent.Children.Insert(idx, _dragPlaceholder);
             _originalCardParent.Children.Remove(card);
         }
         
@@ -992,14 +1002,14 @@ public partial class OverseerWarsWindow : Window {
             
             leftAnim.Completed += (s, e) => {
                 DragOverlayCanvas.Children.Remove(card);
-                if (card.Tag is UIElement dummy && _originalCardParent.Children.Contains(dummy)) {
-                    int idx = _originalCardParent.Children.IndexOf(dummy);
+                if (_dragPlaceholder != null && _originalCardParent.Children.Contains(_dragPlaceholder)) {
+                    int idx = _originalCardParent.Children.IndexOf(_dragPlaceholder);
                     _originalCardParent.Children.Insert(idx, card);
-                    _originalCardParent.Children.Remove(dummy);
+                    _originalCardParent.Children.Remove(_dragPlaceholder);
                 } else if (!_originalCardParent.Children.Contains(card)) {
                     _originalCardParent.Children.Add(card);
                 }
-                card.Tag = null;
+                _dragPlaceholder = null;
                 card.RenderTransform = new ScaleTransform(1, 1);
                 card.BeginAnimation(Canvas.LeftProperty, null);
                 card.BeginAnimation(Canvas.TopProperty, null);
@@ -1014,17 +1024,17 @@ public partial class OverseerWarsWindow : Window {
         
         DragOverlayCanvas.Children.Remove(card);
         card.RenderTransform = new ScaleTransform(1, 1);
-        if (card.Tag is UIElement dummy2 && _originalCardParent != null) {
+        if (_dragPlaceholder != null && _originalCardParent != null) {
             if (!handled) {
-                int idx = _originalCardParent.Children.IndexOf(dummy2);
+                int idx = _originalCardParent.Children.IndexOf(_dragPlaceholder);
                 if (idx >= 0) _originalCardParent.Children.Insert(idx, card);
                 else _originalCardParent.Children.Add(card);
             }
-            _originalCardParent.Children.Remove(dummy2);
+            _originalCardParent.Children.Remove(_dragPlaceholder);
         } else if (handled && _originalCardParent != null) {
-            if (card.Tag is UIElement dummy3) _originalCardParent.Children.Remove(dummy3);
+            if (_dragPlaceholder != null) _originalCardParent.Children.Remove(_dragPlaceholder);
         }
-        card.Tag = null;
+        _dragPlaceholder = null;
 
         RefreshAll();
     }
@@ -1058,14 +1068,16 @@ public partial class OverseerWarsWindow : Window {
                     var activeDwellers = _state.IsPlayer1Turn ? _selectedTile.BoundTile.Player1Dwellers : _selectedTile.BoundTile.Player2Dwellers;
                     var dw = activeDwellers.LastOrDefault(d => d.IsAlive);
                     if (dw != null && GetDeploymentCost(dw, hoveredTile.BoundTile) <= _state.ActiveVault.ActionPoints && hoveredTile.BoundTile.IsNavigable) {
-                        int minC = Math.Min(_selectedTile.BoundTile.Col, hoveredTile.BoundTile.Col);
-                        int maxC = Math.Max(_selectedTile.BoundTile.Col, hoveredTile.BoundTile.Col);
-                        int minR = Math.Min(_selectedTile.BoundTile.Row, hoveredTile.BoundTile.Row);
-                        int maxR = Math.Max(_selectedTile.BoundTile.Row, hoveredTile.BoundTile.Row);
-                        
+                        int distTotal = GetDeploymentCost(dw, hoveredTile.BoundTile);
+                        var startTile = _state.Map.Tiles.Cast<HexTile>().FirstOrDefault(t => t.Player1Dwellers.Contains(dw) || t.Player2Dwellers.Contains(dw));
+                        if (startTile == null) {
+                            startTile = _state.IsPlayer1Turn ? _state.Map.Get(0, _state.Map.Rows / 2) : _state.Map.Get(_state.Map.Cols - 1, _state.Map.Rows / 2);
+                        }
+
                         bool onPath = false;
-                        if (tileCtrl.BoundTile.Row == _selectedTile.BoundTile.Row && tileCtrl.BoundTile.Col >= minC && tileCtrl.BoundTile.Col <= maxC) onPath = true;
-                        if (tileCtrl.BoundTile.Col == hoveredTile.BoundTile.Col && tileCtrl.BoundTile.Row >= minR && tileCtrl.BoundTile.Row <= maxR) onPath = true;
+                        int distA = GetHexDistance(startTile, tileCtrl.BoundTile);
+                        int distB = GetHexDistance(tileCtrl.BoundTile, hoveredTile.BoundTile);
+                        if (distA + distB == distTotal) onPath = true;
                         
                         tileCtrl.SetPath(onPath);
                     } else {

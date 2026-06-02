@@ -30,7 +30,7 @@ public partial class VaultCardHolder : UserControl {
     public void Refresh() {
         if (BoundRoom == null) return;
         WorkersText.Text = $"Workers: {BoundRoom.AssignedDwellers.Count(d => d.IsAlive)}";
-        OutputText.Text  = $"Output: {BoundRoom.Produce()}";
+        OutputText.Text  = $"Output: {BoundRoom.ProduceValue}";
         RebuildCardStack();
     }
 
@@ -50,7 +50,7 @@ public partial class VaultCardHolder : UserControl {
         for (int i = 0; i < dwellers.Count; i++) {
             var card = new ControlCard();
             card.BindDweller(dwellers[i]);
-            card.RenderTransform = new RotateTransform(new Random().Next(-3, 3));
+            card.RenderTransform = new RotateTransform(Random.Shared.Next(-3, 3));
             Canvas.SetLeft(card, i * 14);
             Canvas.SetTop(card,  i * 6);
             CardCanvas.Children.Add(card);

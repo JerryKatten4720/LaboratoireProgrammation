@@ -50,7 +50,7 @@ public class CombatManager {
     }
 
     private void Attack(Dweller atk, Dweller tgt, Vault atkV, Vault defV) {
-        int dmg  = atk.AttackDamage + (atkV.HasReliableAim ? 1 : 0);
+        int dmg  = (atk.EquippedWeapon?.Damage ?? 1) + (atk.Special_S / 2) + (atkV.HasReliableAim ? 1 : 0);
         int armor = (tgt.EquippedOutfit?.ArmorValue ?? 0) + (defV.HasFrankTheTank ? 1 : 0);
         dmg = Math.Max(1, dmg - armor);
         

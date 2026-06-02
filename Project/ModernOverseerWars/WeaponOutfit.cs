@@ -13,7 +13,7 @@ public class Weapon : IWeapon {
 
     public static Weapon CreateRandom(CardRarity rarity = CardRarity.Common) {
         if (GameDataRepository.Weapons.Count > 0) {
-            var wJson = GameDataRepository.Weapons[new Random().Next(GameDataRepository.Weapons.Count)];
+            var wJson = GameDataRepository.Weapons[Random.Shared.Next(GameDataRepository.Weapons.Count)];
             var w = new Weapon {
                 Name = wJson.WeaponName,
                 Texture = wJson.Texture,
@@ -47,7 +47,7 @@ public class Outfit : IOutfit {
 
     public static Outfit CreateRandom(CardRarity rarity = CardRarity.Common) {
         if (GameDataRepository.Outfits.Count > 0) {
-            var oJson = GameDataRepository.Outfits[new Random().Next(GameDataRepository.Outfits.Count)];
+            var oJson = GameDataRepository.Outfits[Random.Shared.Next(GameDataRepository.Outfits.Count)];
             return new Outfit {
                 Name = oJson.OutfitName,
                 Texture = oJson.Texture,

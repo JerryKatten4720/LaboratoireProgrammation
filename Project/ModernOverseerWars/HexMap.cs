@@ -39,7 +39,7 @@ public class HexMap {
 
     public HexMap() {
         Tiles = new HexTile[Cols, Rows];
-        var rng = new Random();
+        var rng = Random.Shared;
 
         var candidates = Enumerable.Range(0, Cols * Rows)
             .Where(i => i % Cols != 0 && i % Cols != Cols - 1)
