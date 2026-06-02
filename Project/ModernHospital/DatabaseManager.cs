@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using MySqlConnector;
 
@@ -10,890 +12,610 @@ public class DatabaseManager {
     private const string User = "root";
     private const string Password = "";
 
-
-    private readonly string _connectionString =
+    private readonly string _connectionString = 
         $"Server={Host};Port={Port};Database={Database};Uid={User};Pwd={Password};";
 
     private MySqlConnection GetConnection() {
-        return new MySqlConnection(_connectionString);
+        var connection = new MySqlConnection(_connectionString);
+        connection.Open();
+        return connection;
+    }
+
+    private void ExecuteCommand(string query, Action<MySqlCommand>? setParameters = null) {
+        using var connection = GetConnection();
+        using var command = new MySqlCommand(query, connection);
+        setParameters?.Invoke(command);
+        command.ExecuteNonQuery();
+    }
+
+    private T? ExecuteScalar<T>(string query, Action<MySqlCommand>? setParameters = null) {
+        using var connection = GetConnection();
+        using var command = new MySqlCommand(query, connection);
+        setParameters?.Invoke(command);
+        var result = command.ExecuteScalar();
+        
+        if (result == null || result == DBNull.Value) return default;
+        return (T)Convert.ChangeType(result, Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T));
+    }
+    private List<T> GetList<T>(string query, Func<MySqlDataReader, T> mapReader, Action<MySqlCommand>? setParameters = null) {
+        var list = new List<T>();
+        using var connection = GetConnection();
+        using var command = new MySqlCommand(query, connection);
+        setParameters?.Invoke(command);
+        using var reader = command.ExecuteReader();
+        
+        while (reader.Read()) { list.Add(mapReader(reader)); }
+        
+        return list;
+    }
+
+    private T? GetSingle<T>(string query, Func<MySqlDataReader, T> mapReader, Action<MySqlCommand>? setParameters = null) where T : class {
+        using var connection = GetConnection();
+        using var command = new MySqlCommand(query, connection);
+        setParameters?.Invoke(command);
+        using var reader = command.ExecuteReader();
+        
+        if (reader.Read()) { return mapReader(reader); }
+        
+        return null;
+    }
+
+    private static string? GetStringNullable(MySqlDataReader reader, string column) {
+        return reader.IsDBNull(reader.GetOrdinal(column)) ? null : reader.GetString(column);
+    }
+
+    private static int? GetIntNullable(MySqlDataReader reader, string column) {
+        return reader.IsDBNull(reader.GetOrdinal(column)) ? null : reader.GetInt32(column);
     }
 
     public HospitalInfo? GetHospital() {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("SELECT * FROM Hopital LIMIT 1", conn);
-        using var r = cmd.ExecuteReader();
-        if (!r.Read()) return null;
-        return new HospitalInfo {
-            IdHopital = r.GetInt32("IdHopital"),
-            Nom = r.GetString("Nom"),
-            DirecteurGeneral = r.IsDBNull(r.GetOrdinal("DirecteurGeneral")) ? "" : r.GetString("DirecteurGeneral"),
-            DirecteurMedical = r.IsDBNull(r.GetOrdinal("DirecteurMedical")) ? "" : r.GetString("DirecteurMedical"),
-            Budget = r.GetDecimal("Budget"),
-            Reputation = r.GetInt32("Reputation"),
-            JourSimulation = r.GetInt32("JourSimulation"),
-            HeureSimulation = r.GetTimeSpan("HeureSimulation").ToString(@"hh\:mm"),
-            MontantEmprunt = r.GetDecimal("MontantEmprunt"),
-            TauxInteret = r.GetDecimal("TauxInteret")
-        };
+        return GetSingle("SELECT * FROM Hopital LIMIT 1", reader => new HospitalInfo {
+            IdHopital = reader.GetInt32("IdHopital"),
+            Nom = reader.GetString("Nom"),
+            DirecteurGeneral = GetStringNullable(reader, "DirecteurGeneral") ?? "",
+            DirecteurMedical = GetStringNullable(reader, "DirecteurMedical") ?? "",
+            Budget = reader.GetDecimal("Budget"),
+            Reputation = reader.GetInt32("Reputation"),
+            JourSimulation = reader.GetInt32("JourSimulation"),
+            HeureSimulation = reader.GetTimeSpan("HeureSimulation").ToString(@"hh\:mm"),
+            MontantEmprunt = reader.GetDecimal("MontantEmprunt"),
+            TauxInteret = reader.GetDecimal("TauxInteret")
+        });
     }
 
     public void UpdateHospital(decimal budget, int reputation, int jour, string heure) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(
+        ExecuteCommand(
             "UPDATE Hopital SET Budget=@b, Reputation=@r, JourSimulation=@j, HeureSimulation=@h WHERE IdHopital=1",
-            conn);
-        cmd.Parameters.AddWithValue("@b", budget);
-        cmd.Parameters.AddWithValue("@r", reputation);
-        cmd.Parameters.AddWithValue("@j", jour);
-        cmd.Parameters.AddWithValue("@h", heure);
-        cmd.ExecuteNonQuery();
+            cmd => {
+                cmd.Parameters.AddWithValue("@b", budget);
+                cmd.Parameters.AddWithValue("@r", reputation);
+                cmd.Parameters.AddWithValue("@j", jour);
+                cmd.Parameters.AddWithValue("@h", heure);
+            });
     }
 
     public void AddBudget(decimal amount, string description, int jour, string type) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("UPDATE Hopital SET Budget = Budget + @a WHERE IdHopital=1", conn);
-        cmd.Parameters.AddWithValue("@a", amount);
-        cmd.ExecuteNonQuery();
-
-        LogTransaction(conn, jour, type, amount, description);
+        ExecuteCommand(
+            "UPDATE Hopital SET Budget = Budget + @a WHERE IdHopital=1", 
+            cmd => cmd.Parameters.AddWithValue("@a", amount));
+            
+        LogTransactionInternal(jour, type, amount, description);
     }
 
-    private void LogTransaction(MySqlConnection conn, int jour, string type, decimal montant, string desc) {
-        using var cmd = new MySqlCommand(
+    private void LogTransactionInternal(int jour, string type, decimal montant, string desc) {
+        ExecuteCommand(
             "INSERT INTO Transactions_Financieres (JourSimulation,TypeTransaction,Montant,Description) VALUES (@j,@t,@m,@d)",
-            conn);
-        cmd.Parameters.AddWithValue("@j", jour);
-        cmd.Parameters.AddWithValue("@t", type);
-        cmd.Parameters.AddWithValue("@m", montant);
-        cmd.Parameters.AddWithValue("@d", desc);
-        cmd.ExecuteNonQuery();
+            cmd => {
+                cmd.Parameters.AddWithValue("@j", jour);
+                cmd.Parameters.AddWithValue("@t", type);
+                cmd.Parameters.AddWithValue("@m", montant);
+                cmd.Parameters.AddWithValue("@d", desc);
+            });
     }
-
 
     public List<Employe> GetPersonnel() {
-        var list = new List<Employe>();
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("SELECT * FROM Personnel_Actif ORDER BY Categorie, Nom", conn);
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
-            list.Add(ReadEmploye(r));
-        return list;
+        return GetList("SELECT * FROM Personnel_Actif ORDER BY Categorie, Nom", reader => new Employe {
+            IdEmploye = reader.GetInt32("IdEmploye"),
+            IdUnite = GetIntNullable(reader, "IdUnite"),
+            Nom = reader.GetString("Nom"),
+            Prenom = reader.GetString("Prenom"),
+            Categorie = reader.GetString("Categorie"),
+            RoleExact = reader.GetString("RoleExact"),
+            Specialite = GetStringNullable(reader, "Specialite"),
+            NiveauCompetence = reader.GetInt32("NiveauCompetence"),
+            Experience = reader.GetInt32("Experience"),
+            Energie = reader.GetInt32("Energie"),
+            Faim = reader.GetInt32("Faim"),
+            Stress = reader.GetInt32("Stress"),
+            SalaireJour = reader.GetDecimal("SalaireJour"),
+            Shift = reader.GetString("Shift"),
+            Statut = reader.GetString("Statut")
+        });
     }
-
-    private static Employe ReadEmploye(MySqlDataReader r) {
-        return new Employe {
-            IdEmploye = r.GetInt32("IdEmploye"),
-            IdUnite = r.IsDBNull(r.GetOrdinal("IdUnite")) ? null : r.GetInt32("IdUnite"),
-            Nom = r.GetString("Nom"),
-            Prenom = r.GetString("Prenom"),
-            Categorie = r.GetString("Categorie"),
-            RoleExact = r.GetString("RoleExact"),
-            Specialite = r.IsDBNull(r.GetOrdinal("Specialite")) ? null : r.GetString("Specialite"),
-            NiveauCompetence = r.GetInt32("NiveauCompetence"),
-            Experience = r.GetInt32("Experience"),
-            Energie = r.GetInt32("Energie"),
-            Faim = r.GetInt32("Faim"),
-            Stress = r.GetInt32("Stress"),
-            SalaireJour = r.GetDecimal("SalaireJour"),
-            Shift = r.GetString("Shift"),
-            Statut = r.GetString("Statut")
-        };
-    }
-
 
     public List<Candidat> GetCandidats() {
-        var list = new List<Candidat>();
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("SELECT * FROM To_Hire ORDER BY NiveauCompetence DESC", conn);
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
-            list.Add(new Candidat {
-                IdCandidat = r.GetInt32("IdCandidat"),
-                Nom = r.GetString("Nom"),
-                Prenom = r.GetString("Prenom"),
-                Categorie = r.GetString("Categorie"),
-                RoleExact = r.GetString("RoleExact"),
-                Specialite = r.IsDBNull(r.GetOrdinal("Specialite")) ? null : r.GetString("Specialite"),
-                NiveauCompetence = r.GetInt32("NiveauCompetence"),
-                SalaireJour = r.GetDecimal("SalaireJour"),
-                PrimeEmbauche = r.GetDecimal("PrimeEmbauche")
-            });
-        return list;
+        return GetList("SELECT * FROM To_Hire ORDER BY NiveauCompetence DESC", reader => new Candidat {
+            IdCandidat = reader.GetInt32("IdCandidat"),
+            Nom = reader.GetString("Nom"),
+            Prenom = reader.GetString("Prenom"),
+            Categorie = reader.GetString("Categorie"),
+            RoleExact = reader.GetString("RoleExact"),
+            Specialite = GetStringNullable(reader, "Specialite"),
+            NiveauCompetence = reader.GetInt32("NiveauCompetence"),
+            SalaireJour = reader.GetDecimal("SalaireJour"),
+            PrimeEmbauche = reader.GetDecimal("PrimeEmbauche")
+        });
     }
 
     public bool HireCandidat(int idCandidat, HospitalInfo hospital) {
-        using var conn = GetConnection();
-        conn.Open();
+        var candidat = GetSingle("SELECT * FROM To_Hire WHERE IdCandidat=@id", reader => new Candidat {
+            IdCandidat = reader.GetInt32("IdCandidat"),
+            Nom = reader.GetString("Nom"),
+            Prenom = reader.GetString("Prenom"),
+            Categorie = reader.GetString("Categorie"),
+            RoleExact = reader.GetString("RoleExact"),
+            Specialite = GetStringNullable(reader, "Specialite"),
+            NiveauCompetence = reader.GetInt32("NiveauCompetence"),
+            SalaireJour = reader.GetDecimal("SalaireJour"),
+            PrimeEmbauche = reader.GetDecimal("PrimeEmbauche")
+        }, cmd => cmd.Parameters.AddWithValue("@id", idCandidat));
 
+        if (candidat == null || hospital.Budget < candidat.PrimeEmbauche) return false;
 
-        Candidat? c = null;
-        using (var cmd = new MySqlCommand("SELECT * FROM To_Hire WHERE IdCandidat=@id", conn)) {
-            cmd.Parameters.AddWithValue("@id", idCandidat);
-            using var r = cmd.ExecuteReader();
-            if (!r.Read()) return false;
-            c = new Candidat {
-                IdCandidat = r.GetInt32("IdCandidat"),
-                Nom = r.GetString("Nom"), Prenom = r.GetString("Prenom"),
-                Categorie = r.GetString("Categorie"), RoleExact = r.GetString("RoleExact"),
-                Specialite = r.IsDBNull(r.GetOrdinal("Specialite")) ? null : r.GetString("Specialite"),
-                NiveauCompetence = r.GetInt32("NiveauCompetence"),
-                SalaireJour = r.GetDecimal("SalaireJour"),
-                PrimeEmbauche = r.GetDecimal("PrimeEmbauche")
-            };
-        }
+        ExecuteCommand(
+            "INSERT INTO Personnel_Actif (Nom,Prenom,Categorie,RoleExact,Specialite,NiveauCompetence,SalaireJour) VALUES (@n,@p,@c,@r,@s,@nc,@sal)",
+            cmd => {
+                cmd.Parameters.AddWithValue("@n", candidat.Nom);
+                cmd.Parameters.AddWithValue("@p", candidat.Prenom);
+                cmd.Parameters.AddWithValue("@c", candidat.Categorie);
+                cmd.Parameters.AddWithValue("@r", candidat.RoleExact);
+                cmd.Parameters.AddWithValue("@s", (object?)candidat.Specialite ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@nc", candidat.NiveauCompetence);
+                cmd.Parameters.AddWithValue("@sal", candidat.SalaireJour);
+            });
 
-        if (hospital.Budget < c.PrimeEmbauche) return false;
+        ExecuteCommand(
+            "UPDATE Hopital SET Budget = Budget - @p WHERE IdHopital=1", 
+            cmd => cmd.Parameters.AddWithValue("@p", candidat.PrimeEmbauche));
 
+        LogTransactionInternal(hospital.JourSimulation, "Embauche", -candidat.PrimeEmbauche, $"Prime d'embauche: {candidat.Prenom} {candidat.Nom}");
 
-        using (var cmd = new MySqlCommand(
-                   "INSERT INTO Personnel_Actif (Nom,Prenom,Categorie,RoleExact,Specialite,NiveauCompetence,SalaireJour) VALUES (@n,@p,@c,@r,@s,@nc,@sal)",
-                   conn)) {
-            cmd.Parameters.AddWithValue("@n", c.Nom);
-            cmd.Parameters.AddWithValue("@p", c.Prenom);
-            cmd.Parameters.AddWithValue("@c", c.Categorie);
-            cmd.Parameters.AddWithValue("@r", c.RoleExact);
-            cmd.Parameters.AddWithValue("@s", (object?)c.Specialite ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@nc", c.NiveauCompetence);
-            cmd.Parameters.AddWithValue("@sal", c.SalaireJour);
-            cmd.ExecuteNonQuery();
-        }
-
-
-        using (var cmd = new MySqlCommand("UPDATE Hopital SET Budget = Budget - @p WHERE IdHopital=1", conn)) {
-            cmd.Parameters.AddWithValue("@p", c.PrimeEmbauche);
-            cmd.ExecuteNonQuery();
-        }
-
-        LogTransaction(conn, hospital.JourSimulation, "Embauche", -c.PrimeEmbauche,
-            $"Prime d'embauche: {c.Prenom} {c.Nom}");
-
-
-        using (var cmd = new MySqlCommand("DELETE FROM To_Hire WHERE IdCandidat=@id", conn)) {
-            cmd.Parameters.AddWithValue("@id", idCandidat);
-            cmd.ExecuteNonQuery();
-        }
+        ExecuteCommand(
+            "DELETE FROM To_Hire WHERE IdCandidat=@id", 
+            cmd => cmd.Parameters.AddWithValue("@id", idCandidat));
 
         return true;
     }
 
     public void FireEmploye(int idEmploye, HospitalInfo hospital) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("DELETE FROM Personnel_Actif WHERE IdEmploye=@id", conn);
-        cmd.Parameters.AddWithValue("@id", idEmploye);
-        cmd.ExecuteNonQuery();
+        FireEmploye(idEmploye);
     }
 
+    public void FireEmploye(int idEmploye) {
+        ExecuteCommand("DELETE FROM Personnel_Actif WHERE IdEmploye=@id", cmd => cmd.Parameters.AddWithValue("@id", idEmploye));
+    }
 
     public List<PatientActif> GetPatients() {
-        var list = new List<PatientActif>();
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("SELECT * FROM Helper_Patients_Dashboard", conn);
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
-            list.Add(new PatientActif {
-                IdPatient = r.GetInt32("IdPatient"),
-                Nom = r.GetString("Patient"),
-                Maladie = r.GetString("Maladie"),
-                SanteActuelle = r.GetInt32("SanteActuelle"),
-                Satisfaction = r.GetInt32("Satisfaction"),
-                Classe = r.GetString("Classe"),
-                Statut = r.GetString("Statut"),
-                NumeroChambre = r.IsDBNull(r.GetOrdinal("NumeroChambre")) ? "N/A" : r.GetString("NumeroChambre"),
-                NumeroLit = r.IsDBNull(r.GetOrdinal("NumeroLit")) ? "N/A" : r.GetString("NumeroLit"),
-                MedecinEnCharge = r.IsDBNull(r.GetOrdinal("MedecinEnCharge"))
-                    ? "Non assigné"
-                    : r.GetString("MedecinEnCharge")
-            });
-        return list;
+        return GetList("SELECT * FROM Helper_Patients_Dashboard", reader => new PatientActif {
+            IdPatient = reader.GetInt32("IdPatient"),
+            Nom = reader.GetString("Patient"),
+            Maladie = reader.GetString("Maladie"),
+            SanteActuelle = reader.GetInt32("SanteActuelle"),
+            Satisfaction = reader.GetInt32("Satisfaction"),
+            Classe = reader.GetString("Classe"),
+            Statut = reader.GetString("Statut"),
+            NumeroChambre = GetStringNullable(reader, "NumeroChambre") ?? "N/A",
+            NumeroLit = GetStringNullable(reader, "NumeroLit") ?? "N/A",
+            MedecinEnCharge = GetStringNullable(reader, "MedecinEnCharge") ?? "Non assigné"
+        });
     }
 
     public List<PatientActif> GetPatientsRaw() {
-        var list = new List<PatientActif>();
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("SELECT * FROM Patients_Actifs", conn);
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
-            list.Add(new PatientActif {
-                IdPatient = r.GetInt32("IdPatient"),
-                Nom = r.GetString("Nom"),
-                IdMaladie = r.GetInt32("IdMaladie"),
-                IdLit = r.IsDBNull(r.GetOrdinal("IdLit")) ? null : r.GetInt32("IdLit"),
-                IdMedecinAssigne = r.IsDBNull(r.GetOrdinal("IdMedecinAssigné")) ? null : r.GetInt32("IdMedecinAssigné"),
-                SanteActuelle = r.GetInt32("SanteActuelle"),
-                Satisfaction = r.GetInt32("Satisfaction"),
-                Classe = r.GetString("Classe"),
-                TempsTraitementRestant = r.IsDBNull(r.GetOrdinal("TempsTraitementRestant"))
-                    ? 0
-                    : r.GetInt32("TempsTraitementRestant"),
-                Statut = r.GetString("Statut")
-            });
-        return list;
+        return GetList("SELECT * FROM Patients_Actifs", reader => new PatientActif {
+            IdPatient = reader.GetInt32("IdPatient"),
+            Nom = reader.GetString("Nom"),
+            IdMaladie = reader.GetInt32("IdMaladie"),
+            IdLit = GetIntNullable(reader, "IdLit"),
+            IdMedecinAssigne = GetIntNullable(reader, "IdMedecinAssigné"),
+            SanteActuelle = reader.GetInt32("SanteActuelle"),
+            Satisfaction = reader.GetInt32("Satisfaction"),
+            Classe = reader.GetString("Classe"),
+            TempsTraitementRestant = GetIntNullable(reader, "TempsTraitementRestant") ?? 0,
+            Statut = reader.GetString("Statut")
+        });
     }
 
     public void AdmitPatient(string nom, int idMaladie, int idLit, int? idMedecin, string classe, int tempsTraitement) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(
+        ExecuteCommand(
             "INSERT INTO Patients_Actifs (Nom,IdMaladie,IdLit,IdMedecinAssigné,Classe,TempsTraitementRestant,Statut) VALUES (@n,@m,@l,@md,@cl,@t,'En Diagnostic')",
-            conn);
-        cmd.Parameters.AddWithValue("@n", nom);
-        cmd.Parameters.AddWithValue("@m", idMaladie);
-        cmd.Parameters.AddWithValue("@l", idLit);
-        cmd.Parameters.AddWithValue("@md", (object?)idMedecin ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@cl", classe);
-        cmd.Parameters.AddWithValue("@t", tempsTraitement);
-        cmd.ExecuteNonQuery();
+            cmd => {
+                cmd.Parameters.AddWithValue("@n", nom);
+                cmd.Parameters.AddWithValue("@m", idMaladie);
+                cmd.Parameters.AddWithValue("@l", idLit);
+                cmd.Parameters.AddWithValue("@md", (object?)idMedecin ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@cl", classe);
+                cmd.Parameters.AddWithValue("@t", tempsTraitement);
+            });
 
-
-        using var cmd2 = new MySqlCommand("UPDATE Lit SET Statut='Occupé' WHERE IdLit=@id", conn);
-        cmd2.Parameters.AddWithValue("@id", idLit);
-        cmd2.ExecuteNonQuery();
+        ExecuteCommand("UPDATE Lit SET Statut='Occupé' WHERE IdLit=@id", cmd => cmd.Parameters.AddWithValue("@id", idLit));
     }
 
     public void UpdatePatientStatut(int idPatient, string statut) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("UPDATE Patients_Actifs SET Statut=@s WHERE IdPatient=@id", conn);
-        cmd.Parameters.AddWithValue("@s", statut);
-        cmd.Parameters.AddWithValue("@id", idPatient);
-        cmd.ExecuteNonQuery();
+        ExecuteCommand(
+            "UPDATE Patients_Actifs SET Statut=@s WHERE IdPatient=@id", 
+            cmd => {
+                cmd.Parameters.AddWithValue("@s", statut);
+                cmd.Parameters.AddWithValue("@id", idPatient);
+            });
     }
 
     public void DischargePatient(int idPatient, int? idLit, decimal revenu, int jour, string typeRevenu) {
-        using var conn = GetConnection();
-        conn.Open();
-
-        using var cmdUpd = new MySqlCommand("UPDATE Patients_Actifs SET Statut='Guéri' WHERE IdPatient=@id", conn);
-        cmdUpd.Parameters.AddWithValue("@id", idPatient);
-        cmdUpd.ExecuteNonQuery();
-
+        ExecuteCommand("UPDATE Patients_Actifs SET Statut='Guéri' WHERE IdPatient=@id", cmd => cmd.Parameters.AddWithValue("@id", idPatient));
+        
         if (idLit.HasValue) {
-            using var cmdLit = new MySqlCommand("UPDATE Lit SET Statut='En Nettoyage' WHERE IdLit=@id", conn);
-            cmdLit.Parameters.AddWithValue("@id", idLit.Value);
-            cmdLit.ExecuteNonQuery();
+            ExecuteCommand("UPDATE Lit SET Statut='En Nettoyage' WHERE IdLit=@id", cmd => cmd.Parameters.AddWithValue("@id", idLit.Value));
         }
 
-        using var cmdBudget = new MySqlCommand("UPDATE Hopital SET Budget = Budget + @r WHERE IdHopital=1", conn);
-        cmdBudget.Parameters.AddWithValue("@r", revenu);
-        cmdBudget.ExecuteNonQuery();
-
-        LogTransaction(conn, jour, typeRevenu, revenu, $"Prise en charge patient #{idPatient}");
+        ExecuteCommand("UPDATE Hopital SET Budget = Budget + @r WHERE IdHopital=1", cmd => cmd.Parameters.AddWithValue("@r", revenu));
+        
+        LogTransactionInternal(jour, typeRevenu, revenu, $"Prise en charge patient #{idPatient}");
     }
-
 
     public List<CasClinique> GetCasCliniques() {
-        var list = new List<CasClinique>();
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd =
-            new MySqlCommand(
-                "SELECT IdCas,Maladie,Symptomes,TempsTraitementHeures,RevenuPatient,RisqueErreurMedicale FROM Cas_Cliniques",
-                conn);
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
-            list.Add(new CasClinique {
-                IdCas = r.GetInt32("IdCas"),
-                Maladie = r.GetString("Maladie"),
-                Symptomes = r.GetString("Symptomes"),
-                TempsTraitementHeures = r.GetInt32("TempsTraitementHeures"),
-                RevenuPatient = r.GetDecimal("RevenuPatient"),
-                RisqueErreurMedicale = r.GetInt32("RisqueErreurMedicale")
-            });
-        return list;
+        return GetList("SELECT IdCas,Maladie,Symptomes,TempsTraitementHeures,RevenuPatient,RisqueErreurMedicale FROM Cas_Cliniques", reader => new CasClinique {
+            IdCas = reader.GetInt32("IdCas"),
+            Maladie = reader.GetString("Maladie"),
+            Symptomes = reader.GetString("Symptomes"),
+            TempsTraitementHeures = reader.GetInt32("TempsTraitementHeures"),
+            RevenuPatient = reader.GetDecimal("RevenuPatient"),
+            RisqueErreurMedicale = reader.GetInt32("RisqueErreurMedicale")
+        });
     }
 
-
     public List<LitDisponible> GetLitsLibres() {
-        var list = new List<LitDisponible>();
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("SELECT * FROM Helper_Disponibilite_Lits", conn);
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
-            list.Add(new LitDisponible {
-                IdLit = r.GetInt32("IdLit"),
-                Unite = r.GetString("Unite"),
-                NumeroChambre = r.GetString("NumeroChambre"),
-                TypeChambre = r.GetString("TypeChambre"),
-                NumeroLit = r.GetString("NumeroLit")
-            });
-        return list;
+        return GetList("SELECT * FROM Helper_Disponibilite_Lits", reader => new LitDisponible {
+            IdLit = reader.GetInt32("IdLit"),
+            Unite = reader.GetString("Unite"),
+            NumeroChambre = reader.GetString("NumeroChambre"),
+            TypeChambre = reader.GetString("TypeChambre"),
+            NumeroLit = reader.GetString("NumeroLit")
+        });
     }
 
     public void FreeBed(int idLit) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("UPDATE Lit SET Statut='Libre' WHERE IdLit=@id", conn);
-        cmd.Parameters.AddWithValue("@id", idLit);
-        cmd.ExecuteNonQuery();
+        ExecuteCommand("UPDATE Lit SET Statut='Libre' WHERE IdLit=@id", cmd => cmd.Parameters.AddWithValue("@id", idLit));
     }
 
-
     public void UpdateTransaction(int idTransaction, decimal montant, string description) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(
-            "UPDATE Transactions_Financieres SET Montant=@m, Description=@d WHERE IdTransaction=@id",
-            conn);
-        cmd.Parameters.AddWithValue("@m", montant);
-        cmd.Parameters.AddWithValue("@d", description);
-        cmd.Parameters.AddWithValue("@id", idTransaction);
-        cmd.ExecuteNonQuery();
+        ExecuteCommand(
+            "UPDATE Transactions_Financieres SET Montant=@m, Description=@d WHERE IdTransaction=@id", 
+            cmd => {
+                cmd.Parameters.AddWithValue("@m", montant);
+                cmd.Parameters.AddWithValue("@d", description);
+                cmd.Parameters.AddWithValue("@id", idTransaction);
+            });
     }
 
     public void DeleteTransaction(int idTransaction) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("DELETE FROM Transactions_Financieres WHERE IdTransaction=@id", conn);
-        cmd.Parameters.AddWithValue("@id", idTransaction);
-        cmd.ExecuteNonQuery();
+        ExecuteCommand("DELETE FROM Transactions_Financieres WHERE IdTransaction=@id", cmd => cmd.Parameters.AddWithValue("@id", idTransaction));
     }
 
     public void SendBillToPatient(int idPatient, decimal amount, string description) {
-        using var conn = GetConnection();
-        conn.Open();
-
-
-        using var cmd = new MySqlCommand("UPDATE Hopital SET Budget = Budget + @a WHERE IdHopital=1", conn);
-        cmd.Parameters.AddWithValue("@a", amount);
-        cmd.ExecuteNonQuery();
-
-        LogTransaction(conn, 0, "Facture Patient", amount, description);
+        ExecuteCommand("UPDATE Hopital SET Budget = Budget + @a WHERE IdHopital=1", cmd => cmd.Parameters.AddWithValue("@a", amount));
+        LogTransactionInternal(0, "Facture Patient", amount, description);
     }
 
     public void SetPayrollDay(int dayOfMonth) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(
-            "UPDATE Hopital SET JourPaie=@day WHERE IdHopital=1",
-            conn);
-        cmd.Parameters.AddWithValue("@day", dayOfMonth);
-        cmd.ExecuteNonQuery();
+        ExecuteCommand("UPDATE Hopital SET JourPaie=@day WHERE IdHopital=1", cmd => cmd.Parameters.AddWithValue("@day", dayOfMonth));
     }
 
     public int GetPayrollDay() {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("SELECT JourPaie FROM Hopital LIMIT 1", conn);
-        var result = cmd.ExecuteScalar();
-        return result != null ? Convert.ToInt32(result) : 1;
+        return ExecuteScalar<int>("SELECT JourPaie FROM Hopital LIMIT 1");
     }
 
-    public void CreateEmploye(string nom, string prenom, string categorie, string roleExact, string? specialite,
-        int niveauCompetence, decimal salaireJour, string shift = "Jour") {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(
-            "INSERT INTO Personnel_Actif (Nom, Prenom, Categorie, RoleExact, Specialite, NiveauCompetence, SalaireJour, Shift, Energie, Faim, Stress, Statut) " +
-            "VALUES (@n, @p, @c, @r, @s, @nc, @sal, @shift, 100, 0, 0, 'En poste')",
-            conn);
-        cmd.Parameters.AddWithValue("@n", nom);
-        cmd.Parameters.AddWithValue("@p", prenom);
-        cmd.Parameters.AddWithValue("@c", categorie);
-        cmd.Parameters.AddWithValue("@r", roleExact);
-        cmd.Parameters.AddWithValue("@s", (object?)specialite ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@nc", niveauCompetence);
-        cmd.Parameters.AddWithValue("@sal", salaireJour);
-        cmd.Parameters.AddWithValue("@shift", shift);
-        cmd.ExecuteNonQuery();
+    public void CreateEmploye(string nom, string prenom, string categorie, string roleExact, string? specialite, int niveauCompetence, decimal salaireJour, string shift = "Jour") {
+        ExecuteCommand(
+            "INSERT INTO Personnel_Actif (Nom, Prenom, Categorie, RoleExact, Specialite, NiveauCompetence, SalaireJour, Shift, Energie, Faim, Stress, Statut) VALUES (@n, @p, @c, @r, @s, @nc, @sal, @shift, 100, 0, 0, 'En poste')",
+            cmd => {
+                cmd.Parameters.AddWithValue("@n", nom);
+                cmd.Parameters.AddWithValue("@p", prenom);
+                cmd.Parameters.AddWithValue("@c", categorie);
+                cmd.Parameters.AddWithValue("@r", roleExact);
+                cmd.Parameters.AddWithValue("@s", (object?)specialite ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@nc", niveauCompetence);
+                cmd.Parameters.AddWithValue("@sal", salaireJour);
+                cmd.Parameters.AddWithValue("@shift", shift);
+            });
     }
 
-    public void UpdateEmploye(int idEmploye, string nom, string prenom, string categorie, string roleExact,
-        string? specialite, int niveauCompetence, decimal salaireJour, string shift) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(
-            "UPDATE Personnel_Actif SET Nom=@n, Prenom=@p, Categorie=@c, RoleExact=@r, Specialite=@s, " +
-            "NiveauCompetence=@nc, SalaireJour=@sal, Shift=@shift WHERE IdEmploye=@id",
-            conn);
-        cmd.Parameters.AddWithValue("@n", nom);
-        cmd.Parameters.AddWithValue("@p", prenom);
-        cmd.Parameters.AddWithValue("@c", categorie);
-        cmd.Parameters.AddWithValue("@r", roleExact);
-        cmd.Parameters.AddWithValue("@s", (object?)specialite ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@nc", niveauCompetence);
-        cmd.Parameters.AddWithValue("@sal", salaireJour);
-        cmd.Parameters.AddWithValue("@shift", shift);
-        cmd.Parameters.AddWithValue("@id", idEmploye);
-        cmd.ExecuteNonQuery();
+    public void UpdateEmploye(int idEmploye, string nom, string prenom, string categorie, string roleExact, string? specialite, int niveauCompetence, decimal salaireJour, string shift) {
+        ExecuteCommand(
+            "UPDATE Personnel_Actif SET Nom=@n, Prenom=@p, Categorie=@c, RoleExact=@r, Specialite=@s, NiveauCompetence=@nc, SalaireJour=@sal, Shift=@shift WHERE IdEmploye=@id",
+            cmd => {
+                cmd.Parameters.AddWithValue("@n", nom);
+                cmd.Parameters.AddWithValue("@p", prenom);
+                cmd.Parameters.AddWithValue("@c", categorie);
+                cmd.Parameters.AddWithValue("@r", roleExact);
+                cmd.Parameters.AddWithValue("@s", (object?)specialite ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@nc", niveauCompetence);
+                cmd.Parameters.AddWithValue("@sal", salaireJour);
+                cmd.Parameters.AddWithValue("@shift", shift);
+                cmd.Parameters.AddWithValue("@id", idEmploye);
+            });
     }
 
     public List<Transaction> GetRecentTransactions(int limit = 20) {
-        var list = new List<Transaction>();
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(
-            $"SELECT * FROM Transactions_Financieres ORDER BY IdTransaction DESC LIMIT {limit}", conn);
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
-            list.Add(new Transaction {
-                IdTransaction = r.GetInt32("IdTransaction"),
-                JourSimulation = r.GetInt32("JourSimulation"),
-                TypeTransaction = r.GetString("TypeTransaction"),
-                Montant = r.GetDecimal("Montant"),
-                Description = r.IsDBNull(r.GetOrdinal("Description")) ? "" : r.GetString("Description")
-            });
-        return list;
+        return GetList($"SELECT * FROM Transactions_Financieres ORDER BY IdTransaction DESC LIMIT {limit}", reader => new Transaction {
+            IdTransaction = reader.GetInt32("IdTransaction"),
+            JourSimulation = reader.GetInt32("JourSimulation"),
+            TypeTransaction = reader.GetString("TypeTransaction"),
+            Montant = reader.GetDecimal("Montant"),
+            Description = GetStringNullable(reader, "Description") ?? ""
+        });
     }
-
 
     public DashboardStats GetStats() {
-        using var conn = GetConnection();
-        conn.Open();
-        var stats = new DashboardStats();
-
         var sql = @"
-                SELECT
-                  (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut NOT IN ('Guéri','Décédé')) AS PatientsActifs,
-                  (SELECT COUNT(*) FROM Personnel_Actif) AS TotalPersonnel,
-                  (SELECT COUNT(*) FROM Lit WHERE Statut='Libre') AS LitsLibres,
-                  (SELECT COUNT(*) FROM Lit WHERE Statut='Occupé') AS LitsOccupes,
-                  (SELECT COALESCE(SUM(Montant),0) FROM Transactions_Financieres WHERE TypeTransaction='Revenu Patient' AND JourSimulation=(SELECT JourSimulation FROM Hopital LIMIT 1)) AS RevenuJour,
-                  (SELECT COALESCE(SUM(ABS(Montant)),0) FROM Transactions_Financieres WHERE Montant < 0 AND JourSimulation=(SELECT JourSimulation FROM Hopital LIMIT 1)) AS DepensesJour,
-                  (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='En Attente') AS EnAttente,
-                  (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='En Traitement') AS EnTraitement,
-                  (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='Guéri') AS Gueris,
-                  (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='Décédé') AS Deces";
+            SELECT 
+              (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut NOT IN ('Guéri','Décédé')) AS PatientsActifs,
+              (SELECT COUNT(*) FROM Personnel_Actif) AS TotalPersonnel,
+              (SELECT COUNT(*) FROM Lit WHERE Statut='Libre') AS LitsLibres,
+              (SELECT COUNT(*) FROM Lit WHERE Statut='Occupé') AS LitsOccupes,
+              (SELECT COALESCE(SUM(Montant),0) FROM Transactions_Financieres WHERE TypeTransaction='Revenu Patient' AND JourSimulation=(SELECT JourSimulation FROM Hopital LIMIT 1)) AS RevenuJour,
+              (SELECT COALESCE(SUM(ABS(Montant)),0) FROM Transactions_Financieres WHERE Montant < 0 AND JourSimulation=(SELECT JourSimulation FROM Hopital LIMIT 1)) AS DepensesJour,
+              (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='En Attente') AS EnAttente,
+              (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='En Traitement') AS EnTraitement,
+              (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='Guéri') AS Gueris,
+              (SELECT COUNT(*) FROM Patients_Actifs WHERE Statut='Décédé') AS Deces";
 
-        using var cmd = new MySqlCommand(sql, conn);
-        using var r = cmd.ExecuteReader();
-        if (r.Read()) {
-            stats.TotalPatientsActifs = r.GetInt32("PatientsActifs");
-            stats.TotalPersonnel = r.GetInt32("TotalPersonnel");
-            stats.LitsLibres = r.GetInt32("LitsLibres");
-            stats.LitsOccupes = r.GetInt32("LitsOccupes");
-            stats.RevenuJour = r.GetDecimal("RevenuJour");
-            stats.DepensesJour = r.GetDecimal("DepensesJour");
-            stats.PatientsEnAttente = r.GetInt32("EnAttente");
-            stats.PatientsEnTraitement = r.GetInt32("EnTraitement");
-            stats.PatientsGueris = r.GetInt32("Gueris");
-            stats.PatientsDeces = r.GetInt32("Deces");
-        }
+        var result = GetSingle(sql, reader => new DashboardStats {
+            TotalPatientsActifs = reader.GetInt32("PatientsActifs"),
+            TotalPersonnel = reader.GetInt32("TotalPersonnel"),
+            LitsLibres = reader.GetInt32("LitsLibres"),
+            LitsOccupes = reader.GetInt32("LitsOccupes"),
+            RevenuJour = reader.GetDecimal("RevenuJour"),
+            DepensesJour = reader.GetDecimal("DepensesJour"),
+            PatientsEnAttente = reader.GetInt32("EnAttente"),
+            PatientsEnTraitement = reader.GetInt32("EnTraitement"),
+            PatientsGueris = reader.GetInt32("Gueris"),
+            PatientsDeces = reader.GetInt32("Deces")
+        });
 
-        return stats;
+        return result ?? new DashboardStats();
     }
-
 
     public List<string> AdvanceHour(HospitalInfo hospital) {
         var log = new List<string>();
         var rng = new Random();
 
-        using var conn = GetConnection();
-        conn.Open();
-
-
-        var ts = TimeSpan.Parse(hospital.HeureSimulation);
-        ts = ts.Add(TimeSpan.FromHours(1));
+        var timeSpan = TimeSpan.Parse(hospital.HeureSimulation).Add(TimeSpan.FromHours(1));
         var newJour = hospital.JourSimulation;
-        if (ts.TotalHours >= 24) {
-            ts = ts.Subtract(TimeSpan.FromHours(24));
+        
+        if (timeSpan.TotalHours >= 24) {
+            timeSpan = timeSpan.Subtract(TimeSpan.FromHours(24));
             newJour++;
         }
 
-        var newHeure = ts.ToString(@"hh\:mm");
-
-
-        decimal salaireHoraire = 0;
-        using (var cmd = new MySqlCommand(
-                   "SELECT COALESCE(SUM(SalaireJour),0) FROM Personnel_Actif WHERE Statut != 'Absent'", conn)) {
-            salaireHoraire = Convert.ToDecimal(cmd.ExecuteScalar()) / 24m;
-        }
+        var newHeure = timeSpan.ToString(@"hh\:mm");
+        var salaireHoraire = ExecuteScalar<decimal>("SELECT COALESCE(SUM(SalaireJour),0) FROM Personnel_Actif WHERE Statut != 'Absent'") / 24m;
 
         if (salaireHoraire > 0) {
-            using var cmd = new MySqlCommand("UPDATE Hopital SET Budget = Budget - @s WHERE IdHopital=1", conn);
-            cmd.Parameters.AddWithValue("@s", salaireHoraire);
-            cmd.ExecuteNonQuery();
-            if (ts.Hours == 0)
-                LogTransaction(conn, newJour, "Paiement Salaire", -salaireHoraire * 24,
-                    $"Salaires quotidiens - {hospital.JourSimulation + 1} employés actifs");
+            ExecuteCommand("UPDATE Hopital SET Budget = Budget - @s WHERE IdHopital=1", cmd => cmd.Parameters.AddWithValue("@s", salaireHoraire));
+            if (timeSpan.Hours == 0) {
+                LogTransactionInternal(newJour, "Paiement Salaire", -salaireHoraire * 24, $"Salaires quotidiens - {hospital.JourSimulation + 1} employés actifs");
+            }
         }
 
-
-        if (ts.Hours == 0) {
-            decimal entretien = 0;
-            using (var cmd = new MySqlCommand("SELECT COALESCE(SUM(CoutEntretienJour),0) FROM Unite", conn)) {
-                entretien = Convert.ToDecimal(cmd.ExecuteScalar());
-            }
-
-            using (var cmd = new MySqlCommand("UPDATE Hopital SET Budget = Budget - @e WHERE IdHopital=1", conn)) {
-                cmd.Parameters.AddWithValue("@e", entretien);
-                cmd.ExecuteNonQuery();
-            }
-
+        if (timeSpan.Hours == 0) {
+            var entretien = ExecuteScalar<decimal>("SELECT COALESCE(SUM(CoutEntretienJour),0) FROM Unite");
+            ExecuteCommand("UPDATE Hopital SET Budget = Budget - @e WHERE IdHopital=1", cmd => cmd.Parameters.AddWithValue("@e", entretien));
+            
             if (entretien > 0) {
-                LogTransaction(conn, newJour, "Frais Entretien", -entretien, "Coût d'entretien quotidien des unités");
+                LogTransactionInternal(newJour, "Frais Entretien", -entretien, "Coût d'entretien quotidien des unités");
                 log.Add($"💰 Entretien des unités: -{entretien:C0}");
             }
         }
 
+        var patients = GetList(
+            "SELECT IdPatient,TempsTraitementRestant,IdMaladie,IdLit,IdMedecinAssigné,Classe FROM Patients_Actifs WHERE Statut IN ('En Diagnostic','En Traitement')",
+            reader => (
+                reader.GetInt32(0), 
+                GetIntNullable(reader, "TempsTraitementRestant") ?? 0, 
+                reader.GetInt32(2), 
+                GetIntNullable(reader, "IdLit"), 
+                GetIntNullable(reader, "IdMedecinAssigné"), 
+                reader.GetString(5)
+            ));
 
-        var patients = new List<(int id, int tempsRestant, int idMaladie, int? idLit, int? idMedecin, string classe)>();
-        using (var cmd = new MySqlCommand(
-                   "SELECT IdPatient,TempsTraitementRestant,IdMaladie,IdLit,IdMedecinAssigné,Classe FROM Patients_Actifs WHERE Statut IN ('En Diagnostic','En Traitement')",
-                   conn))
-        using (var r = cmd.ExecuteReader()) {
-            while (r.Read())
-                patients.Add((r.GetInt32(0), r.IsDBNull(1) ? 0 : r.GetInt32(1),
-                    r.GetInt32(2), r.IsDBNull(3) ? null : r.GetInt32(3),
-                    r.IsDBNull(4) ? null : r.GetInt32(4), r.GetString(5)));
-        }
+        foreach (var (id, tempsRestant, idMaladie, idLit, idMedecin, classe) in patients) {
+            var newTemps = tempsRestant - 1;
 
-        foreach (var (id, temps, idMaladie, idLit, idMedecin, classe) in patients) {
-            var newTemps = temps - 1;
-
-
-            using (var cmd = new MySqlCommand(
-                       "UPDATE Patients_Actifs SET Statut='En Traitement', TempsTraitementRestant=@t WHERE IdPatient=@id AND Statut='En Diagnostic'",
-                       conn)) {
-                cmd.Parameters.AddWithValue("@t", newTemps);
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();
-            }
+            ExecuteCommand(
+                "UPDATE Patients_Actifs SET Statut='En Traitement', TempsTraitementRestant=@t WHERE IdPatient=@id AND Statut='En Diagnostic'",
+                cmd => {
+                    cmd.Parameters.AddWithValue("@t", newTemps);
+                    cmd.Parameters.AddWithValue("@id", id);
+                });
 
             if (newTemps <= 0) {
-                decimal revenu = 0;
-                using (var cmd = new MySqlCommand("SELECT RevenuPatient FROM Cas_Cliniques WHERE IdCas=@m", conn)) {
-                    cmd.Parameters.AddWithValue("@m", idMaladie);
-                    revenu = Convert.ToDecimal(cmd.ExecuteScalar());
-                }
-
+                var revenu = ExecuteScalar<decimal>("SELECT RevenuPatient FROM Cas_Cliniques WHERE IdCas=@m", cmd => cmd.Parameters.AddWithValue("@m", idMaladie));
+                
                 if (classe == "VIP") revenu *= 2m;
                 else if (classe == "Non-assuré") revenu *= 0.3m;
 
-                using (var cmd = new MySqlCommand(
-                           "UPDATE Patients_Actifs SET Statut='Guéri',TempsTraitementRestant=0 WHERE IdPatient=@id",
-                           conn)) {
-                    cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQuery();
-                }
-
-                if (idLit.HasValue) {
-                    using var cmd = new MySqlCommand("UPDATE Lit SET Statut='Libre' WHERE IdLit=@l", conn);
-                    cmd.Parameters.AddWithValue("@l", idLit.Value);
-                    cmd.ExecuteNonQuery();
-                }
-
-                using (var cmd = new MySqlCommand("UPDATE Hopital SET Budget=Budget+@r WHERE IdHopital=1", conn)) {
-                    cmd.Parameters.AddWithValue("@r", revenu);
-                    cmd.ExecuteNonQuery();
-                }
-
-                LogTransaction(conn, newJour, "Revenu Patient", revenu, $"Patient #{id} traité ({classe})");
+                ExecuteCommand("UPDATE Patients_Actifs SET Statut='Guéri',TempsTraitementRestant=0 WHERE IdPatient=@id", cmd => cmd.Parameters.AddWithValue("@id", id));
+                if (idLit.HasValue) FreeBed(idLit.Value);
+                
+                ExecuteCommand("UPDATE Hopital SET Budget=Budget+@r WHERE IdHopital=1", cmd => cmd.Parameters.AddWithValue("@r", revenu));
+                
+                LogTransactionInternal(newJour, "Revenu Patient", revenu, $"Patient #{id} traité ({classe})");
                 log.Add($"✅ Patient #{id} guéri → +{revenu:C0}");
-
-
-                using (var cmd = new MySqlCommand(
-                           "UPDATE Hopital SET Reputation=LEAST(100,Reputation+1) WHERE IdHopital=1", conn)) {
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            else {
-                using (var cmd = new MySqlCommand(
-                           "UPDATE Patients_Actifs SET TempsTraitementRestant=@t WHERE IdPatient=@id", conn)) {
+                
+                ExecuteCommand("UPDATE Hopital SET Reputation=LEAST(100,Reputation+1) WHERE IdHopital=1");
+            } else {
+                ExecuteCommand("UPDATE Patients_Actifs SET TempsTraitementRestant=@t WHERE IdPatient=@id", cmd => {
                     cmd.Parameters.AddWithValue("@t", newTemps);
                     cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQuery();
-                }
+                });
 
-
-                var risk = 3;
-                using (var cmd = new MySqlCommand("SELECT RisqueErreurMedicale FROM Cas_Cliniques WHERE IdCas=@m",
-                           conn)) {
-                    cmd.Parameters.AddWithValue("@m", idMaladie);
-                    risk = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-
-                var competence = 50;
-                if (idMedecin.HasValue)
-                    using (var cmd = new MySqlCommand("SELECT NiveauCompetence FROM Personnel_Actif WHERE IdEmploye=@e",
-                               conn)) {
-                        cmd.Parameters.AddWithValue("@e", idMedecin.Value);
-                        competence = Convert.ToInt32(cmd.ExecuteScalar());
-                    }
+                var risk = ExecuteScalar<int>("SELECT RisqueErreurMedicale FROM Cas_Cliniques WHERE IdCas=@m", cmd => cmd.Parameters.AddWithValue("@m", idMaladie));
+                var competence = idMedecin.HasValue ? ExecuteScalar<int>("SELECT NiveauCompetence FROM Personnel_Actif WHERE IdEmploye=@e", cmd => cmd.Parameters.AddWithValue("@e", idMedecin.Value)) : 50;
 
                 var effectiveRisk = Math.Max(1, risk - competence / 20);
+                
                 if (rng.Next(100) < effectiveRisk) {
-                    var dmg = rng.Next(5, 20);
-                    using var cmd = new MySqlCommand(
+                    var damage = rng.Next(5, 20);
+                    ExecuteCommand(
                         "UPDATE Patients_Actifs SET SanteActuelle=GREATEST(0,SanteActuelle-@d), Satisfaction=GREATEST(0,Satisfaction-5) WHERE IdPatient=@id",
-                        conn);
-                    cmd.Parameters.AddWithValue("@d", dmg);
-                    cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQuery();
-                    log.Add($"⚠️ Complication patient #{id} (-{dmg} santé)");
+                        cmd => 
+                        {
+                            cmd.Parameters.AddWithValue("@d", damage);
+                            cmd.Parameters.AddWithValue("@id", id);
+                        });
+                        
+                    log.Add($"⚠️ Complication patient #{id} (-{damage} santé)");
 
-
-                    var sante = 0;
-                    using var cmd2 = new MySqlCommand("SELECT SanteActuelle FROM Patients_Actifs WHERE IdPatient=@id",
-                        conn);
-                    cmd2.Parameters.AddWithValue("@id", id);
-                    sante = Convert.ToInt32(cmd2.ExecuteScalar());
+                    var sante = ExecuteScalar<int>("SELECT SanteActuelle FROM Patients_Actifs WHERE IdPatient=@id", cmd => cmd.Parameters.AddWithValue("@id", id));
+                    
                     if (sante <= 0) {
-                        using var cmdDead =
-                            new MySqlCommand("UPDATE Patients_Actifs SET Statut='Décédé' WHERE IdPatient=@id", conn);
-                        cmdDead.Parameters.AddWithValue("@id", id);
-                        cmdDead.ExecuteNonQuery();
-                        if (idLit.HasValue) {
-                            using var cmdFree = new MySqlCommand("UPDATE Lit SET Statut='Libre' WHERE IdLit=@l", conn);
-                            cmdFree.Parameters.AddWithValue("@l", idLit.Value);
-                            cmdFree.ExecuteNonQuery();
-                        }
-
-                        using var cmdRep =
-                            new MySqlCommand("UPDATE Hopital SET Reputation=GREATEST(0,Reputation-5) WHERE IdHopital=1",
-                                conn);
-                        cmdRep.ExecuteNonQuery();
+                        ExecuteCommand("UPDATE Patients_Actifs SET Statut='Décédé' WHERE IdPatient=@id", cmd => cmd.Parameters.AddWithValue("@id", id));
+                        if (idLit.HasValue) FreeBed(idLit.Value);
+                        
+                        ExecuteCommand("UPDATE Hopital SET Reputation=GREATEST(0,Reputation-5) WHERE IdHopital=1");
                         log.Add($"💀 Patient #{id} est décédé");
                     }
                 }
             }
         }
 
-
-        using (var cmd = new MySqlCommand(
-                   "UPDATE Personnel_Actif SET Energie=GREATEST(0,Energie-2), Stress=LEAST(100,Stress+1), Faim=GREATEST(0,Faim-1) WHERE Statut='En poste'",
-                   conn)) {
-            cmd.ExecuteNonQuery();
-        }
-
-
-        using (var cmd = new MySqlCommand(
-                   "UPDATE Personnel_Actif SET Statut='Épuisé' WHERE Energie <= 10 AND Statut='En poste'", conn)) {
-            cmd.ExecuteNonQuery();
-        }
-
-
-        using (var cmd = new MySqlCommand("UPDATE Hopital SET HeureSimulation=@h, JourSimulation=@j WHERE IdHopital=1",
-                   conn)) {
+        ExecuteCommand("UPDATE Personnel_Actif SET Energie=GREATEST(0,Energie-2), Stress=LEAST(100,Stress+1), Faim=GREATEST(0,Faim-1) WHERE Statut='En poste'");
+        ExecuteCommand("UPDATE Personnel_Actif SET Statut='Épuisé' WHERE Energie <= 10 AND Statut='En poste'");
+        
+        ExecuteCommand("UPDATE Hopital SET HeureSimulation=@h, JourSimulation=@j WHERE IdHopital=1", cmd => 
+        {
             cmd.Parameters.AddWithValue("@h", newHeure + ":00");
             cmd.Parameters.AddWithValue("@j", newJour);
-            cmd.ExecuteNonQuery();
-        }
+        });
 
         if (log.Count == 0) log.Add($"⏱ Heure avancée → Jour {newJour} {newHeure}");
+        
         return log;
     }
 
-
     public bool TestConnection() {
         try {
-            using var conn = GetConnection();
-            conn.Open();
+            using var connection = GetConnection();
             return true;
-        }
-        catch {
-            return false;
-        }
-    }
-
-    public void FireEmploye(int empIdEmploye) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("DELETE FROM Personnel_Actif WHERE IdEmploye=@id", conn);
-        cmd.Parameters.AddWithValue("@id", empIdEmploye);
-        cmd.ExecuteNonQuery();
+        } catch { return false; }
     }
 
     public void ExecuteNonQuery(string query) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(query, conn);
-        cmd.ExecuteNonQuery();
+        ExecuteCommand(query);
     }
 
     public T? ExecuteScalar<T>(string query) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand(query, conn);
-        var result = cmd.ExecuteScalar();
-        if (result == null || result == DBNull.Value) return default;
-        return (T)Convert.ChangeType(result, typeof(T));
+        return ExecuteScalar<T>(query, null);
     }
 
     public void RecordTransaction(string type, decimal montant, string description) {
         var hospital = GetHospital();
-        if (hospital == null) return;
-        using var conn = GetConnection();
-        conn.Open();
-        LogTransaction(conn, hospital.JourSimulation, type, montant, description);
+        if (hospital != null) {
+            LogTransactionInternal(hospital.JourSimulation, type, montant, description);
+        }
     }
 
     public void ReleaseBed(int idPatient) {
-        using var conn = GetConnection();
-        conn.Open();
-        // On récupère le lit occupé par le patient
-        int? idLit = null;
-        using (var cmd = new MySqlCommand("SELECT IdLit FROM Patients_Actifs WHERE IdPatient=@id", conn)) {
-            cmd.Parameters.AddWithValue("@id", idPatient);
-            var result = cmd.ExecuteScalar();
-            if (result != null && result != DBNull.Value) idLit = Convert.ToInt32(result);
-        }
-
-        if (idLit.HasValue) {
-            using var cmd = new MySqlCommand("UPDATE Lit SET Statut='Libre' WHERE IdLit=@id", conn);
-            cmd.Parameters.AddWithValue("@id", idLit.Value);
-            cmd.ExecuteNonQuery();
-        }
+        var idLit = ExecuteScalar<int?>("SELECT IdLit FROM Patients_Actifs WHERE IdPatient=@id", cmd => cmd.Parameters.AddWithValue("@id", idPatient));
+        if (idLit.HasValue) FreeBed(idLit.Value);
     }
 
     public List<LitInventaire> GetLitsInventaire() {
-        var list = new List<LitInventaire>();
-        using var conn = GetConnection();
-        conn.Open();
-
         var sql = @"
-        SELECT 
-            l.IdLit, 
-            l.NumeroLit, 
-            c.NumeroChambre, 
-            c.TypeChambre, 
-            u.Nom AS Unite, 
-            l.Statut 
-        FROM Lit l 
-        JOIN Chambre c ON l.IdChambre = c.IdChambre 
-        JOIN Unite u ON c.IdUnite = u.IdUnite";
+            SELECT l.IdLit, l.NumeroLit, c.NumeroChambre, c.TypeChambre, u.Nom AS Unite, l.Statut 
+            FROM Lit l 
+            JOIN Chambre c ON l.IdChambre = c.IdChambre 
+            JOIN Unite u ON c.IdUnite = u.IdUnite";
 
-        using var cmd = new MySqlCommand(sql, conn);
-        using var r = cmd.ExecuteReader();
-
-        while (r.Read())
-            list.Add(new LitInventaire {
-                IdLit = r.GetInt32("IdLit"),
-                NumeroLit = r.GetString("NumeroLit"),
-                NumeroChambre = r.GetString("NumeroChambre"),
-                TypeChambre = r.GetString("TypeChambre"),
-                Unite = r.GetString("Unite"),
-                Statut = r.GetString("Statut")
-            });
-
-        return list;
+        return GetList(sql, reader => new LitInventaire {
+            IdLit = reader.GetInt32("IdLit"),
+            NumeroLit = reader.GetString("NumeroLit"),
+            NumeroChambre = reader.GetString("NumeroChambre"),
+            TypeChambre = reader.GetString("TypeChambre"),
+            Unite = reader.GetString("Unite"),
+            Statut = reader.GetString("Statut")
+        });
     }
 
     public ObservableCollection<ChambreGroup> GetChambresHierarchiques() {
         var chambres = new Dictionary<int, ChambreGroup>();
-        using var conn = GetConnection();
-        conn.Open();
-
-        var sqlChambres = @"
-            SELECT c.IdChambre, c.NumeroChambre, c.TypeChambre, u.Nom AS Unite 
-            FROM Chambre c JOIN Unite u ON c.IdUnite = u.IdUnite ORDER BY c.NumeroChambre";
-        using var cmdC = new MySqlCommand(sqlChambres, conn);
-        using var rC = cmdC.ExecuteReader();
-        while (rC.Read()) {
-            var id = rC.GetInt32("IdChambre");
+        var sqlChambres = "SELECT c.IdChambre, c.NumeroChambre, c.TypeChambre, u.Nom AS Unite FROM Chambre c JOIN Unite u ON c.IdUnite = u.IdUnite ORDER BY c.NumeroChambre";
+        
+        GetList(sqlChambres, reader => {
+            var id = reader.GetInt32("IdChambre");
             chambres[id] = new ChambreGroup {
                 IdChambre = id,
-                NumeroChambre = rC.GetString("NumeroChambre"),
-                TypeChambre = rC.GetString("TypeChambre"),
-                Unite = rC.GetString("Unite")
+                NumeroChambre = reader.GetString("NumeroChambre"),
+                TypeChambre = reader.GetString("TypeChambre"),
+                Unite = reader.GetString("Unite")
             };
-        }
+            return 0;
+        });
 
-        rC.Close();
-
-        var sqlLits = "SELECT IdLit, IdChambre, NumeroLit, Statut FROM Lit";
-        using var cmdL = new MySqlCommand(sqlLits, conn);
-        using var rL = cmdL.ExecuteReader();
-        while (rL.Read()) {
-            var idChambre = rL.GetInt32("IdChambre");
-            if (chambres.TryGetValue(idChambre, out var chambreGroup))
+        GetList("SELECT IdLit, IdChambre, NumeroLit, Statut FROM Lit", reader => {
+            var idChambre = reader.GetInt32("IdChambre");
+            if (chambres.TryGetValue(idChambre, out var chambreGroup)) {
                 chambreGroup.Lits.Add(new LitInventaire {
-                    IdLit = rL.GetInt32("IdLit"),
+                    IdLit = reader.GetInt32("IdLit"),
                     IdChambre = idChambre,
-                    NumeroLit = rL.GetString("NumeroLit"),
-                    Statut = rL.GetString("Statut")
+                    NumeroLit = reader.GetString("NumeroLit"),
+                    Statut = reader.GetString("Statut")
                 });
-        }
+            }
+            return 0;
+        });
 
         return new ObservableCollection<ChambreGroup>(chambres.Values);
     }
 
     public void UpdateLitChambre(int idLit, int nouvelleIdChambre) {
-        using var conn = GetConnection();
-        conn.Open();
-        using var cmd = new MySqlCommand("UPDATE Lit SET IdChambre = @idC WHERE IdLit = @idL", conn);
-        cmd.Parameters.AddWithValue("@idC", nouvelleIdChambre);
-        cmd.Parameters.AddWithValue("@idL", idLit);
-        cmd.ExecuteNonQuery();
+        ExecuteCommand("UPDATE Lit SET IdChambre = @idC WHERE IdLit = @idL", cmd => {
+            cmd.Parameters.AddWithValue("@idC", nouvelleIdChambre);
+            cmd.Parameters.AddWithValue("@idL", idLit);
+        });
     }
 
     public List<ChambreBase> GetChambresList() {
-        var list = new List<ChambreBase>();
-        using var conn = GetConnection();
-        conn.Open();
-
-        using var cmd =
-            new MySqlCommand("SELECT IdChambre, NumeroChambre, TypeChambre FROM Chambre ORDER BY NumeroChambre", conn);
-        using var r = cmd.ExecuteReader();
-
-        while (r.Read())
-            list.Add(new ChambreBase {
-                IdChambre = r.GetInt32("IdChambre"),
-                NumeroChambre = r.GetString("NumeroChambre"),
-                TypeChambre = r.GetString("TypeChambre")
-            });
-
-        return list;
+        return GetList("SELECT IdChambre, NumeroChambre, TypeChambre FROM Chambre ORDER BY NumeroChambre", reader => new ChambreBase {
+            IdChambre = reader.GetInt32("IdChambre"),
+            NumeroChambre = reader.GetString("NumeroChambre"),
+            TypeChambre = reader.GetString("TypeChambre")
+        });
     }
 
     public void AddLit(int idChambre, string numeroLit) {
-        using var conn = GetConnection();
-        conn.Open();
-
-        using var cmd = new MySqlCommand("INSERT INTO Lit (IdChambre, NumeroLit, Statut) VALUES (@id, @num, 'Libre')",
-            conn);
-        cmd.Parameters.AddWithValue("@id", idChambre);
-        cmd.Parameters.AddWithValue("@num", numeroLit);
-
-        cmd.ExecuteNonQuery();
+        ExecuteCommand("INSERT INTO Lit (IdChambre, NumeroLit, Statut) VALUES (@id, @num, 'Libre')", cmd => {
+            cmd.Parameters.AddWithValue("@id", idChambre);
+            cmd.Parameters.AddWithValue("@num", numeroLit);
+        });
     }
 
     public List<UniteBase> GetUnitesList() {
-        var list = new List<UniteBase>();
-        using var conn = GetConnection();
-        conn.Open();
-
-        using var cmd = new MySqlCommand("SELECT IdUnite, Nom FROM Unite ORDER BY Nom", conn);
-        using var r = cmd.ExecuteReader();
-
-        while (r.Read())
-            list.Add(new UniteBase {
-                IdUnite = r.GetInt32("IdUnite"),
-                Nom = r.GetString("Nom")
-            });
-
-        return list;
+        return GetList("SELECT IdUnite, Nom FROM Unite ORDER BY Nom", reader => new UniteBase {
+            IdUnite = reader.GetInt32("IdUnite"),
+            Nom = reader.GetString("Nom")
+        });
     }
 
     public void AddChambre(int idUnite, string numeroChambre, string typeChambre) {
-        using var conn = GetConnection();
-        conn.Open();
-
-        using var cmd = new MySqlCommand(
-            "INSERT INTO Chambre (IdUnite, NumeroChambre, TypeChambre) VALUES (@id, @num, @type)", conn);
-        cmd.Parameters.AddWithValue("@id", idUnite);
-        cmd.Parameters.AddWithValue("@num", numeroChambre);
-        cmd.Parameters.AddWithValue("@type", typeChambre);
-
-        cmd.ExecuteNonQuery();
+        ExecuteCommand("INSERT INTO Chambre (IdUnite, NumeroChambre, TypeChambre) VALUES (@id, @num, @type)", cmd => {
+            cmd.Parameters.AddWithValue("@id", idUnite);
+            cmd.Parameters.AddWithValue("@num", numeroChambre);
+            cmd.Parameters.AddWithValue("@type", typeChambre);
+        });
     }
 
     public void RemoveChambre(int idChambre) {
-        using var conn = GetConnection();
-        conn.Open();
-
-        using var cmd = new MySqlCommand("DELETE FROM Chambre WHERE IdChambre = @id", conn);
-        cmd.Parameters.AddWithValue("@id", idChambre);
-
-        cmd.ExecuteNonQuery();
+        ExecuteCommand("DELETE FROM Chambre WHERE IdChambre = @id", cmd => cmd.Parameters.AddWithValue("@id", idChambre));
     }
 
     public class ChambreBase {

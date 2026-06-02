@@ -34,7 +34,11 @@ public partial class HospitalWindow : Window {
         IcEventLog.ItemsSource = _eventLog;
 
         if (!_db.TestConnection()) {
+            MainPanel.Visibility = Visibility.Hidden;
+            DbErrorPanel.Visibility = Visibility.Visible;
+            
             SetStatus("❌ Connexion DB échouée : vérifiez vos identifiants", Colors.OrangeRed);
+            
             return;
         }
 
@@ -364,8 +368,24 @@ public partial class HospitalWindow : Window {
 
     private void BtnRemoveLit_Click(object sender, RoutedEventArgs e) { }
 
-    private void BtnRemoveChambre_Click(object sender, RoutedEventArgs e) { }
+    private void BtnRemoveChambre_Click(object sender, RoutedEventArgs e) {
+        if (sender is not FrameworkElement fe || fe.DataContext is not ChambreGroup chambre) return;
 
+        var deletePopup = PopupFactory.CreateConfirmationPopup(
+            $"Êtes-vous sûr de vouloir supprimer la chambre {chambre.NumeroChambre} ?",
+            "#FF4D6A",
+            () => {
+                _db.ExecuteNonQuery($"DELETE FROM Chambre WHERE IdChambre = {chambre.IdChambre}");
+                LogEvent($"🗑 Chambre {chambre.NumeroChambre} supprimée");
+                RefreshChambres();
+                RefreshDashboard();
+                SetStatus($"✅ Chambre {chambre.NumeroChambre} supprimée", Color.FromRgb(255, 77, 106));
+            },
+            () => { }
+        );
+
+        MainPanel.Children.Add(deletePopup);
+    }
     private void Lit_MouseMove(object sender, MouseEventArgs e) {
         if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement fe &&
             fe.DataContext is LitInventaire lit) DragDrop.DoDragDrop(fe, lit, DragDropEffects.Move);

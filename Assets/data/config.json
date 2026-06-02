@@ -1,0 +1,9 @@
+{
+  "MaxActionPoints": 5,
+  "TurnDurationSeconds": 60,
+  "StarterDwellersCount": 3,
+  "StarterWeaponsCount": 1,
+  "StarterOutfitsCount": 1,
+  "MapCols": 13,
+  "MapRows": 6
+}

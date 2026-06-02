@@ -34,16 +34,32 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                                CornerRadius="8" Margin="8,2">
-                            <ContentPresenter VerticalAlignment="Center"
-                                              HorizontalAlignment="Left"
-                                              Margin="{TemplateBinding Padding}" />
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Margin="8,2">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" Margin="{TemplateBinding Padding}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#1e1e28" />
                                 <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="RemoveBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BgBorder" Background="{TemplateBinding Background}" CornerRadius="6" Padding="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BgBorder" Property="Background" Value="#461D0005"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -108,8 +124,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListViewItem">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                                CornerRadius="6" Margin="0,1" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6" Margin="0,1" Padding="{TemplateBinding Padding}">
                             <GridViewRowPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -155,38 +170,21 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="false"
-                                          IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="false" IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
-                                        <Border Background="#1c1c22"
-                                                BorderBrush="{StaticResource Border}"
-                                                BorderThickness="1">
-                                            <Path x:Name="Arrow"
-                                                  Fill="{TemplateBinding Foreground}"
-                                                  HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                  Margin="0,0,5,0" Data="M 0 0 L 4 4 L 8 0 Z" />
+                                        <Border Background="#1c1c22" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                                            <Path x:Name="Arrow" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" Data="M 0 0 L 4 4 L 8 0 Z" />
                                         </Border>
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False"
-                                              Content="{TemplateBinding SelectionBoxItem}"
-                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                              Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                            <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
-                                <Grid x:Name="DropDown" SnapsToDevicePixels="True"
-                                      MinWidth="{TemplateBinding ActualWidth}"
-                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border x:Name="DropDownBorder" Background="#18181e"
-                                            BorderThickness="1"
-                                            BorderBrush="{StaticResource Border}" />
-                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True"
-                                                  ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                                        <StackPanel IsItemsHost="True"
-                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
+                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder" Background="#18181e" BorderThickness="1" BorderBrush="{StaticResource Border}" />
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
                                     </ScrollViewer>
                                 </Grid>
                             </Popup>
@@ -209,10 +207,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
                             <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -225,548 +220,420 @@
             </Setter>
         </Style>
     </Window.Resources>
+    
+    <Grid>
+        
+        <Canvas x:Name="MainPanel" Background="#08080A" Margin="0,-16,0,16">
+            <Grid x:Name="RootGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-    <Canvas x:Name="MainPanel" Background="#08080A" Margin="0,-16,0,16">
-        <Grid x:Name="RootGrid">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Background="{StaticResource SidebarBg}"
-                    BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
-                <DockPanel>
-                    <Border DockPanel.Dock="Top" Padding="20,24,20,16">
-                        <StackPanel>
-                            <TextBlock Text="⛨ RUE DE LONDRES" Foreground="{StaticResource AccentTeal}"
-                                       FontFamily="Segoe UI Black" FontSize="13" />
-                            <TextBlock Text="MEMORIAL" Foreground="{StaticResource TextPrimary}"
-                                       FontFamily="Segoe UI Black" FontSize="16" />
-                            <TextBlock Text="SAFEZONE • HOSPITAL" Foreground="{StaticResource TextDim}"
-                                       FontFamily="Segoe UI Semibold" FontSize="11" />
-                            <Border Height="1" Background="{StaticResource Border}" Margin="0,14,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <Border DockPanel.Dock="Top" Margin="12,0,12,16">
-                        <Border Background="{StaticResource BgCard}" CornerRadius="10" Padding="12,10">
+                <Border Grid.Column="0" Background="{StaticResource SidebarBg}" BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Padding="20,24,20,16">
                             <StackPanel>
-                                <TextBlock x:Name="TbDate" Text="01/01/2024"
-                                           Foreground="{StaticResource TextSecondary}"
-                                           FontSize="11" FontFamily="Consolas" />
-                                <TextBlock x:Name="TbHeure" Text="00:00:00"
-                                           Foreground="{StaticResource AccentTeal}"
-                                           FontFamily="Consolas" FontSize="26" FontWeight="Bold" />
-                                <TextBlock x:Name="TbBudget" Text="$ 500,000"
-                                           Foreground="{StaticResource AccentTeal}"
-                                           FontFamily="Consolas" FontSize="14" />
+                                <TextBlock Text="⛨ RUE DE LONDRES" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="13" />
+                                <TextBlock Text="MEMORIAL" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="16" />
+                                <TextBlock Text="SAFEZONE • HOSPITAL" Foreground="{StaticResource TextDim}" FontFamily="Segoe UI Semibold" FontSize="11" />
+                                <Border Height="1" Background="{StaticResource Border}" Margin="0,14,0,0" />
                             </StackPanel>
                         </Border>
-                    </Border>
 
-                    <StackPanel DockPanel.Dock="Top" Margin="0,4,0,0">
-                        <TextBlock Text="NAVIGATION" Foreground="{StaticResource TextDim}"
-                                   FontSize="9" FontFamily="Segoe UI Semibold"
-                                   Margin="24,0,0,8" />
-                        <Button x:Name="BtnDashboard" Content="📊  Tableau de Bord"
-                                Style="{StaticResource NavBtnActive}" Click="Nav_Click" Tag="dashboard" />
-                        <Button x:Name="BtnPatients" Content="🏥  Patients" Style="{StaticResource NavBtn}"
-                                Click="Nav_Click" Tag="patients" />
-                        <Button x:Name="BtnPersonnel" Content="👤  Personnel" Style="{StaticResource NavBtn}"
-                                Click="Nav_Click" Tag="personnel" />
-                        <Button x:Name="BtnRecruter" Content="🔍  Recrutement" Style="{StaticResource NavBtn}"
-                                Click="Nav_Click" Tag="recruter" />
-                        <Button x:Name="BtnFinances" Content="💹  Finances" Style="{StaticResource NavBtn}"
-                                Click="Nav_Click" Tag="finances" />
-                        <Button x:Name="BtnChambres" Content="🛏  Chambres &amp; Lits" Style="{StaticResource NavBtn}"
-                                Click="Nav_Click" Tag="chambres" />
-                    </StackPanel>
+                        <Border DockPanel.Dock="Top" Margin="12,0,12,16">
+                            <Border Background="{StaticResource BgCard}" CornerRadius="10" Padding="12,10">
+                                <StackPanel>
+                                    <TextBlock x:Name="TbDate" Text="01/01/2024" Foreground="{StaticResource TextSecondary}" FontSize="11" FontFamily="Consolas" />
+                                    <TextBlock x:Name="TbHeure" Text="00:00:00" Foreground="{StaticResource AccentTeal}" FontFamily="Consolas" FontSize="26" FontWeight="Bold" />
+                                    <TextBlock x:Name="TbBudget" Text="$ 500,000" Foreground="{StaticResource AccentTeal}" FontFamily="Consolas" FontSize="14" />
+                                </StackPanel>
+                            </Border>
+                        </Border>
 
-                    <Border DockPanel.Dock="Bottom" Margin="12,0,12,20">
-                        <StackPanel>
-                            <Border Height="1" Background="{StaticResource Border}" Margin="0,0,0,14" />
-                            <TextBlock Text="STATUT SYSTÈME" Foreground="{StaticResource TextDim}"
-                                       FontSize="9" FontFamily="Segoe UI Semibold"
-                                       Margin="4,0,0,8" />
-                            <TextBlock x:Name="TbLastEvent" Text="Système prêt"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       FontSize="11" FontFamily="Consolas"
-                                       Margin="4,0,4,0" TextWrapping="Wrap" />
+                        <StackPanel DockPanel.Dock="Top" Margin="0,4,0,0">
+                            <TextBlock Text="NAVIGATION" Foreground="{StaticResource TextDim}" FontSize="9" FontFamily="Segoe UI Semibold" Margin="24,0,0,8" />
+                            <Button x:Name="BtnDashboard" Content="📊  Tableau de Bord" Style="{StaticResource NavBtnActive}" Click="Nav_Click" Tag="dashboard" />
+                            <Button x:Name="BtnPatients" Content="🏥  Patients" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="patients" />
+                            <Button x:Name="BtnPersonnel" Content="👤  Personnel" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="personnel" />
+                            <Button x:Name="BtnRecruter" Content="🔍  Recrutement" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="recruter" />
+                            <Button x:Name="BtnFinances" Content="💹  Finances" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="finances" />
+                            <Button x:Name="BtnChambres" Content="🛏  Chambres &amp; Lits" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="chambres" />
                         </StackPanel>
-                    </Border>
-                </DockPanel>
-            </Border>
 
-            <Grid Grid.Column="1">
-
-                <Grid x:Name="PanelDashboard" Visibility="Visible" Margin="28,24,28,24">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Tableau de Bord" Foreground="{StaticResource TextPrimary}"
-                                   FontFamily="Segoe UI Black" FontSize="28" />
-                        <TextBlock x:Name="TbSubTitle" Text="Gestion de l'hôpital en temps réel"
-                                   Foreground="{StaticResource TextSecondary}" FontSize="13" />
-                    </StackPanel>
-
-                    <UniformGrid Grid.Row="1" Rows="2" Columns="4" Margin="0,0,0,24">
-                        <Border Margin="0,0,10,10">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="Patients Actifs" Foreground="{StaticResource TextSecondary}"
-                                               FontSize="11" />
-                                    <TextBlock x:Name="KpiPatientsActifs" Text="0"
-                                               Foreground="{StaticResource AccentBlue}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock x:Name="KpiAttente" Text="0 en attente"
-                                               Foreground="{StaticResource TextDim}" FontSize="11" />
-                                </StackPanel>
-                            </Border>
+                        <Border DockPanel.Dock="Bottom" Margin="12,0,12,20">
+                            <StackPanel>
+                                <Border Height="1" Background="{StaticResource Border}" Margin="0,0,0,14" />
+                                <TextBlock Text="STATUT SYSTÈME" Foreground="{StaticResource TextDim}" FontSize="9" FontFamily="Segoe UI Semibold" Margin="4,0,0,8" />
+                                <TextBlock x:Name="TbLastEvent" Text="Système prêt" Foreground="{StaticResource TextSecondary}" FontSize="11" FontFamily="Consolas" Margin="4,0,4,0" TextWrapping="Wrap" />
+                            </StackPanel>
                         </Border>
-
-                        <Border Margin="0,0,10,10">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="Personnel" Foreground="{StaticResource TextSecondary}"
-                                               FontSize="11" />
-                                    <TextBlock x:Name="KpiPersonnel" Text="0"
-                                               Foreground="{StaticResource AccentPurple}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock Text="employés actifs" Foreground="{StaticResource TextDim}"
-                                               FontSize="11" />
-                                </StackPanel>
-                            </Border>
-                        </Border>
-
-                        <Border Margin="0,0,10,10">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="Lits Disponibles" Foreground="{StaticResource TextSecondary}"
-                                               FontSize="11" />
-                                    <TextBlock x:Name="KpiLitsLibres" Text="0"
-                                               Foreground="{StaticResource AccentTeal}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock x:Name="KpiLitsOccupes" Text="occupés"
-                                               Foreground="{StaticResource TextDim}" FontSize="11" />
-                                </StackPanel>
-                            </Border>
-                        </Border>
-
-                        <Border Margin="0,0,0,10">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="Revenus du Jour" Foreground="{StaticResource TextSecondary}"
-                                               FontSize="11" />
-                                    <TextBlock x:Name="KpiRevenu" Text="$0"
-                                               Foreground="{StaticResource AccentTeal}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock x:Name="KpiDepenses" Text="dépenses"
-                                               Foreground="{StaticResource AccentRed}" FontSize="11" />
-                                </StackPanel>
-                            </Border>
-                        </Border>
-
-                        <Border Margin="0,0,10,0">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="Guéris" Foreground="{StaticResource TextSecondary}" FontSize="11" />
-                                    <TextBlock x:Name="KpiGueris" Text="0"
-                                               Foreground="{StaticResource AccentTeal}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock Text="total" Foreground="{StaticResource TextDim}" FontSize="11" />
-                                </StackPanel>
-                            </Border>
-                        </Border>
-
-                        <Border Margin="0,0,10,0">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="Décès" Foreground="{StaticResource TextSecondary}" FontSize="11" />
-                                    <TextBlock x:Name="KpiDeces" Text="0"
-                                               Foreground="{StaticResource AccentRed}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock Text="total" Foreground="{StaticResource TextDim}" FontSize="11" />
-                                </StackPanel>
-                            </Border>
-                        </Border>
-
-                        <Border Margin="0,0,10,0">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="Budget" Foreground="{StaticResource TextSecondary}" FontSize="11" />
-                                    <TextBlock x:Name="KpiBudget" Text="$0"
-                                               Foreground="{StaticResource AccentAmber}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock Text="solde actuel" Foreground="{StaticResource TextDim}" FontSize="11" />
-                                </StackPanel>
-                            </Border>
-                        </Border>
-
-                        <Border Margin="0,0,0,0">
-                            <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
-                                <StackPanel>
-                                    <TextBlock Text="En Traitement" Foreground="{StaticResource TextSecondary}"
-                                               FontSize="11" />
-                                    <TextBlock x:Name="KpiTraitement" Text="0"
-                                               Foreground="{StaticResource AccentBlue}"
-                                               FontFamily="Segoe UI Black" FontSize="36" />
-                                    <TextBlock Text="patients" Foreground="{StaticResource TextDim}" FontSize="11" />
-                                </StackPanel>
-                            </Border>
-                        </Border>
-                    </UniformGrid>
-
-                    <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
-                        <DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="Journal des Événements"
-                                       Foreground="{StaticResource TextPrimary}"
-                                       FontFamily="Segoe UI Semibold" FontSize="15" Margin="0,0,0,14" />
-
-                            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <ItemsControl x:Name="IcEventLog">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="{StaticResource Border}" BorderThickness="0,0,0,1"
-                                                    Padding="0,6">
-                                                <TextBlock Text="{Binding}" Foreground="{StaticResource TextSecondary}"
-                                                           FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" />
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </DockPanel>
-                    </Border>
-                </Grid>
-
-                <Grid x:Name="PanelPatients" Visibility="Collapsed" Margin="28,24,28,24">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Gestion des Patients" Foreground="{StaticResource TextPrimary}"
-                                   FontFamily="Segoe UI Black" FontSize="28" />
-                        <TextBlock Text="Admissions, suivi et sorties" Foreground="{StaticResource TextSecondary}"
-                                   FontSize="13" />
-                    </StackPanel>
-
-                    <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12"
-                            Padding="20" Margin="0,0,0,16">
-                        <StackPanel>
-                            <TextBlock Text="Admettre un nouveau patient" Foreground="{StaticResource TextPrimary}"
-                                       FontFamily="Segoe UI Semibold" FontSize="14" Margin="0,0,0,12" />
-                            <WrapPanel>
-                                <StackPanel Margin="0,0,12,0" Width="160">
-                                    <TextBlock Text="Nom du patient" Foreground="{StaticResource TextSecondary}"
-                                               FontSize="11" Margin="0,0,0,4" />
-                                    <TextBox x:Name="TbPatientNom" Text="John Doe" />
-                                </StackPanel>
-                                <StackPanel Margin="0,0,12,0" Width="200">
-                                    <TextBlock Text="Maladie" Foreground="{StaticResource TextSecondary}" FontSize="11"
-                                               Margin="0,0,0,4" />
-                                    <ComboBox x:Name="CbMaladie" DisplayMemberPath="Maladie" />
-                                </StackPanel>
-                                <StackPanel Margin="0,0,12,0" Width="180">
-                                    <TextBlock Text="Lit" Foreground="{StaticResource TextSecondary}" FontSize="11"
-                                               Margin="0,0,0,4" />
-                                    <ComboBox x:Name="CbLit" DisplayMemberPath="NumeroLit" />
-                                </StackPanel>
-                                <StackPanel Margin="0,0,12,0" Width="180">
-                                    <TextBlock Text="Médecin" Foreground="{StaticResource TextSecondary}" FontSize="11"
-                                               Margin="0,0,0,4" />
-                                    <ComboBox x:Name="CbMedecin" DisplayMemberPath="NomComplet" />
-                                </StackPanel>
-                                <StackPanel Margin="0,0,12,0" Width="120">
-                                    <TextBlock Text="Classe" Foreground="{StaticResource TextSecondary}" FontSize="11"
-                                               Margin="0,0,0,4" />
-                                    <ComboBox x:Name="CbClasse">
-                                        <ComboBoxItem Content="Standard" />
-                                        <ComboBoxItem Content="VIP" />
-                                        <ComboBoxItem Content="Non-assuré" />
-                                    </ComboBox>
-                                </StackPanel>
-                                <Button Content="Admettre" Style="{StaticResource ActionBtn}"
-                                        VerticalAlignment="Bottom" Margin="0,0,0,0"
-                                        Click="BtnAdmettre_Click" />
-                            </WrapPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
-                        <DockPanel>
-                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                <TextBlock Text="Patients Actifs" Foreground="{StaticResource TextPrimary}"
-                                           FontFamily="Segoe UI Semibold" FontSize="15" />
-                                <Button DockPanel.Dock="Right" Content="↻ Actualiser"
-                                        Style="{StaticResource ActionBtn}" Width="110"
-                                        Click="RefreshPatients_Click" />
-                            </DockPanel>
-                            <ListView x:Name="LvPatients" BorderThickness="0"
-                                      MouseRightButtonUp="LvPatients_MouseRightButtonUp">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="!" Width="30"
-                                                        DisplayMemberBinding="{Binding WarningIcon}" />
-                                        <GridViewColumn Header="ID" Width="45"
-                                                        DisplayMemberBinding="{Binding IdPatient}" />
-                                        <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding Nom}" />
-                                        <GridViewColumn Header="Maladie" Width="160"
-                                                        DisplayMemberBinding="{Binding Maladie}" />
-                                        <GridViewColumn Header="Statut" Width="110"
-                                                        DisplayMemberBinding="{Binding Statut}" />
-                                        <GridViewColumn Header="Classe" Width="90"
-                                                        DisplayMemberBinding="{Binding Classe}" />
-                                        <GridViewColumn Header="Chambre" Width="90"
-                                                        DisplayMemberBinding="{Binding NumeroChambre}" />
-                                        <GridViewColumn Header="Médecin" Width="140"
-                                                        DisplayMemberBinding="{Binding MedecinEnCharge}" />
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </DockPanel>
-                    </Border>
-                </Grid>
-
-                <Grid x:Name="PanelPersonnel" Visibility="Collapsed" Margin="28,24,28,24">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Gestion du Personnel" Foreground="{StaticResource TextPrimary}"
-                                   FontFamily="Segoe UI Black" FontSize="28" />
-                        <TextBlock Text="Employés actifs et leurs statuts" Foreground="{StaticResource TextSecondary}"
-                                   FontSize="13" />
-                    </StackPanel>
-
-                    <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
-                        <DockPanel>
-                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                <TextBlock Text="Effectif actuel" Foreground="{StaticResource TextPrimary}"
-                                           FontFamily="Segoe UI Semibold" FontSize="15" />
-                                <Button DockPanel.Dock="Right" Content="🗑 Licencier"
-                                        Style="{StaticResource DangerBtn}" Width="110"
-                                        Click="BtnFire_Click" />
-                            </DockPanel>
-                            <ListView x:Name="LvPersonnel" MouseRightButtonUp="LvPersonnel_MouseRightButtonUp">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="ID" Width="45"
-                                                        DisplayMemberBinding="{Binding IdEmploye}" />
-                                        <GridViewColumn Header="Nom" Width="150"
-                                                        DisplayMemberBinding="{Binding NomComplet}" />
-                                        <GridViewColumn Header="Catégorie" Width="140"
-                                                        DisplayMemberBinding="{Binding Categorie}" />
-                                        <GridViewColumn Header="Rôle" Width="160"
-                                                        DisplayMemberBinding="{Binding RoleExact}" />
-                                        <GridViewColumn Header="Spécialité" Width="140"
-                                                        DisplayMemberBinding="{Binding Specialite}" />
-                                        <GridViewColumn Header="Statut" Width="100"
-                                                        DisplayMemberBinding="{Binding Statut}" />
-                                        <GridViewColumn Header="Salaire/J" Width="90"
-                                                        DisplayMemberBinding="{Binding SalaireJour}" />
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </DockPanel>
-                    </Border>
-                </Grid>
-
-                <Grid x:Name="PanelRecruter" Visibility="Collapsed" Margin="28,24,28,24">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Recrutement" Foreground="{StaticResource TextPrimary}"
-                                   FontFamily="Segoe UI Black" FontSize="28" />
-                        <TextBlock Text="Candidats disponibles sur le marché"
-                                   Foreground="{StaticResource TextSecondary}" FontSize="13" />
-                    </StackPanel>
-
-                    <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
-                        <DockPanel>
-                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                <TextBlock Text="Candidats disponibles" Foreground="{StaticResource TextPrimary}"
-                                           FontFamily="Segoe UI Semibold" FontSize="15" />
-                                <Button DockPanel.Dock="Right" Content="✚ Embaucher"
-                                        Style="{StaticResource ActionBtn}" Width="120"
-                                        Click="BtnHire_Click" />
-                            </DockPanel>
-                            <ListView x:Name="LvCandidats">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="Nom" Width="150"
-                                                        DisplayMemberBinding="{Binding NomComplet}" />
-                                        <GridViewColumn Header="Catégorie" Width="140"
-                                                        DisplayMemberBinding="{Binding Categorie}" />
-                                        <GridViewColumn Header="Rôle" Width="160"
-                                                        DisplayMemberBinding="{Binding RoleExact}" />
-                                        <GridViewColumn Header="Spécialité" Width="140"
-                                                        DisplayMemberBinding="{Binding Specialite}" />
-                                        <GridViewColumn Header="Niveau" Width="60"
-                                                        DisplayMemberBinding="{Binding NiveauCompetence}" />
-                                        <GridViewColumn Header="Salaire/J" Width="90"
-                                                        DisplayMemberBinding="{Binding SalaireJour}" />
-                                        <GridViewColumn Header="Prime" Width="90"
-                                                        DisplayMemberBinding="{Binding PrimeEmbauche}" />
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </DockPanel>
-                    </Border>
-                </Grid>
-
-                <Grid x:Name="PanelFinances" Visibility="Collapsed" Margin="28,24,28,24">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Finances" Foreground="{StaticResource TextPrimary}"
-                                   FontFamily="Segoe UI Black" FontSize="28" />
-                        <TextBlock Text="Historique des transactions" Foreground="{StaticResource TextSecondary}"
-                                   FontSize="13" />
-                    </StackPanel>
-
-                    <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
-                        <DockPanel>
-                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                <TextBlock Text="Dernières transactions" Foreground="{StaticResource TextPrimary}"
-                                           FontFamily="Segoe UI Semibold" FontSize="15" />
-                                <Button DockPanel.Dock="Right" Content="↻ Actualiser"
-                                        Style="{StaticResource ActionBtn}" Width="110"
-                                        Click="RefreshFinances_Click" />
-                            </DockPanel>
-                            <ListView x:Name="LvTransactions">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="#" Width="45"
-                                                        DisplayMemberBinding="{Binding IdTransaction}" />
-                                        <GridViewColumn Header="Jour" Width="60"
-                                                        DisplayMemberBinding="{Binding JourSimulation}" />
-                                        <GridViewColumn Header="Type" Width="170"
-                                                        DisplayMemberBinding="{Binding TypeTransaction}" />
-                                        <GridViewColumn Header="Montant" Width="120"
-                                                        DisplayMemberBinding="{Binding Montant}" />
-                                        <GridViewColumn Header="Description" Width="380"
-                                                        DisplayMemberBinding="{Binding Description}" />
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </DockPanel>
-                    </Border>
-                </Grid>
-
-                <Grid x:Name="PanelChambres" Visibility="Collapsed" Margin="28,24,28,24">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Chambres &amp; Lits" Foreground="{StaticResource TextPrimary}"
-                                   FontFamily="Segoe UI Black" FontSize="28" />
-                        <TextBlock Text="Gestion des infrastructures hospitalières"
-                                   Foreground="{StaticResource TextSecondary}" FontSize="13" />
-
-                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                            <Button Content="➕ Ajouter Chambre" Style="{StaticResource ActionBtn}" Width="130"
-                                    Margin="0,0,8,0" Click="BtnAddChambre_Click" />
-                            <Button Content="🗑 Supprimer Chambre" Style="{StaticResource DangerBtn}" Width="150"
-                                    Margin="0,0,16,0" Click="BtnRemoveChambre_Click" />
-                            <Button Content="➕ Ajouter Lit" Style="{StaticResource ActionBtn}" Width="110"
-                                    Margin="0,0,8,0" Click="BtnAddLit_Click" />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <ScrollViewer Grid.Row="1" x:Name="SvChambres" VerticalScrollBarVisibility="Auto" AllowDrop="True"
-                                  DragOver="SvChambres_DragOver">
-                        <ItemsControl x:Name="IcChambres">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="20"
-                                            Margin="0,0,0,16"
-                                            BorderBrush="{StaticResource Border}" BorderThickness="1"
-                                            AllowDrop="True" Drop="Chambre_Drop" Tag="{Binding}">
-
-                                        <DockPanel>
-                                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
-                                                <TextBlock Text="{Binding NumeroChambre}"
-                                                           Foreground="{StaticResource AccentTeal}"
-                                                           FontFamily="Segoe UI Black" FontSize="18" />
-                                                <TextBlock Text="{Binding TypeChambre}"
-                                                           Foreground="{StaticResource TextSecondary}" FontSize="11" />
-                                            </StackPanel>
-
-                                            <ItemsControl ItemsSource="{Binding Lits}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <WrapPanel Orientation="Horizontal" />
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Background="#111116" CornerRadius="6" Padding="12,8"
-                                                                Margin="0,0,10,10"
-                                                                BorderBrush="#2a2a38" BorderThickness="1" Cursor="Hand"
-                                                                MouseMove="Lit_MouseMove"
-                                                                ContextMenuOpening="Lit_ContextMenuOpening">
-                                                            <Border.ContextMenu>
-                                                                <ContextMenu x:Name="CtxLit" />
-                                                            </Border.ContextMenu>
-                                                            <StackPanel>
-                                                                <TextBlock Text="{Binding NumeroLit}"
-                                                                           Foreground="{StaticResource TextPrimary}"
-                                                                           FontFamily="Segoe UI Semibold" FontSize="13" />
-                                                                <TextBlock Text="{Binding Statut}"
-                                                                           Foreground="{StaticResource TextDim}"
-                                                                           FontSize="10" />
-                                                            </StackPanel>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </DockPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-
-                <Popup x:Name="PatientPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
-                    <local:PatientActionMenu x:Name="PatientMenu" ActionTriggered="PatientMenu_ActionTriggered" />
-                </Popup>
-
-                <Popup x:Name="PersonnelPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
-                    <local:PersonnelActionMenu x:Name="PersonnelMenu" ActionTriggered="PersonnelMenu_ActionTriggered" />
-                </Popup>
-
-                <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
-                        Background="#0e0e14" Height="40" Padding="16,2" Margin="0,0">
-                    <DockPanel VerticalAlignment="Center">
-                        <TextBlock x:Name="TbStatus" Text="✅ Connexion établie"
-                                   Foreground="{StaticResource AccentTeal}"
-                                   FontFamily="Consolas" FontSize="12" />
-                        <TextBlock DockPanel.Dock="Right"
-                                   Text="Washington Memorial Safezone : Hospital Sim v1.0"
-                                   Foreground="{StaticResource TextDim}"
-                                   FontFamily="Consolas" FontSize="11"
-                                   HorizontalAlignment="Right" />
                     </DockPanel>
                 </Border>
+
+                <Grid Grid.Column="1">
+
+                    <Grid x:Name="PanelDashboard" Visibility="Visible" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Tableau de Bord" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock x:Name="TbSubTitle" Text="Gestion de l'hôpital en temps réel" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+
+                        <UniformGrid Grid.Row="1" Rows="2" Columns="4" Margin="0,0,0,24">
+                            <Border Margin="0,0,10,10">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Patients Actifs" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiPatientsActifs" Text="0" Foreground="{StaticResource AccentBlue}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock x:Name="KpiAttente" Text="0 en attente" Foreground="{StaticResource TextDim}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <Border Margin="0,0,10,10">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Personnel" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiPersonnel" Text="0" Foreground="{StaticResource AccentPurple}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock Text="employés actifs" Foreground="{StaticResource TextDim}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <Border Margin="0,0,10,10">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Lits Disponibles" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiLitsLibres" Text="0" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock x:Name="KpiLitsOccupes" Text="occupés" Foreground="{StaticResource TextDim}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <Border Margin="0,0,0,10">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Revenus du Jour" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiRevenu" Text="$0" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock x:Name="KpiDepenses" Text="dépenses" Foreground="{StaticResource AccentRed}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <Border Margin="0,0,10,0">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Guéris" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiGueris" Text="0" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock Text="total" Foreground="{StaticResource TextDim}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <Border Margin="0,0,10,0">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Décès" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiDeces" Text="0" Foreground="{StaticResource AccentRed}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock Text="total" Foreground="{StaticResource TextDim}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <Border Margin="0,0,10,0">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Budget" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiBudget" Text="$0" Foreground="{StaticResource AccentAmber}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock Text="solde actuel" Foreground="{StaticResource TextDim}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <Border Margin="0,0,0,0">
+                                <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="18,16">
+                                    <StackPanel>
+                                        <TextBlock Text="En Traitement" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                        <TextBlock x:Name="KpiTraitement" Text="0" Foreground="{StaticResource AccentBlue}" FontFamily="Segoe UI Black" FontSize="36" />
+                                        <TextBlock Text="patients" Foreground="{StaticResource TextDim}" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+                        </UniformGrid>
+
+                        <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="Journal des Événements" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" Margin="0,0,0,14" />
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl x:Name="IcEventLog">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{StaticResource Border}" BorderThickness="0,0,0,1" Padding="0,6">
+                                                    <TextBlock Text="{Binding}" Foreground="{StaticResource TextSecondary}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelPatients" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Gestion des Patients" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Admissions, suivi et sorties" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Admettre un nouveau patient" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="14" Margin="0,0,0,12" />
+                                <WrapPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="160">
+                                        <TextBlock Text="Nom du patient" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <TextBox x:Name="TbPatientNom" Text="John Doe" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="200">
+                                        <TextBlock Text="Maladie" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbMaladie" DisplayMemberPath="Maladie" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="180">
+                                        <TextBlock Text="Lit" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbLit" DisplayMemberPath="NumeroLit" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="180">
+                                        <TextBlock Text="Médecin" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbMedecin" DisplayMemberPath="NomComplet" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="120">
+                                        <TextBlock Text="Classe" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbClasse">
+                                            <ComboBoxItem Content="Standard" />
+                                            <ComboBoxItem Content="VIP" />
+                                            <ComboBoxItem Content="Non-assuré" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <Button Content="Admettre" Style="{StaticResource ActionBtn}" VerticalAlignment="Bottom" Margin="0,0,0,0" Click="BtnAdmettre_Click" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                    <TextBlock Text="Patients Actifs" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
+                                    <Button DockPanel.Dock="Right" Content="↻ Actualiser" Style="{StaticResource ActionBtn}" Width="110" Click="RefreshPatients_Click" />
+                                </DockPanel>
+                                <ListView x:Name="LvPatients" BorderThickness="0" MouseRightButtonUp="LvPatients_MouseRightButtonUp">
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="!" Width="30" DisplayMemberBinding="{Binding WarningIcon}" />
+                                            <GridViewColumn Header="ID" Width="45" DisplayMemberBinding="{Binding IdPatient}" />
+                                            <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding Nom}" />
+                                            <GridViewColumn Header="Maladie" Width="160" DisplayMemberBinding="{Binding Maladie}" />
+                                            <GridViewColumn Header="Statut" Width="110" DisplayMemberBinding="{Binding Statut}" />
+                                            <GridViewColumn Header="Classe" Width="90" DisplayMemberBinding="{Binding Classe}" />
+                                            <GridViewColumn Header="Chambre" Width="90" DisplayMemberBinding="{Binding NumeroChambre}" />
+                                            <GridViewColumn Header="Médecin" Width="140" DisplayMemberBinding="{Binding MedecinEnCharge}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelPersonnel" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Gestion du Personnel" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Employés actifs et leurs statuts" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                    <TextBlock Text="Effectif actuel" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
+                                    <Button DockPanel.Dock="Right" Content="🗑 Licencier" Style="{StaticResource DangerBtn}" Width="110" Click="BtnFire_Click" />
+                                </DockPanel>
+                                <ListView x:Name="LvPersonnel" MouseRightButtonUp="LvPersonnel_MouseRightButtonUp">
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="ID" Width="45" DisplayMemberBinding="{Binding IdEmploye}" />
+                                            <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding NomComplet}" />
+                                            <GridViewColumn Header="Catégorie" Width="140" DisplayMemberBinding="{Binding Categorie}" />
+                                            <GridViewColumn Header="Rôle" Width="160" DisplayMemberBinding="{Binding RoleExact}" />
+                                            <GridViewColumn Header="Spécialité" Width="140" DisplayMemberBinding="{Binding Specialite}" />
+                                            <GridViewColumn Header="Statut" Width="100" DisplayMemberBinding="{Binding Statut}" />
+                                            <GridViewColumn Header="Salaire/J" Width="90" DisplayMemberBinding="{Binding SalaireJour}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelRecruter" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Recrutement" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Candidats disponibles sur le marché" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                    <TextBlock Text="Candidats disponibles" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
+                                    <Button DockPanel.Dock="Right" Content="✚ Embaucher" Style="{StaticResource ActionBtn}" Width="120" Click="BtnHire_Click" />
+                                </DockPanel>
+                                <ListView x:Name="LvCandidats">
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding NomComplet}" />
+                                            <GridViewColumn Header="Catégorie" Width="140" DisplayMemberBinding="{Binding Categorie}" />
+                                            <GridViewColumn Header="Rôle" Width="160" DisplayMemberBinding="{Binding RoleExact}" />
+                                            <GridViewColumn Header="Spécialité" Width="140" DisplayMemberBinding="{Binding Specialite}" />
+                                            <GridViewColumn Header="Niveau" Width="60" DisplayMemberBinding="{Binding NiveauCompetence}" />
+                                            <GridViewColumn Header="Salaire/J" Width="90" DisplayMemberBinding="{Binding SalaireJour}" />
+                                            <GridViewColumn Header="Prime" Width="90" DisplayMemberBinding="{Binding PrimeEmbauche}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelFinances" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Finances" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Historique des transactions" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                    <TextBlock Text="Dernières transactions" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
+                                    <Button DockPanel.Dock="Right" Content="↻ Actualiser" Style="{StaticResource ActionBtn}" Width="110" Click="RefreshFinances_Click" />
+                                </DockPanel>
+                                <ListView x:Name="LvTransactions">
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="#" Width="45" DisplayMemberBinding="{Binding IdTransaction}" />
+                                            <GridViewColumn Header="Jour" Width="60" DisplayMemberBinding="{Binding JourSimulation}" />
+                                            <GridViewColumn Header="Type" Width="170" DisplayMemberBinding="{Binding TypeTransaction}" />
+                                            <GridViewColumn Header="Montant" Width="120" DisplayMemberBinding="{Binding Montant}" />
+                                            <GridViewColumn Header="Description" Width="380" DisplayMemberBinding="{Binding Description}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelChambres" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Chambres &amp; Lits" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Gestion des infrastructures hospitalières" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                <Button Content="➕ Ajouter Chambre" Style="{StaticResource ActionBtn}" Width="130" Margin="0,0,8,0" Click="BtnAddChambre_Click" />
+                                <Button Content="➕ Ajouter Lit" Style="{StaticResource ActionBtn}" Width="110" Margin="0,0,8,0" Click="BtnAddLit_Click" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <ScrollViewer Grid.Row="1" x:Name="SvChambres" VerticalScrollBarVisibility="Auto" AllowDrop="True" DragOver="SvChambres_DragOver">
+                            <ItemsControl x:Name="IcChambres">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource BgCard}" CornerRadius="12" Padding="20" Margin="0,0,0,16" BorderBrush="{StaticResource Border}" BorderThickness="1" AllowDrop="True" Drop="Chambre_Drop" Tag="{Binding}">
+                                            <DockPanel>
+                                                <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding NumeroChambre}" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="18" />
+                                                        <TextBlock Text="{Binding TypeChambre}" Foreground="{StaticResource TextSecondary}" FontSize="11" />
+                                                    </StackPanel>
+                                                    <Button Click="BtnRemoveChambre_Click" DataContext="{Binding}" Content="🗑️" Background="Transparent" BorderThickness="0" Style="{StaticResource RemoveBtn}" Foreground="#FF4D6A" Cursor="Hand" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="16" />
+                                                </Grid>
+
+                                                <ItemsControl ItemsSource="{Binding Lits}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#111116" CornerRadius="6" Padding="12,8" Margin="0,0,10,10" BorderBrush="#2a2a38" BorderThickness="1" Cursor="Hand" MouseMove="Lit_MouseMove" ContextMenuOpening="Lit_ContextMenuOpening">
+                                                                <Border.ContextMenu>
+                                                                    <ContextMenu x:Name="CtxLit" />
+                                                                </Border.ContextMenu>
+                                                                <StackPanel>
+                                                                    <TextBlock Text="{Binding NumeroLit}" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="13" />
+                                                                    <TextBlock Text="{Binding Statut}" Foreground="{StaticResource TextDim}" FontSize="10" />
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <Popup x:Name="PatientPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
+                        <local:PatientActionMenu x:Name="PatientMenu" ActionTriggered="PatientMenu_ActionTriggered" />
+                    </Popup>
+
+                    <Popup x:Name="PersonnelPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
+                        <local:PersonnelActionMenu x:Name="PersonnelMenu" ActionTriggered="PersonnelMenu_ActionTriggered" />
+                    </Popup>
+
+                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#0e0e14" Height="40" Padding="16,2" Margin="0,0">
+                        <DockPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="TbStatus" Text="✅ Connexion établie" Foreground="{StaticResource AccentTeal}" FontFamily="Consolas" FontSize="12" />
+                            <TextBlock DockPanel.Dock="Right" Text="Washington Memorial Safezone : Hospital Sim v1.0" Foreground="{StaticResource TextDim}" FontFamily="Consolas" FontSize="11" HorizontalAlignment="Right" />
+                        </DockPanel>
+                    </Border>
+                </Grid>
             </Grid>
-        </Grid>
-    </Canvas>
+        </Canvas>
+        
+        <local:DatabaseError x:Name="DbErrorPanel" 
+                             Visibility="Collapsed" 
+                             HorizontalAlignment="Center" 
+                             VerticalAlignment="Center"
+                             Background="#0d0d0f"/>
+    </Grid>
 </Window>

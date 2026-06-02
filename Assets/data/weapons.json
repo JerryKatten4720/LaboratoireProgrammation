@@ -1,0 +1,290 @@
+[
+  {
+    "WeaponName": "10mm Pistol",
+    "Texture": "placeholder.png",
+    "Damages": 18,
+    "CriticalChance": "5"
+  },
+  {
+    "WeaponName": "44 Magnum",
+    "Texture": "placeholder.png",
+    "Damages": 48,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Alien Blaster",
+    "Texture": "placeholder.png",
+    "Damages": 50,
+    "CriticalChance": "15"
+  },
+  {
+    "WeaponName": "Assault Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 30,
+    "CriticalChance": "6"
+  },
+  {
+    "WeaponName": "Baseball Bat",
+    "Texture": "placeholder.png",
+    "Damages": 16,
+    "CriticalChance": "5"
+  },
+  {
+    "WeaponName": "Broadsider",
+    "Texture": "placeholder.png",
+    "Damages": 108,
+    "CriticalChance": "10"
+  },
+  {
+    "WeaponName": "Combat Knife",
+    "Texture": "placeholder.png",
+    "Damages": 9,
+    "CriticalChance": "12"
+  },
+  {
+    "WeaponName": "Combat Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 33,
+    "CriticalChance": "7"
+  },
+  {
+    "WeaponName": "Combat Shotgun",
+    "Texture": "placeholder.png",
+    "Damages": 50,
+    "CriticalChance": "7"
+  },
+  {
+    "WeaponName": "Cryolator",
+    "Texture": "placeholder.png",
+    "Damages": 20,
+    "CriticalChance": "5"
+  },
+  {
+    "WeaponName": "Deathclaw Gauntlet",
+    "Texture": "placeholder.png",
+    "Damages": 25,
+    "CriticalChance": "15"
+  },
+  {
+    "WeaponName": "Deliverer",
+    "Texture": "placeholder.png",
+    "Damages": 25,
+    "CriticalChance": "10"
+  },
+  {
+    "WeaponName": "Double-Barrel Shotgun",
+    "Texture": "placeholder.png",
+    "Damages": 45,
+    "CriticalChance": "6"
+  },
+  {
+    "WeaponName": "Fat Man",
+    "Texture": "placeholder.png",
+    "Damages": 468,
+    "CriticalChance": "2"
+  },
+  {
+    "WeaponName": "Flamer",
+    "Texture": "placeholder.png",
+    "Damages": 12,
+    "CriticalChance": "3"
+  },
+  {
+    "WeaponName": "Gamma Gun",
+    "Texture": "placeholder.png",
+    "Damages": 110,
+    "CriticalChance": "5"
+  },
+  {
+    "WeaponName": "Gatling Laser",
+    "Texture": "placeholder.png",
+    "Damages": 14,
+    "CriticalChance": "4"
+  },
+  {
+    "WeaponName": "Gauss Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 110,
+    "CriticalChance": "15"
+  },
+  {
+    "WeaponName": "Grognak's Axe",
+    "Texture": "placeholder.png",
+    "Damages": 25,
+    "CriticalChance": "10"
+  },
+  {
+    "WeaponName": "Handmade Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 32,
+    "CriticalChance": "6"
+  },
+  {
+    "WeaponName": "Harpoon Gun",
+    "Texture": "placeholder.png",
+    "Damages": 150,
+    "CriticalChance": "10"
+  },
+  {
+    "WeaponName": "Hunting Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 37,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Junk Jet",
+    "Texture": "placeholder.png",
+    "Damages": 40,
+    "CriticalChance": "5"
+  },
+  {
+    "WeaponName": "Laser Musket",
+    "Texture": "placeholder.png",
+    "Damages": 30,
+    "CriticalChance": "7"
+  },
+  {
+    "WeaponName": "Laser Pistol",
+    "Texture": "placeholder.png",
+    "Damages": 24,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Laser Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 24,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Lever Action Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 35,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Machete",
+    "Texture": "placeholder.png",
+    "Damages": 14,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Meat Hook",
+    "Texture": "placeholder.png",
+    "Damages": 13,
+    "CriticalChance": "10"
+  },
+  {
+    "WeaponName": "Minigun",
+    "Texture": "placeholder.png",
+    "Damages": 8,
+    "CriticalChance": "1"
+  },
+  {
+    "WeaponName": "Missile Launcher",
+    "Texture": "placeholder.png",
+    "Damages": 150,
+    "CriticalChance": "4"
+  },
+  {
+    "WeaponName": "Pipe Pistol",
+    "Texture": "placeholder.png",
+    "Damages": 13,
+    "CriticalChance": "4"
+  },
+  {
+    "WeaponName": "Pipe Revolver",
+    "Texture": "placeholder.png",
+    "Damages": 24,
+    "CriticalChance": "5"
+  },
+  {
+    "WeaponName": "Pipe Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 13,
+    "CriticalChance": "4"
+  },
+  {
+    "WeaponName": "Plasma Pistol",
+    "Texture": "placeholder.png",
+    "Damages": 32,
+    "CriticalChance": "6"
+  },
+  {
+    "WeaponName": "Plasma Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 32,
+    "CriticalChance": "6"
+  },
+  {
+    "WeaponName": "Pole Hook",
+    "Texture": "placeholder.png",
+    "Damages": 16,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Power Fist",
+    "Texture": "placeholder.png",
+    "Damages": 20,
+    "CriticalChance": "12"
+  },
+  {
+    "WeaponName": "Radium Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 27,
+    "CriticalChance": "5"
+  },
+  {
+    "WeaponName": "Railway Rifle",
+    "Texture": "placeholder.png",
+    "Damages": 100,
+    "CriticalChance": "10"
+  },
+  {
+    "WeaponName": "Ripper",
+    "Texture": "placeholder.png",
+    "Damages": 4,
+    "CriticalChance": "20"
+  },
+  {
+    "WeaponName": "Shishkebab",
+    "Texture": "placeholder.png",
+    "Damages": 28,
+    "CriticalChance": "12"
+  },
+  {
+    "WeaponName": "Sledgehammer",
+    "Texture": "placeholder.png",
+    "Damages": 23,
+    "CriticalChance": "8"
+  },
+  {
+    "WeaponName": "Submachine Gun",
+    "Texture": "placeholder.png",
+    "Damages": 10,
+    "CriticalChance": "4"
+  },
+  {
+    "WeaponName": "Super Sledge",
+    "Texture": "placeholder.png",
+    "Damages": 40,
+    "CriticalChance": "10"
+  },
+  {
+    "WeaponName": "Switchblade",
+    "Texture": "placeholder.png",
+    "Damages": 8,
+    "CriticalChance": "15"
+  },
+  {
+    "WeaponName": "Syringer",
+    "Texture": "placeholder.png",
+    "Damages": 1,
+    "CriticalChance": "0"
+  },
+  {
+    "WeaponName": "Western Revolver",
+    "Texture": "placeholder.png",
+    "Damages": 60,
+    "CriticalChance": "8"
+  }
+]

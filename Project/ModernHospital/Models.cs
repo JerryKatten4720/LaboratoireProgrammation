@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -6,19 +7,17 @@ namespace LaboratoireProgrammation.Project.ModernHospital;
 
 public class ChambreGroup {
     public int IdChambre { get; set; }
-    public string NumeroChambre { get; set; } = string.Empty;
-    public string TypeChambre { get; set; } = string.Empty;
-    public string Unite { get; set; } = string.Empty;
+    public string NumeroChambre { get; set; } = "";
+    public string TypeChambre { get; set; } = "";
+    public string Unite { get; set; } = "";
     public ObservableCollection<LitInventaire> Lits { get; set; } = new();
 }
 
 public static class DragDropHelper {
-    public static void HandleAutoScroll(ScrollViewer sv, DragEventArgs e, double tolerance = 40, double offset = 10) {
-        var verticalPos = e.GetPosition(sv).Y;
-        if (verticalPos < tolerance)
-            sv.ScrollToVerticalOffset(sv.VerticalOffset - offset);
-        else if (verticalPos > sv.ActualHeight - tolerance)
-            sv.ScrollToVerticalOffset(sv.VerticalOffset + offset);
+    public static void HandleAutoScroll(ScrollViewer sv, DragEventArgs e, double t = 40, double o = 10) {
+        var y = e.GetPosition(sv).Y;
+        if (y < t) sv.ScrollToVerticalOffset(sv.VerticalOffset - o);
+        else if (y > sv.ActualHeight - t) sv.ScrollToVerticalOffset(sv.VerticalOffset + o);
     }
 }
 
@@ -70,10 +69,10 @@ public class Candidat {
 
 public class PatientActif {
     public int IdPatient { get; set; }
-    public string Nom { get; set; } = string.Empty;
-    public string Maladie { get; set; } = string.Empty;
-    public string Statut { get; set; } = string.Empty;
-    public string Classe { get; set; } = string.Empty;
+    public string Nom { get; set; } = "";
+    public string Maladie { get; set; } = "";
+    public string Statut { get; set; } = "";
+    public string Classe { get; set; } = "";
     public string? NumeroChambre { get; set; }
     public string? MedecinEnCharge { get; set; }
     public int SanteActuelle { get; set; }
@@ -83,38 +82,33 @@ public class PatientActif {
     public int IdMaladie { get; set; }
     public int? IdLit { get; set; }
     public int? IdMedecinAssigne { get; set; }
-
-    public string WarningIcon =>
-        string.IsNullOrEmpty(NumeroChambre) || string.IsNullOrEmpty(MedecinEnCharge) ? "⚠️" : "";
+    public string WarningIcon => string.IsNullOrEmpty(NumeroChambre) || string.IsNullOrEmpty(MedecinEnCharge) ? "⚠️" : "";
 }
 
 public class LitInventaire {
     public int IdLit { get; set; }
     public int IdChambre { get; set; }
-    public string NumeroLit { get; set; } = string.Empty;
-    public string NumeroChambre { get; set; } = string.Empty;
-    public string TypeChambre { get; set; } = string.Empty;
-    public string Unite { get; set; } = string.Empty;
-    public string Statut { get; set; } = string.Empty;
+    public string NumeroLit { get; set; } = "";
+    public string NumeroChambre { get; set; } = "";
+    public string TypeChambre { get; set; } = "";
+    public string Unite { get; set; } = "";
+    public string Statut { get; set; } = "";
 }
 
 public static class PatientHelper {
-    public static bool HandlePatientStatusChange(DatabaseManager db, PatientActif patient, string newStatus) {
-        if (patient == null) return false;
-
-        db.ExecuteNonQuery($"UPDATE Patients_Actifs SET Statut = '{newStatus}' WHERE IdPatient = {patient.IdPatient}");
-
-        if (newStatus == "Guéri") {
-            var revenu = db.ExecuteScalar<decimal>(
-                $"SELECT c.RevenuPatient FROM Patients_Actifs p JOIN Cas_Cliniques c ON p.IdMaladie = c.IdCas WHERE p.IdPatient = {patient.IdPatient}");
-            db.ExecuteNonQuery($"UPDATE Hopital SET Budget = Budget + {revenu}");
-            db.RecordTransaction("Revenu Patient", revenu, $"Patient {patient.Nom} guéri.");
-            db.ReleaseBed(patient.IdPatient);
+    public static bool HandlePatientStatusChange(DatabaseManager db, PatientActif p, string s) {
+        if (p == null) return false;
+        db.ExecuteNonQuery($"UPDATE Patients_Actifs SET Statut = '{s}' WHERE IdPatient = {p.IdPatient}");
+        
+        if (s == "Guéri") {
+            var r = db.ExecuteScalar<decimal>($"SELECT c.RevenuPatient FROM Patients_Actifs p JOIN Cas_Cliniques c ON p.IdMaladie = c.IdCas WHERE p.IdPatient = {p.IdPatient}");
+            db.ExecuteNonQuery($"UPDATE Hopital SET Budget = Budget + {r.ToString(CultureInfo.InvariantCulture)}");
+            db.RecordTransaction("Revenu Patient", r, $"Patient {p.Nom} guéri.");
+            db.ReleaseBed(p.IdPatient);
         }
-        else if (newStatus == "Décédé") {
-            db.ReleaseBed(patient.IdPatient);
+        else if (s == "Décédé") {
+            db.ReleaseBed(p.IdPatient);
         }
-
         return true;
     }
 }

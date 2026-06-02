@@ -86,6 +86,7 @@
         <None Remove="Assets\Backgrounds\PNG\Launcher.png"/>
         <Resource Include="Assets\backgrounds\png\launcher.png"/>
         <None Remove="Assets\shaders\effects\crt.ps"/>
+        <Resource Include="Assets\data\weapons.json" />
         <Resource Include="Assets\shaders\effects\crt.ps"/>
         <None Remove="Assets\backgrounds\png\launcher-2.png"/>
         <Resource Include="Assets\backgrounds\png\launcher-2.png"/>
@@ -139,12 +140,6 @@
         <None Remove="Assets\images\test.png"/>
         <Resource Include="Assets\images\test.png"/>
         <Resource Include="Assets\videos\Video.mp4"/>
-        <None Remove="Assets\images\overseerWars\icons\elec.png"/>
-        <Resource Include="Assets\images\overseerWars\icons\elec.png"/>
-        <None Remove="Assets\images\overseerWars\icons\food.png"/>
-        <Resource Include="Assets\images\overseerWars\icons\food.png"/>
-        <None Remove="Assets\images\overseerWars\icons\caps.png"/>
-        <Resource Include="Assets\images\overseerWars\icons\caps.png"/>
         <None Remove="Assets\images\overseerWars\icons\player.png"/>
         <None Remove="Assets\images\overseerWars\texturemaps\items_femaleOutfits.png"/>
         <Resource Include="Assets\images\overseerWars\texturemaps\items_femaleOutfits.png"/>
@@ -273,6 +268,8 @@
         <Resource Include="Assets\fonts\pressstart2p.ttf" />
         <None Remove="Assets\images\cursor.png" />
         <Resource Include="Assets\images\cursor.png" />
+        <None Remove="Assets\images\overseerWars\dwellers\dweller.png" />
+        <Resource Include="Assets\images\overseerWars\dwellers\dweller.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -325,6 +322,7 @@
         <Folder Include="Assets\images\overseerWars\dwellers\"/>
         <Folder Include="Project\ViewModels\Laboratoires\Laboratoire - DB\"/>
         <Folder Include="Project\ViewModels\Laboratoires\OverseerWars\VaultManagement\"/>
+        <Folder Include="Project\ViewM\" />
         <Folder Include="Project\Views\Laboratoires\OverseerWars\"/>
     </ItemGroup>
 

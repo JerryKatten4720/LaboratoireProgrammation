@@ -1,196 +1,349 @@
+using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 
 namespace LaboratoireProgrammation.Project.ModernOverseerWars;
 
 public partial class ControlCard : UserControl {
-    public static readonly DependencyProperty CardImageProperty = DependencyProperty.Register("CardImage", typeof(string), typeof(ControlCard), new PropertyMetadata("Default"));
 
-    public static readonly DependencyProperty PowerProperty = DependencyProperty.Register("Power", typeof(int), typeof(ControlCard), new PropertyMetadata(0));
-
-    private static readonly List<ControlCard> _instances = new();
-
-    private Canvas _parentCanvas;
-    private Point _relativeMousePos;
-
-    private CardStack? stack;
-
-    public ControlCard() {
-        InitializeComponent();
-
-        _instances.Add(this);
-
-        Unloaded += (s, e) => _instances.Remove(this);
-    }
+    public static readonly DependencyProperty CardImageProperty =
+        DependencyProperty.Register(nameof(CardImage), typeof(string), typeof(ControlCard), new PropertyMetadata("Card"));
+    public static readonly DependencyProperty PowerProperty =
+        DependencyProperty.Register(nameof(Power), typeof(int), typeof(ControlCard), new PropertyMetadata(0));
 
     public string CardImage {
         get => (string)GetValue(CardImageProperty);
         set => SetValue(CardImageProperty, value);
     }
-
     public int Power {
         get => (int)GetValue(PowerProperty);
         set => SetValue(PowerProperty, value);
     }
 
-    public static ControlCard GetClosestCardTo(ControlCard target) {
-        ControlCard closest = null;
-        var minDistance = double.MaxValue;
-        var targetPos = target.GetCurrentPosition();
+    public Dweller?  BoundDweller { get; private set; }
+    public IWeapon?  BoundWeapon  { get; private set; }
+    public IOutfit?  BoundOutfit  { get; private set; }
+    public Dweller?  OwnerDweller { get; set; }
 
-        foreach (var card in _instances) {
-            if (card == target) continue;
+    private ControlCard? _weaponCard;
+    private ControlCard? _outfitCard;
 
-            var distance = GetDistanceSquared(targetPos, card.GetCurrentPosition());
-            if (distance < minDistance) {
-                minDistance = distance;
-                closest = card;
+    private static readonly string[] RarityNames = { "common","uncommon","rare","epic","legendary" };
+    private System.Windows.Threading.DispatcherTimer? _hoverTimer;
+    private bool _isExpanded;
+    private Point _dragStartPoint;
+
+    public static ControlCard? DraggedCard { get; private set; }
+    private Point _dragStartMousePos;
+    private TranslateTransform _translateTransform = new();
+    private bool _isDragging;
+
+    public ControlCard() { InitializeComponent(); }
+
+    public void BindDweller(Dweller d) {
+        BoundDweller = d;
+        CardImage    = d.Name;
+        SupervisorBadge.Visibility = d.IsSupervisor ? Visibility.Visible : Visibility.Collapsed;
+        StatsLine.Text = $"S:{d.Special_S} P:{d.Special_P} E:{d.Special_E} C:{d.Special_C}";
+        HpBar.Maximum  = d.MaxHp;
+        RefreshHp();
+        ApplyRarity(d.Rarity);
+        ImgDweller.Source = MakeImageSource($"../../Assets/images/overseerWars/dwellers/{d.Texture}") ?? MakeImageSource("../../Assets/images/overseerWars/dwellers/dweller.png");
+
+        if (d.EquippedWeapon != null) {
+            WeaponCardContainer.Visibility = Visibility.Visible;
+            if (_weaponCard == null) {
+                _weaponCard = new ControlCard { Width = 110, Height = 157 };
+                WeaponCardContainer.Child = _weaponCard;
             }
+            _weaponCard.BindWeapon(d.EquippedWeapon);
+            _weaponCard.OwnerDweller = d;
+        } else {
+            WeaponCardContainer.Visibility = Visibility.Collapsed;
+            WeaponCardContainer.Child = null;
+            _weaponCard = null;
         }
 
-        return closest;
+        if (d.EquippedOutfit != null) {
+            OutfitCardContainer.Visibility = Visibility.Visible;
+            if (_outfitCard == null) {
+                _outfitCard = new ControlCard { Width = 110, Height = 157 };
+                OutfitCardContainer.Child = _outfitCard;
+            }
+            _outfitCard.BindOutfit(d.EquippedOutfit);
+            _outfitCard.OwnerDweller = d;
+        } else {
+            OutfitCardContainer.Visibility = Visibility.Collapsed;
+            OutfitCardContainer.Child = null;
+            _outfitCard = null;
+        }
+
+        Canvas.SetLeft(WeaponCardContainer, 5);
+        Canvas.SetTop(WeaponCardContainer, 10);
+        Canvas.SetLeft(OutfitCardContainer, 25);
+        Canvas.SetTop(OutfitCardContainer, 10);
     }
 
-    protected override void OnMouseEnter(MouseEventArgs e) {
-        base.OnMouseEnter(e);
-        ApplyScaleAnimation(1.05, 0.2);
+    public void BindWeapon(IWeapon w) {
+        BoundWeapon  = w;
+        CardImage    = w.Name;
+        StatsLine.Text = $"DMG:{w.Damage} ({w.WeaponType[..Math.Min(3, w.WeaponType.Length)]})";
+        HpBar.Visibility = Visibility.Collapsed;
+        HpText.Visibility = Visibility.Collapsed;
+        ApplyRarity(w.Rarity);
+        string tex = w is Weapon wp ? wp.Texture : "placeholder.png";
+        ImgDweller.Source = MakeImageSource($"../../Assets/images/overseerWars/weapons/{tex}") ?? MakeImageSource("../../Assets/images/overseerWars/weapons/placeholder.png");
     }
 
-    protected override void OnMouseLeave(MouseEventArgs e) {
-        base.OnMouseLeave(e);
-        ApplyScaleAnimation(1.0, 0.2);
+    public void BindOutfit(IOutfit o) {
+        BoundOutfit  = o;
+        CardImage    = o.Name;
+        StatsLine.Text = $"ARM:{o.ArmorValue}";
+        HpBar.Visibility  = Visibility.Collapsed;
+        HpText.Visibility = Visibility.Collapsed;
+        ApplyRarity(o.Rarity);
+        string tex = o is Outfit op ? op.Texture : "placeholder.png";
+        ImgDweller.Source = MakeImageSource($"../../Assets/images/overseerWars/outfits/{tex}") ?? MakeImageSource("../../Assets/images/overseerWars/outfits/placeholder.png");
     }
 
-    private bool isInStack() {
-        if (stack != null) return true;
-        return false;
+    public Scrap? BoundScrap { get; private set; }
+    public void BindScrap(Scrap s) {
+        BoundScrap = s;
+        CardImage = s.Name;
+        StatsLine.Text = "Junk item";
+        HpBar.Visibility = Visibility.Collapsed;
+        HpText.Visibility = Visibility.Collapsed;
+        ApplyRarity(s.Rarity);
+        ImgDweller.Source = MakeImageSource($"../../Assets/images/overseerWars/scraps/{s.Texture}") ?? MakeImageSource("../../Assets/images/overseerWars/weapons/placeholder.png");
     }
 
-    protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
-        base.OnMouseLeftButtonDown(e);
+    public void RefreshHp() {
+        if (BoundDweller == null) return;
+        HpBar.Value = BoundDweller.CurrentHp;
+        HpText.Text = $"{BoundDweller.CurrentHp}/{BoundDweller.MaxHp}";
+        double ratio = (double)BoundDweller.CurrentHp / BoundDweller.MaxHp;
+        HpBar.Foreground = ratio > 0.5
+            ? new SolidColorBrush(Color.FromRgb(34, 187, 68))
+            : new SolidColorBrush(Color.FromRgb(200, 60, 60));
+    }
 
-        _parentCanvas ??= VisualTreeHelper.GetParent(this) as Canvas;
-        if (_parentCanvas == null) return;
+    private void ApplyRarity(CardRarity rarity) {
+        string r = RarityNames[(int)rarity];
+        string base_ = "../../Assets/images/overseerWars/cards/";
+        ImgBorder.Source = MakeImageSource($"{base_}card_border_{r}.png");
+        ImgColor.Source  = MakeImageSource($"{base_}card_color_{r}.png");
+        ImgTop.Source    = MakeImageSource($"{base_}card_top_{r}.png");
+    }
+    
+    private ImageSource MakeImageSource(string relativePath) {
+        try {
+            string cleaned = relativePath.Replace("../", "").Replace("..\\", "");
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string absPath = "";
+            while (!string.IsNullOrEmpty(baseDir)) {
+                string test = Path.Combine(baseDir, cleaned);
+                if (File.Exists(test)) { absPath = test; break; }
+                baseDir = Path.GetDirectoryName(baseDir)!;
+            }
+            if (string.IsNullOrEmpty(absPath)) {
+                absPath = Path.Combine(@"C:\Users\antoi\Documents\GitHub\LaboratoireProgrammation", cleaned);
+            }
+            if (File.Exists(absPath)) {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(absPath, UriKind.Absolute);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                return bitmap;
+            }
+            return null!;
+        }
+        catch {
+            return null!;
+        }
+    }
 
-        _relativeMousePos = e.GetPosition(this);
-        CaptureMouse();
+    private bool _isDeckMode;
+    public void SetDeckMode(bool deckMode) {
+        _isDeckMode = deckMode;
+        if (deckMode) {
+            RenderTransform = new ScaleTransform(0.9, 0.9);
+            RenderTransformOrigin = new Point(0.5, 0.5);
 
-        BringToFront();
+            EquipmentCanvas.Children.Remove(WeaponCardContainer);
+            EquipmentCanvas.Children.Remove(OutfitCardContainer);
+            RootGrid.Children.Add(WeaponCardContainer);
+            RootGrid.Children.Add(OutfitCardContainer);
+            WeaponCardContainer.HorizontalAlignment = HorizontalAlignment.Center;
+            WeaponCardContainer.VerticalAlignment = VerticalAlignment.Center;
+            OutfitCardContainer.HorizontalAlignment = HorizontalAlignment.Center;
+            OutfitCardContainer.VerticalAlignment = VerticalAlignment.Center;
+            WeaponCardContainer.Margin = new Thickness(0);
+            OutfitCardContainer.Margin = new Thickness(0);
+            if (WeaponCardContainer.RenderTransform is RotateTransform rw) rw.Angle = 0;
+            if (OutfitCardContainer.RenderTransform is RotateTransform ro) ro.Angle = 0;
+            
+            Panel.SetZIndex(MainCardGrid, 3);
+            Panel.SetZIndex(WeaponCardContainer, 2);
+            Panel.SetZIndex(OutfitCardContainer, 1);
+        }
+    }
 
+    private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e) {
+        if (!_isDeckMode || BoundDweller == null) return;
+        var elements = new List<UIElement> { MainCardGrid };
+        if (BoundDweller.EquippedWeapon != null) elements.Add(WeaponCardContainer);
+        if (BoundDweller.EquippedOutfit != null) elements.Add(OutfitCardContainer);
+        if (elements.Count <= 1) return;
+
+        var sorted = elements.OrderByDescending(el => Panel.GetZIndex(el)).ToList();
+        if (e.Delta < 0) {
+            var top = sorted.First();
+            Panel.SetZIndex(top, -1);
+            foreach(var el in elements) if(el != top) Panel.SetZIndex(el, Panel.GetZIndex(el) + 1);
+        } else {
+            var bottom = sorted.Last();
+            Panel.SetZIndex(bottom, 10);
+            foreach(var el in elements) if(el != bottom) Panel.SetZIndex(el, Panel.GetZIndex(el) - 1);
+        }
+        e.Handled = true;
+    }
+
+    private void OnMouseEnter(object s, MouseEventArgs e) {
+        Panel.SetZIndex(this, 1000);
+        RenderTransformOrigin = new Point(0.5, 0.5);
+        var scale = new ScaleTransform(_isDeckMode ? 0.96 : 1.06, _isDeckMode ? 0.96 : 1.06);
+        RenderTransform = scale;
+
+        if (_isDeckMode) return;
+
+        if (BoundDweller != null) {
+            if (_hoverTimer == null) {
+                _hoverTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(0.5) };
+                _hoverTimer.Tick += (st, ev) => {
+                    ExpandEquipment();
+                    _hoverTimer.Stop();
+                };
+            }
+            _hoverTimer.Start();
+        }
+    }
+
+    private void OnMouseLeave(object s, MouseEventArgs e) {
+        Panel.SetZIndex(this, 0);
+        var scale = new ScaleTransform(_isDeckMode ? 0.9 : 1.0, _isDeckMode ? 0.9 : 1.0);
+        RenderTransform = scale;
+        _hoverTimer?.Stop();
+        if (!_isDeckMode) SlideDownEquipment();
+    }
+
+    public void ExpandEquipment() {
+        if (_isExpanded) return;
+        _isExpanded = true;
+        EquipmentPopup.IsOpen = true;
+        var animLeftW = new DoubleAnimation(-115, TimeSpan.FromMilliseconds(200));
+        var animTopW = new DoubleAnimation(20, TimeSpan.FromMilliseconds(200));
+        var rotW = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
+        var animLeftO = new DoubleAnimation(145, TimeSpan.FromMilliseconds(200));
+        var animTopO = new DoubleAnimation(20, TimeSpan.FromMilliseconds(200));
+        var rotO = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
+
+        WeaponCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftW);
+        WeaponCardContainer.BeginAnimation(Canvas.TopProperty, animTopW);
+        if (WeaponCardContainer.RenderTransform is RotateTransform rW) rW.BeginAnimation(RotateTransform.AngleProperty, rotW);
+
+        OutfitCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftO);
+        OutfitCardContainer.BeginAnimation(Canvas.TopProperty, animTopO);
+        if (OutfitCardContainer.RenderTransform is RotateTransform rO) rO.BeginAnimation(RotateTransform.AngleProperty, rotO);
+    }
+
+    private void SlideDownEquipment() {
+        if (!_isExpanded) return;
+        _isExpanded = false;
+        var animLeftW = new DoubleAnimation(5, TimeSpan.FromMilliseconds(200));
+        var animTopW = new DoubleAnimation(10, TimeSpan.FromMilliseconds(200));
+        var rotW = new DoubleAnimation(-5, TimeSpan.FromMilliseconds(200));
+        var animLeftO = new DoubleAnimation(25, TimeSpan.FromMilliseconds(200));
+        var animTopO = new DoubleAnimation(10, TimeSpan.FromMilliseconds(200));
+        var rotO = new DoubleAnimation(5, TimeSpan.FromMilliseconds(200));
+
+        WeaponCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftW);
+        WeaponCardContainer.BeginAnimation(Canvas.TopProperty, animTopW);
+        if (WeaponCardContainer.RenderTransform is RotateTransform rW) rW.BeginAnimation(RotateTransform.AngleProperty, rotW);
+
+        OutfitCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftO);
+        OutfitCardContainer.BeginAnimation(Canvas.TopProperty, animTopO);
+        if (OutfitCardContainer.RenderTransform is RotateTransform rO) {
+            rO.BeginAnimation(RotateTransform.AngleProperty, rotO);
+        }
+        
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+        timer.Tick += (st, ev) => { EquipmentPopup.IsOpen = false; timer.Stop(); };
+        timer.Start();
+    }
+
+    private void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+        _dragStartPoint = e.GetPosition(null);
         OverseerWarsWindow.heldCard = this;
     }
 
-    protected override void OnMouseMove(MouseEventArgs e) {
-        base.OnMouseMove(e);
+    private void OnPreviewMouseMove(object sender, MouseEventArgs e) {
+        if (e.LeftButton == MouseButtonState.Pressed && !_isDragging && OverseerWarsWindow.heldCard == this) {
+            Point pos = e.GetPosition(null);
+            if (Math.Abs(pos.X - _dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                Math.Abs(pos.Y - _dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance) {
+                _isDragging = true;
+                DraggedCard = this;
+                var win = Window.GetWindow(this) as OverseerWarsWindow;
+                if (win != null) {
+                    Point winPos = e.GetPosition(win);
+                    win.StartDraggingCard(this, winPos);
+                }
+                CaptureMouse();
+            }
+        }
 
-        if (IsMouseCaptured) {
-            var currentMousePos = e.GetPosition(_parentCanvas);
-            MoveTo(currentMousePos.X - _relativeMousePos.X, currentMousePos.Y - _relativeMousePos.Y);
+        if (_isDragging && IsMouseCaptured) {
+            var win = Window.GetWindow(this) as OverseerWarsWindow;
+            if (win != null) {
+                Point winPos = e.GetPosition(win);
+                win.MoveDraggingCard(this, winPos);
+            }
         }
     }
 
-    protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
-        base.OnMouseLeftButtonUp(e);
-
-        ReleaseMouseCapture();
-        OverseerWarsWindow.heldCard = null;
-
-        HandleSnapToClosestAnim();
-    }
-
-    public void BringToFront() {
-        var maxZ = _instances.Max(c => Panel.GetZIndex(c));
-        Panel.SetZIndex(this, maxZ + 1);
-    }
-
-    public void PutAbove(ControlCard other) {
-        Panel.SetZIndex(this, Panel.GetZIndex(other) + 1);
-    }
-
-    public void PutBelow(ControlCard other) {
-        var targetZ = Panel.GetZIndex(other);
-        Panel.SetZIndex(this, Math.Max(0, targetZ - 1));
-    }
-
-    public void SwapZIndex(ControlCard other) {
-        var thisZ = Panel.GetZIndex(this);
-        var otherZ = Panel.GetZIndex(other);
-
-        Panel.SetZIndex(this, otherZ);
-        Panel.SetZIndex(other, thisZ);
-    }
-
-    private void HandleSnapToClosestAnim() {
-        var closest = GetClosestCardTo(this);
-        if (closest == null) return;
-
-        var currentPos = GetCurrentPosition();
-        var targetPos = closest.GetCurrentPosition();
-
-        if (GetDistanceSquared(currentPos, targetPos) < 10000) AnimateToPosition(targetPos, 0.4);
-
-        if (closest.isInStack()) {
-            var closestStack = closest.stack;
-            closestStack?.AddCard(this);
+    private void OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+        if (_isDragging) {
+            _isDragging = false;
+            DraggedCard = null;
+            ReleaseMouseCapture();
+            var win = Window.GetWindow(this) as OverseerWarsWindow;
+            if (win != null) {
+                Point winPos = e.GetPosition(win);
+                win.StopDraggingCard(this, winPos);
+            }
         }
     }
 
-    private void AnimateToPosition(Point target, double durationSeconds) {
-        var easing = new QuarticEase { EasingMode = EasingMode.EaseOut };
-        var duration = TimeSpan.FromSeconds(durationSeconds);
+    private void OnRightClick(object sender, MouseButtonEventArgs e) {
+        if (BoundDweller == null) return;
+        e.Handled = true;
+        var win = Window.GetWindow(this) as OverseerWarsWindow;
+        if (win == null) return;
 
-        var animX = CreateDoubleAnimation(GetCurrentPosition().X, target.X, duration, easing);
-        var animY = CreateDoubleAnimation(GetCurrentPosition().Y, target.Y, duration, easing);
+        var cm = new ContextMenu();
+        var miWeapon = new MenuItem { Header = "Assign Weapon" };
+        miWeapon.Click += (s, ev) => win.OpenEquipmentSelection(BoundDweller, true);
+        var miOutfit = new MenuItem { Header = "Assign Outfit" };
+        miOutfit.Click += (s, ev) => win.OpenEquipmentSelection(BoundDweller, false);
 
-        animX.Completed += (s, e) => {
-            BeginAnimation(Canvas.LeftProperty, null);
-            Canvas.SetLeft(this, target.X);
-        };
-        animY.Completed += (s, e) => {
-            BeginAnimation(Canvas.TopProperty, null);
-            Canvas.SetTop(this, target.Y);
-        };
-
-        BeginAnimation(Canvas.LeftProperty, animX);
-        BeginAnimation(Canvas.TopProperty, animY);
-    }
-
-    private DoubleAnimation CreateDoubleAnimation(double from, double to, TimeSpan duration, IEasingFunction easing) {
-        return new DoubleAnimation(from, to, duration) { EasingFunction = easing };
-    }
-
-    private void ApplyScaleAnimation(double targetScale, double durationSeconds) {
-        if (LayoutTransform is not ScaleTransform scaleTransform) {
-            scaleTransform = new ScaleTransform(1.0, 1.0);
-            LayoutTransform = scaleTransform;
-        }
-
-        var animation = new DoubleAnimation {
-            To = targetScale,
-            Duration = TimeSpan.FromSeconds(durationSeconds),
-            EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut }
-        };
-
-        scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
-        scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
-    }
-
-    private void MoveTo(double x, double y) {
-        Canvas.SetLeft(this, x);
-        Canvas.SetTop(this, y);
-    }
-
-    public Point GetCurrentPosition() {
-        var x = Canvas.GetLeft(this);
-        var y = Canvas.GetTop(this);
-
-        return new Point(double.IsNaN(x) ? 0 : x, double.IsNaN(y) ? 0 : y);
-    }
-
-    private static double GetDistanceSquared(Point p1, Point p2) {
-        return Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2);
+        cm.Items.Add(miWeapon);
+        cm.Items.Add(miOutfit);
+        cm.IsOpen = true;
     }
 }

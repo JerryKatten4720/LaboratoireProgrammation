@@ -75,7 +75,7 @@ public partial class BingoDingo : UserControl {
             CornerRadius = new CornerRadius(4),
             Margin = new Thickness(4),
             Cursor = Cursors.Hand,
-            RenderTransform = new TranslateTransform(), // <-- Ajout ici
+            RenderTransform = new TranslateTransform(),
             Tag = bingoCase
         };
 

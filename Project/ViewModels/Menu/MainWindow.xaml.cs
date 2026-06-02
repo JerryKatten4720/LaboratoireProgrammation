@@ -64,9 +64,22 @@ public partial class MainWindow : Window {
         TerminalOutputPanel.Children.Clear();
         TerminalDisplay.SeparationLine();
         
-        HospitalWindow hospitalWindow = new();
-        hospitalWindow.Show();
-        Close();
+
+        bool doshow = true;
+
+        if (!doshow) {
+            Window hospital = new HospitalWindow();
+            hospital.Show();
+            Close();
+        }
+        
+        if (!doshow) return;
+        var menu = new StartMenuWindow();
+        if (menu.ShowDialog() == true) {
+            var game = new OverseerWarsWindow(menu.Profile1, menu.Profile2);
+            game.Show();
+            Close();
+        }
         
 
         

@@ -1,0 +1,22 @@
+[
+  {
+    "ScrapName": "Wooden Plank",
+    "Texture": "placeholder.png",
+    "Rarity": "1"
+  },
+  {
+    "ScrapName": "Rusted Gear",
+    "Texture": "placeholder.png",
+    "Rarity": "1"
+  },
+  {
+    "ScrapName": "Intact Circuit Board",
+    "Texture": "placeholder.png",
+    "Rarity": "2"
+  },
+  {
+    "ScrapName": "Quantum Chip",
+    "Texture": "placeholder.png",
+    "Rarity": "3"
+  }
+]
