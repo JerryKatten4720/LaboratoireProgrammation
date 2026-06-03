@@ -18,9 +18,9 @@ public class Vault {
     public IEnumerable<IWeapon> UnusedWeapons => Weapons.Where(w => !Dwellers.Any(d => d.EquippedWeapon == w));
     public IEnumerable<IOutfit> UnusedOutfits => Outfits.Where(o => !Dwellers.Any(d => d.EquippedOutfit == o));
 
-    public int Electricity { get; set; } = 20;
-    public int Water { get; set; } = 20;
-    public int Food { get; set; } = 20;
+    public int Electricity { get; set; }
+    public int Water { get; set; }
+    public int Food { get; set; }
     public int ActionPoints { get; set; } = 5;
     
     public int MaxActionPoints {
@@ -34,6 +34,9 @@ public class Vault {
     public Vault(string owner) {
         OwnerName = owner;
         ActionPoints = GameConfigRepository.Config.MaxActionPoints;
+        Electricity = GameConfigRepository.Config.InitialElectricity;
+        Water = GameConfigRepository.Config.InitialWater;
+        Food = GameConfigRepository.Config.InitialFood;
         Rooms.Add(new Room { Type = RoomType.Generator });
         Rooms.Add(new Room { Type = RoomType.Garden });
         Rooms.Add(new Room { Type = RoomType.WaterPurifier });
@@ -55,9 +58,15 @@ public class Vault {
 
         if (Water <= 0 || Food <= 0) {
             foreach (var d in Dwellers.Where(d => d.IsAlive)) {
-                if (Water <= 0) d.CurrentHp -= 2;
-                if (Food  <= 0) d.CurrentHp -= 1;
-                if (d.CurrentHp < 0) d.CurrentHp = 0;
+                if (Water <= 0) {
+                    d.CurrentHp -= GameConfigRepository.Config.StarvationWaterHpPenalty;
+                }
+                if (Food <= 0) {
+                    d.CurrentHp -= GameConfigRepository.Config.StarvationFoodHpPenalty;
+                }
+                if (d.CurrentHp < 0) {
+                    d.CurrentHp = 0;
+                }
             }
         }
     }

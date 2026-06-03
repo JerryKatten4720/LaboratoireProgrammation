@@ -3,6 +3,7 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
 using System;
 using System.IO;
@@ -49,8 +50,14 @@ public partial class ControlCard : UserControl {
     private TranslateTransform _translateTransform = new();
     private bool _isDragging;
 
-    public static double GlowSubtleness { get; set; } = 0.8;
-    public static double ShakeIntensity { get; set; } = 1.0;
+    public static double GlowSubtleness {
+        get => GameConfigRepository.Config.CardGlowSubtleness;
+        set { }
+    }
+    public static double ShakeIntensity {
+        get => GameConfigRepository.Config.CardShakeIntensity;
+        set { }
+    }
     public static readonly HashSet<Dweller> DwellersToShakeOnLoad = new();
 
     private bool _isSelected;
@@ -217,7 +224,7 @@ public partial class ControlCard : UserControl {
             var sweepAnim = new DoubleAnimation {
                 From = -1.5,
                 To = 1.5,
-                Duration = TimeSpan.FromSeconds(3.5),
+                Duration = TimeSpan.FromSeconds(GameConfigRepository.Config.CardHoloSweepSeconds),
                 RepeatBehavior = RepeatBehavior.Forever
             };
             
@@ -545,9 +552,9 @@ public partial class ControlCard : UserControl {
         nx = Math.Max(-1, Math.Min(1, nx));
         ny = Math.Max(-1, Math.Min(1, ny));
 
-        double targetAngleX = -ny * 3.5; // max 3.5 degrees skew
-        double targetAngleY = nx * 3.5;
-        double targetAngle = nx * ny * -1.5;
+        double targetAngleX = -ny * GameConfigRepository.Config.CardTiltAngleX;
+        double targetAngleY = nx * GameConfigRepository.Config.CardTiltAngleY;
+        double targetAngle = nx * ny * GameConfigRepository.Config.CardTiltAngleRot;
 
         var animX = new DoubleAnimation(targetAngleX, TimeSpan.FromMilliseconds(80));
         var animY = new DoubleAnimation(targetAngleY, TimeSpan.FromMilliseconds(80));

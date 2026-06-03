@@ -260,7 +260,8 @@ public partial class OverseerWarsWindow : Window {
 
         DeckPickerControl.ApplyTheme(bgDark, accent);
         CombatLogBorder.Background = new SolidColorBrush(bgDark);
-        EquipInnerBorder.Background = new SolidColorBrush(bgLight);
+        EquipBorder.Background = new SolidColorBrush(bgDark);
+        EquipInnerBorder.Background = new SolidColorBrush(LightenColor(bgDark, -0.10));
         ReturnBorder.Background = new SolidColorBrush(bg);
         InfoPanel.Background = new SolidColorBrush(bgDark);
 

@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data;
 
 public class Dweller : IDweller {
     public string FirstName { get; set; } = "Dweller";
@@ -41,7 +42,7 @@ public class Dweller : IDweller {
     public int Special_A { get => _a + (EquippedOutfit is Outfit o ? o.A : 0); set => _a = value; }
     public int Special_L { get => _l + (EquippedOutfit is Outfit o ? o.L : 0); set => _l = value; }
     
-    public int MaxHp => 10 + Special_E * 2;
+    public int MaxHp => GameConfigRepository.Config.DwellerBaseHp + Special_E * GameConfigRepository.Config.DwellerHpMultE;
     
     private int _currentHp;
     public int CurrentHp {
@@ -63,5 +64,5 @@ public class Dweller : IDweller {
     public bool IsAlive => _currentHp > 0;
     public string Texture { get; set; } = "dweller.png";
 
-    public Dweller() { _currentHp = 16; }
+    public Dweller() { _currentHp = GameConfigRepository.Config.DwellerStartingHp; }
 }

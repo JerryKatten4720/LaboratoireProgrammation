@@ -8,6 +8,7 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Helpers;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data;
 
 public class CombatService {
     private readonly GameState _state;
@@ -142,11 +143,13 @@ public class CombatService {
         int armor = (tgt.EquippedOutfit?.ArmorValue ?? 0) + (defV.HasFrankTheTank ? 1 : 0);
         dmg = Math.Max(1, dmg - armor);
         
-        int critChance = (atk.EquippedWeapon is Weapon w && int.TryParse(w.CriticalChance, out int cc) ? cc : 5) + atk.Special_P;
+        int critChance = (atk.EquippedWeapon is Weapon w && int.TryParse(w.CriticalChance, out int cc) ? cc : GameConfigRepository.Config.CombatCritChanceFallback) + atk.Special_P;
         bool crit = RandomProvider.Next(100) < critChance;
-        bool fail = RandomProvider.Next(100) < tgt.Special_C * 3;
+        bool fail = RandomProvider.Next(100) < tgt.Special_C * GameConfigRepository.Config.CombatFailChanceMultiplier;
         
-        if (crit && !fail) dmg *= 2;
+        if (crit && !fail) {
+            dmg *= 2;
+        }
 
         tgt.CurrentHp -= dmg;
         string msg = crit && !fail
@@ -157,12 +160,11 @@ public class CombatService {
         DamagePopup?.Invoke($"-{dmg} ❤️");
 
         if (tgt.CurrentHp <= 0) {
-            bool flees = RandomProvider.Next(100) < tgt.Special_A * 8;
+            bool flees = RandomProvider.Next(100) < tgt.Special_A * GameConfigRepository.Config.CombatFleeChanceMultiplier;
             if (flees) {
                 tgt.CurrentHp = 1;
                 CombatEvent?.Invoke($"🏃‍♂️ {tgt.Name} fled!");
-            }
-            else {
+            } else {
                 CombatEvent?.Invoke($"☠️ {tgt.Name} killed!");
             }
         }

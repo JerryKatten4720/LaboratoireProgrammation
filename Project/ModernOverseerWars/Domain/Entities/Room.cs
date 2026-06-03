@@ -3,6 +3,7 @@ namespace LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data;
 
 public class Room {
     public RoomType Type { get; set; }
@@ -20,6 +21,6 @@ public class Room {
     
     public List<Dweller> AssignedDwellers { get; } = new();
     public int Level { get; set; } = 1;
-    public int BuildCost { get; set; } = 10;
+    public int BuildCost { get; set; } = GameConfigRepository.Config.RoomBuildCost;
     public int ProduceValue => AssignedDwellers.Count(d => d.IsAlive) * Level;
 }
