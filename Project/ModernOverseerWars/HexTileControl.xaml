@@ -27,6 +27,6 @@
             <TextBlock x:Name="TileLabel"   Text=""  FontSize="8"  Foreground="#AAAACC"
                         HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="80" TextAlignment="Center"/>
         </StackPanel>
-        <Grid x:Name="DwellersPanel" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
+        <Grid x:Name="DwellersPanel" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
 </UserControl>

@@ -66,6 +66,7 @@ public partial class OverseerWarsWindow : Window {
     private Border? _selectedEquipmentRowBorder;
 
     private Dweller? _dwellerInAssignmentSlot;
+    private Dweller? _sheetDweller;
 
     private Panel? _originalCardParent;
     private Decorator? _originalCardDecorator;
@@ -687,6 +688,9 @@ public partial class OverseerWarsWindow : Window {
         RefreshDeckUI();
         DeckPickerControl.RefreshAll();
         UpdateInfoPanel();
+        if (DwellerSheetOverlay.Visibility == Visibility.Visible) {
+            RefreshDwellerSheet();
+        }
     }
 
     private void RefreshDeckUI() {
@@ -939,6 +943,90 @@ public partial class OverseerWarsWindow : Window {
         return border;
     }
 
+    public void OpenDwellerSheet(Dweller dw) {
+        _sheetDweller = dw;
+        DwellerSheetOverlay.Visibility = Visibility.Visible;
+        
+        Color bg = GetThemeBgDark();
+        DwellerSheetBorder.Background = new SolidColorBrush(Color.FromArgb(240, bg.R, bg.G, bg.B));
+        
+        Color accent = GetThemeColor();
+        DwellerSheetBorder.BorderBrush = new SolidColorBrush(accent);
+        SheetStatusText.Foreground = new SolidColorBrush(accent);
+
+        RefreshDwellerSheet();
+    }
+
+    private void OnCloseDwellerSheet(object sender, RoutedEventArgs e) {
+        DwellerSheetOverlay.Visibility = Visibility.Collapsed;
+        _sheetDweller = null;
+    }
+
+    public void RefreshDwellerSheet() {
+        if (_sheetDweller == null) return;
+
+        SheetStatusText.Text = GetDwellerLocationString(_sheetDweller);
+        SheetDwellerCard.BindDweller(_sheetDweller);
+
+        if (_sheetDweller.EquippedWeapon != null) {
+            SheetWeaponPlaceholder.Visibility = Visibility.Collapsed;
+            SheetWeaponViewbox.Visibility = Visibility.Visible;
+            
+            SheetWeaponViewbox.Child = null;
+            var wCard = new ControlCard();
+            wCard.BindWeapon(_sheetDweller.EquippedWeapon);
+            wCard.OwnerDweller = _sheetDweller;
+            SheetWeaponViewbox.Child = wCard;
+        } else {
+            SheetWeaponPlaceholder.Visibility = Visibility.Visible;
+            SheetWeaponViewbox.Visibility = Visibility.Collapsed;
+            SheetWeaponViewbox.Child = null;
+        }
+
+        if (_sheetDweller.EquippedOutfit != null) {
+            SheetOutfitPlaceholder.Visibility = Visibility.Collapsed;
+            SheetOutfitViewbox.Visibility = Visibility.Visible;
+            
+            SheetOutfitViewbox.Child = null;
+            var oCard = new ControlCard();
+            oCard.BindOutfit(_sheetDweller.EquippedOutfit);
+            oCard.OwnerDweller = _sheetDweller;
+            SheetOutfitViewbox.Child = oCard;
+        } else {
+            SheetOutfitPlaceholder.Visibility = Visibility.Visible;
+            SheetOutfitViewbox.Visibility = Visibility.Collapsed;
+            SheetOutfitViewbox.Child = null;
+        }
+    }
+
+    private string GetDwellerLocationString(Dweller dw) {
+        if (_state.Vault1 != null) {
+            foreach (var room in _state.Vault1.Rooms) {
+                if (room.AssignedDwellers.Contains(dw)) {
+                    string name = room.Name.Replace("🌿 ", "").Replace("🔫 ", "").Replace("👕 ", "").Replace("🏋️ ", "").Replace("🔬 ", "");
+                    return $"{name}:Vault";
+                }
+            }
+        }
+        if (_state.Vault2 != null) {
+            foreach (var room in _state.Vault2.Rooms) {
+                if (room.AssignedDwellers.Contains(dw)) {
+                    string name = room.Name.Replace("🌿 ", "").Replace("🔫 ", "").Replace("👕 ", "").Replace("🏋️ ", "").Replace("🔬 ", "");
+                    return $"{name}:Vault";
+                }
+            }
+        }
+        for (int c = 0; c < _state.Map.Cols; c++) {
+            for (int r = 0; r < _state.Map.Rows; r++) {
+                var tile = _state.Map.Get(c, r);
+                if (tile.Player1Dwellers.Contains(dw) || tile.Player2Dwellers.Contains(dw)) {
+                    return $"{c}-{r}:Wasteland";
+                }
+            }
+        }
+        return "Idle:Vault";
+    }
+
     private void OnCancelEquipmentSelection(object s, RoutedEventArgs e) => EquipmentSelectionOverlay.Visibility = Visibility.Collapsed;
     private void OnConfirmEquipmentSelection(object s, RoutedEventArgs e) {
         if (_equippingDweller == null || _selectedEquipment == null) return;
@@ -1189,6 +1277,47 @@ public partial class OverseerWarsWindow : Window {
         if (!handled && IsPointOverElement(AssignmentSlotContainer, dropPoint)) {
             OnAssignmentSlotDropDirect(card);
             handled = true;
+        }
+
+        if (!handled && IsPointOverElement(ReturnBorder, dropPoint)) {
+            if (card.BoundWeapon != null && card.OwnerDweller != null) {
+                card.OwnerDweller.EquippedWeapon = null;
+                _state.AddLog($"{card.OwnerDweller.Name} unequipped {card.BoundWeapon.Name}");
+                handled = true;
+            }
+            else if (card.BoundOutfit != null && card.OwnerDweller != null) {
+                card.OwnerDweller.EquippedOutfit = null;
+                _state.AddLog($"{card.OwnerDweller.Name} unequipped {card.BoundOutfit.Name}");
+                handled = true;
+            }
+            RefreshAll();
+            UpdateAssignmentSlotUI();
+            if (DwellerSheetOverlay.Visibility == Visibility.Visible) {
+                RefreshDwellerSheet();
+            }
+        }
+
+        if (!handled && DwellerSheetOverlay.Visibility == Visibility.Visible && _sheetDweller != null) {
+            if (IsPointOverElement(SheetWeaponGrid, dropPoint)) {
+                if (card.BoundWeapon != null) {
+                    if (card.OwnerDweller != null) card.OwnerDweller.EquippedWeapon = null;
+                    _sheetDweller.EquippedWeapon = card.BoundWeapon;
+                    _state.AddLog($"{_sheetDweller.Name} equipped {card.BoundWeapon.Name}");
+                    handled = true;
+                    RefreshAll();
+                    RefreshDwellerSheet();
+                }
+            }
+            else if (IsPointOverElement(SheetOutfitGrid, dropPoint)) {
+                if (card.BoundOutfit != null) {
+                    if (card.OwnerDweller != null) card.OwnerDweller.EquippedOutfit = null;
+                    _sheetDweller.EquippedOutfit = card.BoundOutfit;
+                    _state.AddLog($"{_sheetDweller.Name} equipped {card.BoundOutfit.Name}");
+                    handled = true;
+                    RefreshAll();
+                    RefreshDwellerSheet();
+                }
+            }
         }
         
         if (!handled && IsPointOverElement(DeckPickerControl, dropPoint)) {

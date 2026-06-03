@@ -42,8 +42,6 @@ public partial class ControlCard : UserControl {
     private ControlCard? _outfitCard;
 
     private static readonly string[] RarityNames = { "common","uncommon","rare","epic","legendary" };
-    private System.Windows.Threading.DispatcherTimer? _hoverTimer;
-    private bool _isExpanded;
     private Point _dragStartPoint;
 
     public static ControlCard? DraggedCard { get; private set; }
@@ -319,27 +317,12 @@ public partial class ControlCard : UserControl {
         RenderTransformOrigin = new Point(0.5, 0.5);
         var scale = new ScaleTransform(1.06, 1.06);
         RenderTransform = scale;
-
-        if (_isDeckMode) return;
-
-        if (BoundDweller != null) {
-            if (_hoverTimer == null) {
-                _hoverTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(0.5) };
-                _hoverTimer.Tick += (st, ev) => {
-                    ExpandEquipment();
-                    _hoverTimer.Stop();
-                };
-            }
-            _hoverTimer.Start();
-        }
     }
 
     private void OnMouseLeave(object s, MouseEventArgs e) {
         Panel.SetZIndex(this, 0);
         var scale = new ScaleTransform(1.0, 1.0);
         RenderTransform = scale;
-        _hoverTimer?.Stop();
-        if (!_isDeckMode) SlideDownEquipment();
 
         if (TiltSkew != null && TiltRotate != null) {
             var animX = new DoubleAnimation(0, TimeSpan.FromSeconds(0.5)) {
@@ -358,52 +341,8 @@ public partial class ControlCard : UserControl {
         }
     }
 
-    public void ExpandEquipment() {
-        if (_isExpanded) return;
-        _isExpanded = true;
-        EquipmentPopup.IsOpen = true;
-        var animLeftW = new DoubleAnimation(-115, TimeSpan.FromMilliseconds(200));
-        var animTopW = new DoubleAnimation(20, TimeSpan.FromMilliseconds(200));
-        var rotW = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
-        var animLeftO = new DoubleAnimation(145, TimeSpan.FromMilliseconds(200));
-        var animTopO = new DoubleAnimation(20, TimeSpan.FromMilliseconds(200));
-        var rotO = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
-
-        WeaponCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftW);
-        WeaponCardContainer.BeginAnimation(Canvas.TopProperty, animTopW);
-        if (WeaponCardContainer.RenderTransform is RotateTransform rW) rW.BeginAnimation(RotateTransform.AngleProperty, rotW);
-
-        OutfitCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftO);
-        OutfitCardContainer.BeginAnimation(Canvas.TopProperty, animTopO);
-        if (OutfitCardContainer.RenderTransform is RotateTransform rO) rO.BeginAnimation(RotateTransform.AngleProperty, rotO);
-    }
-
-    private void SlideDownEquipment() {
-        if (!_isExpanded) return;
-        _isExpanded = false;
-        var animLeftW = new DoubleAnimation(5, TimeSpan.FromMilliseconds(200));
-        var animTopW = new DoubleAnimation(10, TimeSpan.FromMilliseconds(200));
-        var rotW = new DoubleAnimation(-5, TimeSpan.FromMilliseconds(200));
-        var animLeftO = new DoubleAnimation(25, TimeSpan.FromMilliseconds(200));
-        var animTopO = new DoubleAnimation(10, TimeSpan.FromMilliseconds(200));
-        var rotO = new DoubleAnimation(5, TimeSpan.FromMilliseconds(200));
-
-        WeaponCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftW);
-        WeaponCardContainer.BeginAnimation(Canvas.TopProperty, animTopW);
-        if (WeaponCardContainer.RenderTransform is RotateTransform rW) rW.BeginAnimation(RotateTransform.AngleProperty, rotW);
-
-        OutfitCardContainer.BeginAnimation(Canvas.LeftProperty, animLeftO);
-        OutfitCardContainer.BeginAnimation(Canvas.TopProperty, animTopO);
-        if (OutfitCardContainer.RenderTransform is RotateTransform rO) {
-            rO.BeginAnimation(RotateTransform.AngleProperty, rotO);
-        }
-        
-        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
-        timer.Tick += (st, ev) => { EquipmentPopup.IsOpen = false; timer.Stop(); };
-        timer.Start();
-    }
-
     private void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+        if (Name == "SheetDwellerCard") return;
         _dragStartPoint = e.GetPosition(null);
         OverseerWarsWindow.heldCard = this;
     }
@@ -464,6 +403,14 @@ public partial class ControlCard : UserControl {
         cm.Resources["ThemeFgBrush"] = fgBrush;
         cm.Resources["ThemeBgBrush"] = bgBrush;
         cm.Resources["ThemeHoverBrush"] = hoverBrush;
+
+        var miSheet = new MenuItem {
+            Header = "Dweller Sheet",
+            Style = (Style)FindResource("ThemedMenuItem")
+        };
+        miSheet.Click += (s, ev) => win.OpenDwellerSheet(BoundDweller);
+        cm.Items.Add(miSheet);
+        cm.Items.Add(new Separator());
 
         var vault = win.ActiveVault;
         var rc = new[] { "#969696", "#64C864", "#6496FA", "#B450DC", "#FFB400" };

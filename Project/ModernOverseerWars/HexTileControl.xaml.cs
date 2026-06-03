@@ -132,7 +132,6 @@ public partial class HexTileControl : UserControl {
             var topDweller = list.LastOrDefault(d => d.IsAlive);
             if (topDweller != null && IsHovered) {
                 WastelandHoverCard.BindDweller(topDweller);
-                WastelandHoverCard.ExpandEquipment();
             }
         }
         e.Handled = true;
@@ -158,7 +157,6 @@ public partial class HexTileControl : UserControl {
         var topDweller = list.LastOrDefault(d => d.IsAlive);
         if (topDweller != null) {
             WastelandHoverCard.BindDweller(topDweller);
-            WastelandHoverCard.ExpandEquipment();
             WastelandCardPopup.IsOpen = true;
         }
     }

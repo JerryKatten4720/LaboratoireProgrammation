@@ -104,7 +104,7 @@
                 </Border>
             </StackPanel>
             
-            <Image Source="../../Assets/images/vaultTec.png" Grid.ColumnSpan="3" HorizontalAlignment="Center" Panel.ZIndex="-5" Opacity="0.05"></Image>
+            <Image Source="../../Assets/images/vaultTec.png" Grid.ColumnSpan="3" HorizontalAlignment="Center" Panel.ZIndex="-5" Opacity="0.005"></Image>
         </Grid>
 
 
