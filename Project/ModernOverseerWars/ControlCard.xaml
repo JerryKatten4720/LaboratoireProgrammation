@@ -31,27 +31,28 @@
                    Margin="10,70,0,0" RenderTransformOrigin="0.5,0.5"/>
             <Image Source="../../Assets/images/overseerWars/cards/card_circleborder.png" Stretch="Fill"/>
             <Image x:Name="ImgTop" Source="../../Assets/images/overseerWars/cards/card_top_common.png" Stretch="Fill"/>
-            <Image x:Name="ImgBorder" Source="../../Assets/images/overseerWars/cards/card_border_common.png" Stretch="Fill"/>
             <Image x:Name="ImgColor" Source="../../Assets/images/overseerWars/cards/card_color_common.png" Stretch="Fill"/>
+            <Image x:Name="ImgBorder" Source="../../Assets/images/overseerWars/cards/card_border_common.png" Stretch="Fill"/>
 
             <Grid VerticalAlignment="Bottom" Margin="6,0,6,6">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
                         <Border x:Name="SupervisorBadge" Background="#CC8800" CornerRadius="3"
-                                Padding="3,1" Margin="0,0,4,0" Visibility="Collapsed">
+                                Padding="3,1" Margin="0,0,4,0" Visibility="Collapsed" VerticalAlignment="Center">
                             <TextBlock Text="★" FontSize="8" FontWeight="Bold" Foreground="Black"/>
                         </Border>
+                        
                         <TextBlock Text="{Binding CardImage, ElementName=Root}"
-                                   FontSize="11" FontWeight="Bold" Foreground="White"
-                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                   FontSize="12" FontWeight="Bold" Padding="0,0,0,122.5" Foreground="White"
+                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Opacity="0.7"/>
+                        
                     </StackPanel>
-                    <TextBlock x:Name="StatsLine" Text="S:3 P:3 E:3 C:3"
-                               FontSize="9" Foreground="#CCCCCC" HorizontalAlignment="Center"/>
+                    
+                    
+                    <TextBlock x:Name="StatsLine" Text="S:3 P:3 E:3 C:3" FontSize="9" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
                     <Grid Margin="0,3,0,0">
-                        <ProgressBar x:Name="HpBar" Height="5" Minimum="0" Maximum="100" Value="100"
-                                     Background="#44333333" Foreground="#22BB44" BorderThickness="0"/>
-                        <TextBlock x:Name="HpText" Text="HP" FontSize="8" Foreground="White"
-                                   HorizontalAlignment="Center"/>
+                        <ProgressBar x:Name="HpBar" Margin="5,0,5,10" Height="15" Minimum="0" Maximum="100" Value="100" Background="#44333333" Foreground="#22BB44" BorderThickness="0" Opacity="0.8"/>
+                        <TextBlock x:Name="HpText" Text="HP" FontSize="10.8" Foreground="White" HorizontalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
             </Grid>

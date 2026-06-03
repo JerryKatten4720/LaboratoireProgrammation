@@ -1,3 +1,9 @@
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
 using System.Windows.Media;
 
 namespace LaboratoireProgrammation.Project.ModernOverseerWars;

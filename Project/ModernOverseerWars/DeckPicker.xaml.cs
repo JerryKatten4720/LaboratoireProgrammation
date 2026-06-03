@@ -1,3 +1,9 @@
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,8 +21,15 @@ public partial class DeckPicker : UserControl {
     private List<IWeapon> _weapons = new();
     private List<IOutfit> _outfits = new();
     private List<Scrap> _scraps = new();
+    private Color _bgColor = Color.FromRgb(0x0A, 0x0A, 0x1A);
 
     public DeckPicker() { InitializeComponent(); }
+
+    public void ApplyTheme(Color bg, Color accent) {
+        _bgColor = bg;
+        if (Content is Border b) b.Background = new SolidColorBrush(bg);
+        UpdateButtonHighlights();
+    }
 
     public void LoadDeck(IEnumerable<Dweller> dwellers, IEnumerable<IWeapon> weapons, IEnumerable<IOutfit> outfits, IEnumerable<Scrap> scraps) {
         _dwellers = dwellers.ToList();
@@ -86,11 +99,18 @@ public partial class DeckPicker : UserControl {
     }
 
     private void UpdateButtonHighlights() {
-        TabDwellersBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Dwellers ? Color.FromRgb(0x3A, 0x3A, 0x60) : Color.FromRgb(0x1E, 0x1E, 0x38));
-        TabWeaponsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Weapons ? Color.FromRgb(0x3A, 0x3A, 0x60) : Color.FromRgb(0x1E, 0x1E, 0x38));
-        TabOutfitsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Outfits ? Color.FromRgb(0x3A, 0x3A, 0x60) : Color.FromRgb(0x1E, 0x1E, 0x38));
-        TabScrapsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Scraps ? Color.FromRgb(0x3A, 0x3A, 0x60) : Color.FromRgb(0x1E, 0x1E, 0x38));
+        Color active = Lighten(_bgColor, 0.2);
+        Color inactive = Lighten(_bgColor, 0.1);
+        TabDwellersBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Dwellers ? active : inactive);
+        TabWeaponsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Weapons ? active : inactive);
+        TabOutfitsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Outfits ? active : inactive);
+        TabScrapsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Scraps ? active : inactive);
     }
+
+    private static Color Lighten(Color c, double amount) => Color.FromRgb(
+        (byte)Math.Min(255, c.R + 255 * amount),
+        (byte)Math.Min(255, c.G + 255 * amount),
+        (byte)Math.Min(255, c.B + 255 * amount));
 
     public void RefreshAll() {
         foreach (ControlCard card in CardRow.Children)

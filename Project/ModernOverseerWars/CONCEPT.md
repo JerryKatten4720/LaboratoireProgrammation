@@ -33,9 +33,9 @@ Les Dwellers sont assignés aux différentes salles de l'abri (représentées so
 
 | Salle | Fonction Principale |
 | :--- | :--- |
-| ⚡ **Générateur** | Produit de l'Électricité. |
-| 🍅 **Jardins** | Produit de la Nourriture. |
-| 💧 **Station d'Épuration** | Produit de l'Eau. |
+| **Générateur** | Produit de l'Électricité. |
+| **Jardins** | Produit de la Nourriture. |
+| **Station d'Épuration** | Produit de l'Eau. |
 | 🔫 **Fabrique d'Armes** | Permet de créer ou d'améliorer l'arsenal. |
 | 🧥 **Fabrique de Tenues** | Permet de créer ou d'améliorer les équipements. |
 | 🏋️ **Centre d'Entraînement** | Augmente les statistiques (*S.P.E.C.I.A.L.*) des Dwellers. |
@@ -49,8 +49,8 @@ Débloque des améliorations passives pour l'équipe :
 
 ### Les Ressources Vitales
 
-* ⚡ **Électricité :** Permet de construire de nouvelles salles dans l'abri.
-* 💧 **Eau & 🍅 Nourriture :** Maintiennent les Dwellers en vie.
+* **Électricité :** Permet de construire de nouvelles salles dans l'abri.
+* **Eau & Nourriture :** Maintiennent les Dwellers en vie.
   > ⚠️ **Pénurie :** Si l'eau ou la nourriture tombe à zéro, des dégâts passifs sont infligés à tous les Dwellers du joueur.
 
 ---

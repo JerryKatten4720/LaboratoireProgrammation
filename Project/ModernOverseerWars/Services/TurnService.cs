@@ -1,24 +1,32 @@
-using System.Windows.Threading;
+namespace LaboratoireProgrammation.Project.ModernOverseerWars.Services;
 
-namespace LaboratoireProgrammation.Project.ModernOverseerWars;
+using System;
+using System.Timers;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
 
-public class TurnManager {
+public class TurnService : IDisposable {
     private readonly GameState _state;
-    private readonly DispatcherTimer _timer;
-    public int SecondsRemaining    { get; private set; } = 60;
-    public int TurnDurationSeconds { get; set; }        = 60;
+    private readonly Timer _timer;
+    
+    public int SecondsRemaining { get; private set; } = 60;
+    public int TurnDurationSeconds { get; set; } = 60;
 
     public event Action? TurnTick;
     public event Action? TurnExpired;
 
-    public TurnManager(GameState state) {
+    public TurnService(GameState state) {
         _state = state;
-        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _timer.Tick += (s, e) => {
-            SecondsRemaining--;
-            TurnTick?.Invoke();
-            if (SecondsRemaining <= 0) TurnExpired?.Invoke();
-        };
+        _timer = new Timer(1000);
+        _timer.Elapsed += OnTimerElapsed;
+    }
+
+    private void OnTimerElapsed(object? sender, ElapsedEventArgs e) {
+        SecondsRemaining--;
+        TurnTick?.Invoke();
+        if (SecondsRemaining <= 0) {
+            TurnExpired?.Invoke();
+        }
     }
 
     public void StartTurn(bool isPlayer1) {
@@ -33,6 +41,7 @@ public class TurnManager {
 
         _state.ActiveVault.ProduceResources();
         bool wasP1 = _state.IsPlayer1Turn;
+        
         if (wasP1) {
             _state.Phase = GamePhase.Player2Turn;
             _state.Vault2.ResetActionPoints();
@@ -41,8 +50,13 @@ public class TurnManager {
             _state.Vault1.ResetActionPoints();
             _state.TurnNumber++;
         }
+        
         SecondsRemaining = TurnDurationSeconds;
         _timer.Start();
         TurnTick?.Invoke();
+    }
+
+    public void Dispose() {
+        _timer.Dispose();
     }
 }

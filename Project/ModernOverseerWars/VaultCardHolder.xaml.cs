@@ -1,3 +1,9 @@
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,6 +23,11 @@ public partial class VaultCardHolder : UserControl {
     public event Action<string>? TechBonusRequested;
 
     public VaultCardHolder() { InitializeComponent(); }
+
+    public void ApplyTheme(Color bg, Color accent) {
+        HolderBorder.Background = new SolidColorBrush(bg);
+        HolderBorderColor.Color = accent;
+    }
 
     public void BindRoom(Room room, Vault vault) {
         BoundRoom  = room;

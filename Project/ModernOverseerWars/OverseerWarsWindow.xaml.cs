@@ -5,6 +5,15 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Services;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
+using LaboratoireProgrammation.Project.ModernOverseerWars.UI.Controls;
 
 namespace LaboratoireProgrammation.Project.ModernOverseerWars;
 
@@ -13,9 +22,12 @@ public partial class OverseerWarsWindow : Window {
     public static ControlCard? heldCard;
 
     private GameState       _state   = null!;
-    private TurnManager     _turns   = null!;
-    private ResourceManager _res     = null!;
-    private CombatManager   _combat  = null!;
+    private TurnService     _turns   = null!;
+    private ResourceService _res     = null!;
+    private CombatService   _combat  = null!;
+    private LootService     _loot    = null!;
+    private MovementService _movement = null!;
+    private EquipmentService _equipment = null!;
     private HexTileControl? _selectedTile;
     private bool _showingVault = false;
 
@@ -51,17 +63,20 @@ public partial class OverseerWarsWindow : Window {
     }
 
     private void StartNewGame(PlayerProfile p1, PlayerProfile p2) {
-        GameConfigManager.Load(FindJsonFile("config.json"));
+        GameConfigRepository.Load(FindJsonFile("config.json"));
         _state = new GameState { Player1 = p1, Player2 = p2 };
         _state.InitVaults();
-        _turns  = new TurnManager(_state);
-        _res    = new ResourceManager(_state);
-        _combat = new CombatManager(_state);
+        _turns  = new TurnService(_state);
+        _res    = new ResourceService(_state);
+        _combat = new CombatService(_state);
+        _loot   = new LootService();
+        _movement = new MovementService(_state, _combat);
+        _equipment = new EquipmentService(_state);
 
-        _turns.TurnTick    += OnTick;
+        _turns.TurnTick    += () => Dispatcher.InvokeAsync(OnTick);
         _turns.TurnExpired += () => Dispatcher.InvokeAsync(OnEndTurn_Internal);
         _combat.CombatEvent += msg => Dispatcher.InvokeAsync(() => AppendLog(msg));
-        _combat.DamagePopup += (text, _, _, _) =>
+        _combat.DamagePopup += text =>
             Dispatcher.InvokeAsync(() => SpawnDamagePopup(text));
 
         SetupPlayers();
@@ -69,13 +84,28 @@ public partial class OverseerWarsWindow : Window {
         BuildVaultUI();
         
         DeckPickerControl.LoadDeck(GetIdleDwellers(), _state.ActiveVault.UnusedWeapons, _state.ActiveVault.UnusedOutfits, _state.ActiveVault.Scraps);
-        DeckPickerControl.CardSelected += card => { heldCard = card; UpdateInfoPanel(); };
+        DeckPickerControl.CardSelected += card => { 
+            heldCard = card; 
+            UpdateInfoPanel(); 
+            if (MapView.Visibility == Visibility.Visible && card.BoundDweller != null) {
+                var startTile = _state.Map.Tiles.Cast<HexTile>().FirstOrDefault(t => t.Player1Dwellers.Contains(card.BoundDweller) || t.Player2Dwellers.Contains(card.BoundDweller));
+                if (startTile == null) {
+                    startTile = _state.IsPlayer1Turn ? _state.Map.Get(0, _state.Map.Rows / 2) : _state.Map.Get(_state.Map.Cols - 1, _state.Map.Rows / 2);
+                }
+                var vaultCtrl = MapCanvas.Children.OfType<HexTileControl>().FirstOrDefault(c => c.BoundTile == startTile);
+                if (vaultCtrl != null) {
+                    if (_selectedTile != null && _selectedTile != vaultCtrl) _selectedTile.SetSelected(false);
+                    _selectedTile = vaultCtrl;
+                    vaultCtrl.SetSelected(true);
+                }
+            }
+        };
         GameOverOverlay.Visibility = Visibility.Collapsed;
         _turns.StartTurn(isPlayer1: true);
         ApplyTheme(isP1: true);
         RefreshAll();
-        double cW = GameConfigManager.Config.MapCols * 100;
-        double cH = GameConfigManager.Config.MapRows * 100;
+        double cW = GameConfigRepository.Config.MapCols * 100;
+        double cH = GameConfigRepository.Config.MapRows * 100;
         MapView.ScrollToVerticalOffset(Math.Max(0, (cH - 480) / 2));
         MapView.ScrollToHorizontalOffset(Math.Max(0, (cW - 850) / 2));
     }
@@ -112,7 +142,7 @@ public partial class OverseerWarsWindow : Window {
 
             var rng = Random.Shared;
             var sh = GameDataRepository.Dwellers.OrderBy(_ => rng.Next()).ToList();
-            int count = Math.Min(GameConfigManager.Config.StarterDwellersCount, sh.Count / 2);
+            int count = Math.Min(GameConfigRepository.Config.StarterDwellersCount, sh.Count / 2);
 
             for (int i = 0; i < count; i++) {
                 var d1 = CreateDwellerFromParsed(sh[i], i == 0);
@@ -180,24 +210,39 @@ public partial class OverseerWarsWindow : Window {
         Color darkAccent = Color.FromRgb((byte)(accent.R * 0.15), (byte)(accent.G * 0.15), (byte)(accent.B * 0.15));
         
         RootGrid.Background = new SolidColorBrush(darkAccent);
-        MapBorder.Background = new SolidColorBrush(Color.FromArgb((byte)(255 * GameConfigManager.Config.MapTransparency), darkAccent.R, darkAccent.G, darkAccent.B));
-        VaultView.Opacity = GameConfigManager.Config.VaultUITransparency;
+        MapBorder.Background = new SolidColorBrush(Color.FromArgb((byte)(255 * GameConfigRepository.Config.MapTransparency), darkAccent.R, darkAccent.G, darkAccent.B));
+        VaultView.Opacity = GameConfigRepository.Config.VaultUITransparency;
 
         TopBar.Background   = new SolidColorBrush(
             Color.FromRgb((byte)(bg.R / 2), (byte)(bg.G / 2), (byte)(bg.B / 2)));
         TimerBar.Fill = new SolidColorBrush(accent);
         ActivePlayerLabel.Foreground = new SolidColorBrush(accent);
         ActivePlayerLabel.Text = isP1
-            ? $"🎯 {_state.Player1.Pseudo}'s Turn"
-            : $"🎯 {_state.Player2.Pseudo}'s Turn";
+            ? $"{_state.Player1.Pseudo}'s Turn"
+            : $"{_state.Player2.Pseudo}'s Turn";
         HexTileControl.ActivePlayerColor = accent;
 
+        Color bgLight = Color.FromRgb(
+            (byte)Math.Max(0, Math.Min(255, bg.R + 25)),
+            (byte)Math.Max(0, Math.Min(255, bg.G + 25)),
+            (byte)Math.Max(0, Math.Min(255, bg.B + 25)));
+        Color bgDark = Color.FromRgb(
+            (byte)Math.Max(0, Math.Min(255, bg.R - 25)),
+            (byte)Math.Max(0, Math.Min(255, bg.G - 25)),
+            (byte)Math.Max(0, Math.Min(255, bg.B - 25)));
+
+        DeckPickerControl.ApplyTheme(bgDark, accent);
+        CombatLogBorder.Background = new SolidColorBrush(bgDark);
+        EquipBorder.Background = new SolidColorBrush(bgLight);
+        ReturnBorder.Background = new SolidColorBrush(bg);
+
         foreach (VaultCardHolder h in RoomsPanel.Children.OfType<VaultCardHolder>())
-            ((SolidColorBrush)h.FindName("HolderBorderColor") ?? new SolidColorBrush()).Color = accent;
+            h.ApplyTheme(bg, accent);
         EndTurnButton.BorderBrush = new SolidColorBrush(accent);
         EndTurnButton.Foreground  = new SolidColorBrush(accent);
 
         string pseudo = isP1 ? _state.Player1.Pseudo : _state.Player2.Pseudo;
+        BgUsernameText.Text = pseudo;
         BgUsernameText.Fill = new SolidColorBrush(accent);
 
         _dwellerInAssignmentSlot = null;
@@ -254,8 +299,8 @@ public partial class OverseerWarsWindow : Window {
     private void OnTileClicked(HexTileControl ctrl) {
         if (_selectedTile != null && _selectedTile != ctrl) {
             var activeDwellers = _state.IsPlayer1Turn ? _selectedTile.BoundTile.Player1Dwellers : _selectedTile.BoundTile.Player2Dwellers;
-            var dw = activeDwellers.LastOrDefault(d => d.IsAlive);
-            if (dw != null) {
+            var dw = heldCard?.BoundDweller ?? activeDwellers.LastOrDefault(d => d.IsAlive);
+            if (dw != null && (activeDwellers.Contains(dw) || heldCard?.BoundDweller == dw)) {
                 int cost = GetDeploymentCost(dw, ctrl.BoundTile);
                 if (cost <= _state.ActiveVault.ActionPoints) {
                     _state.ActiveVault.ActionPoints -= cost;
@@ -270,6 +315,7 @@ public partial class OverseerWarsWindow : Window {
                     if (ctrl.BoundTile.HasConflict) { _combat.ResolveCombatsOnMap(); CheckGameOver(); }
                     _selectedTile.SetSelected(false);
                     _selectedTile = null;
+                    heldCard = null;
                     RefreshAll();
                     return;
                 } else {
@@ -325,15 +371,7 @@ public partial class OverseerWarsWindow : Window {
                 ? _state.Map.Get(0, _state.Map.Rows / 2)
                 : _state.Map.Get(_state.Map.Cols - 1, _state.Map.Rows / 2);
         }
-        return GetHexDistance(current, target);
-    }
-
-    private int GetHexDistance(HexTile a, HexTile b) {
-        int qa = a.Col - (a.Row - (a.Row & 1)) / 2;
-        int ra = a.Row;
-        int qb = b.Col - (b.Row - (b.Row & 1)) / 2;
-        int rb = b.Row;
-        return (Math.Abs(qa - qb) + Math.Abs(qa + ra - (qb + rb)) + Math.Abs(ra - rb)) / 2;
+        return Helpers.HexMath.GetDistance(current, target);
     }
 
     private HexTile? FindDwellerTile(Dweller d) {
@@ -424,7 +462,7 @@ public partial class OverseerWarsWindow : Window {
                     var dweller = (isP1 ? t.Player1Dwellers : t.Player2Dwellers).FirstOrDefault(d => d.IsAlive);
                     if (dweller != null) {
                         var vault = isP1 ? _state.Vault1 : _state.Vault2;
-                        var (card, msg) = LootManager.SearchTile(t, dweller, isP1, vault);
+                        var (card, msg) = _loot.SearchTile(t, dweller, isP1, vault);
                         AppendLog($"[Auto-Loot ({c},{r})] {msg}");
                         if (card is Dweller nd) vault.Dwellers.Add(nd);
                         else if (card is IWeapon w) vault.Weapons.Add(w);
@@ -491,9 +529,9 @@ public partial class OverseerWarsWindow : Window {
 
     private void RefreshHUD() {
         var vault = _state.ActiveVault;
-        ElecText.Text  = $"⚡ {vault.Electricity}";
-        WaterText.Text = $"💧 {vault.Water}";
-        FoodText.Text  = $"🍅 {vault.Food}";
+        ElecText.Text  = $"{vault.Electricity}";
+        WaterText.Text = $"{vault.Water}";
+        FoodText.Text  = $"{vault.Food}";
         ApText.Text    = $"PA: {vault.ActionPoints}/{vault.MaxActionPoints}";
         TurnText.Text  = $"Turn {_state.TurnNumber}";
     }
@@ -1061,12 +1099,14 @@ public partial class OverseerWarsWindow : Window {
             MapView.ScrollToVerticalOffset(_mapScrollStart.Y - dy);
         } else {
             var hoveredTile = GetPreciseHoveredTile(e.GetPosition(this));
-            bool isMoveMode = _selectedTile != null && (_state.IsPlayer1Turn ? _selectedTile.BoundTile.Player1Dwellers : _selectedTile.BoundTile.Player2Dwellers).Any(d => d.IsAlive);
+            bool isMoveMode = _selectedTile != null && (
+                heldCard?.BoundDweller != null || 
+                (_state.IsPlayer1Turn ? _selectedTile.BoundTile.Player1Dwellers : _selectedTile.BoundTile.Player2Dwellers).Any(d => d.IsAlive));
             
             foreach (HexTileControl tileCtrl in MapCanvas.Children.OfType<HexTileControl>()) {
                 if (hoveredTile != null && isMoveMode && tileCtrl.BoundTile != null) {
                     var activeDwellers = _state.IsPlayer1Turn ? _selectedTile.BoundTile.Player1Dwellers : _selectedTile.BoundTile.Player2Dwellers;
-                    var dw = activeDwellers.LastOrDefault(d => d.IsAlive);
+                    var dw = heldCard?.BoundDweller ?? activeDwellers.LastOrDefault(d => d.IsAlive);
                     if (dw != null && GetDeploymentCost(dw, hoveredTile.BoundTile) <= _state.ActiveVault.ActionPoints && hoveredTile.BoundTile.IsNavigable) {
                         int distTotal = GetDeploymentCost(dw, hoveredTile.BoundTile);
                         var startTile = _state.Map.Tiles.Cast<HexTile>().FirstOrDefault(t => t.Player1Dwellers.Contains(dw) || t.Player2Dwellers.Contains(dw));
@@ -1075,9 +1115,7 @@ public partial class OverseerWarsWindow : Window {
                         }
 
                         bool onPath = false;
-                        int distA = GetHexDistance(startTile, tileCtrl.BoundTile);
-                        int distB = GetHexDistance(tileCtrl.BoundTile, hoveredTile.BoundTile);
-                        if (distA + distB == distTotal) onPath = true;
+                        if (startTile != null) onPath = Helpers.HexMath.IsOnLine(startTile, hoveredTile.BoundTile, tileCtrl.BoundTile);
                         
                         tileCtrl.SetPath(onPath);
                     } else {

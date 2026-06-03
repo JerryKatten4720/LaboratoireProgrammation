@@ -1,8 +1,14 @@
-namespace LaboratoireProgrammation.Project.ModernOverseerWars;
+namespace LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
+
+using System;
+using System.Linq;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
 
 public class Dweller : IDweller {
     public string FirstName { get; set; } = "Dweller";
     public string LastName { get; set; } = "";
+    
     public string Name {
         get => string.IsNullOrEmpty(LastName) ? FirstName : $"{FirstName} {LastName}";
         set {
@@ -11,11 +17,14 @@ public class Dweller : IDweller {
             LastName = parts.Length > 1 ? string.Join(" ", parts.Skip(1)) : "";
         }
     }
+    
     public int RarityVal { get; set; }
+    
     public CardRarity Rarity {
         get => (CardRarity)Math.Clamp(RarityVal, 0, 4);
         set => RarityVal = (int)value;
     }
+    
     private int _s = 3;
     private int _p = 3;
     private int _e = 3;
@@ -42,40 +51,4 @@ public class Dweller : IDweller {
     public string Texture { get; set; } = "dweller.png";
 
     public Dweller() { CurrentHp = MaxHp; }
-
-    public static Dweller CreateRandom(string name, bool isSupervisor = false) {
-        if (GameDataRepository.Dwellers.Count > 0) {
-            var dj = GameDataRepository.Dwellers[Random.Shared.Next(GameDataRepository.Dwellers.Count)];
-            var d = new Dweller {
-                FirstName = dj.FirstName,
-                LastName = dj.LastName,
-                Special_S = dj.S,
-                Special_P = dj.P,
-                Special_E = dj.E,
-                Special_C = dj.C,
-                Special_I = dj.I,
-                Special_A = dj.A,
-                Special_L = dj.L,
-                RarityVal = dj.Rarity,
-                Texture = dj.Texture,
-                IsSupervisor = isSupervisor
-            };
-            d.CurrentHp = d.MaxHp;
-            return d;
-        }
-        var rng = Random.Shared;
-        var d2 = new Dweller {
-            FirstName = name,
-            IsSupervisor = isSupervisor,
-            Special_S = rng.Next(2, 6),
-            Special_P = rng.Next(2, 6),
-            Special_E = rng.Next(2, 6),
-            Special_C = rng.Next(2, 6),
-            Special_I = rng.Next(2, 6),
-            Special_A = rng.Next(2, 6),
-            Special_L = rng.Next(2, 6)
-        };
-        d2.CurrentHp = d2.MaxHp;
-        return d2;
-    }
 }

@@ -1,3 +1,9 @@
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -61,7 +67,7 @@ public partial class HexTileControl : UserControl {
         DwellersPanel.Children.Clear();
         var p1Alive = BoundTile.Player1Dwellers.Where(dw => dw.IsAlive).ToList();
         for (int i = 0; i < p1Alive.Count; i++) {
-            var card = new ControlCard(); card.BindDweller(p1Alive[i]); card.IsHitTestVisible = false;
+            var card = new ControlCard(); card.BindDweller(p1Alive[i]); card.IsHitTestVisible = _lastIsP1;
             var tg = new TransformGroup();
             tg.Children.Add(new RotateTransform(Random.Shared.Next(-5, 6)));
             tg.Children.Add(new TranslateTransform(i * 3, i * 3));
@@ -71,7 +77,7 @@ public partial class HexTileControl : UserControl {
         }
         var p2Alive = BoundTile.Player2Dwellers.Where(dw => dw.IsAlive).ToList();
         for (int i = 0; i < p2Alive.Count; i++) {
-            var card = new ControlCard(); card.BindDweller(p2Alive[i]); card.IsHitTestVisible = false;
+            var card = new ControlCard(); card.BindDweller(p2Alive[i]); card.IsHitTestVisible = !_lastIsP1;
             var tg = new TransformGroup();
             tg.Children.Add(new RotateTransform(Random.Shared.Next(-5, 6)));
             tg.Children.Add(new TranslateTransform(i * 3, i * 3));
@@ -95,8 +101,16 @@ public partial class HexTileControl : UserControl {
         }
     }
 
+    private DateTime _lastScrollTime = DateTime.MinValue;
+
     private void OnMouseWheel(object s, MouseWheelEventArgs e) {
         if (BoundTile == null) return;
+        if ((DateTime.Now - _lastScrollTime).TotalSeconds < 0.5) {
+            e.Handled = true;
+            return;
+        }
+        _lastScrollTime = DateTime.Now;
+
         var list = _lastIsP1 ? BoundTile.Player1Dwellers : BoundTile.Player2Dwellers;
         var alive = list.Where(d => d.IsAlive).ToList();
         if (alive.Count > 1) {
@@ -110,6 +124,12 @@ public partial class HexTileControl : UserControl {
                 list.Insert(0, last);
             }
             Refresh(_lastIsP1);
+
+            var topDweller = list.LastOrDefault(d => d.IsAlive);
+            if (topDweller != null && IsHovered) {
+                WastelandHoverCard.BindDweller(topDweller);
+                WastelandHoverCard.ExpandEquipment();
+            }
         }
         e.Handled = true;
     }

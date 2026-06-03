@@ -1,9 +1,4 @@
-namespace LaboratoireProgrammation.Project.ModernOverseerWars;
-
-public interface ICard {
-    string Name { get; set; }
-    CardRarity Rarity { get; set; }
-}
+namespace LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
 
 public interface IDweller : ICard {
     int Special_S { get; set; }
@@ -19,17 +14,4 @@ public interface IDweller : ICard {
     IWeapon? EquippedWeapon { get; set; }
     IOutfit? EquippedOutfit { get; set; }
     int AttackDamage { get; }
-}
-
-public interface IWeapon : ICard {
-    int Damage { get; set; }
-    string WeaponType { get; set; }
-}
-
-public interface IOutfit : ICard {
-    int ArmorValue { get; set; }
-}
-
-public enum CardRarity {
-    Common, Uncommon, Rare, Epic, Legendary
 }
