@@ -1,13 +1,13 @@
 namespace LaboratoireProgrammation.Project.ModernOverseerWars.Services;
 
 using System;
-using System.Timers;
+using System.Windows.Threading;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
 
 public class TurnService : IDisposable {
     private readonly GameState _state;
-    private readonly Timer _timer;
+    private readonly DispatcherTimer _timer;
     
     public int SecondsRemaining { get; private set; } = 60;
     public int TurnDurationSeconds { get; set; } = 60;
@@ -17,14 +17,15 @@ public class TurnService : IDisposable {
 
     public TurnService(GameState state) {
         _state = state;
-        _timer = new Timer(1000);
-        _timer.Elapsed += OnTimerElapsed;
+        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _timer.Tick += OnTimerTick;
     }
 
-    private void OnTimerElapsed(object? sender, ElapsedEventArgs e) {
+    private void OnTimerTick(object? sender, EventArgs e) {
         SecondsRemaining--;
         TurnTick?.Invoke();
         if (SecondsRemaining <= 0) {
+            _timer.Stop();
             TurnExpired?.Invoke();
         }
     }
@@ -57,6 +58,6 @@ public class TurnService : IDisposable {
     }
 
     public void Dispose() {
-        _timer.Dispose();
+        _timer.Stop();
     }
 }

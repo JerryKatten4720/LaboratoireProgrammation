@@ -6,6 +6,7 @@
              Cursor="Hand"
              MouseEnter="OnMouseEnter"
              MouseLeave="OnMouseLeave"
+             MouseMove="OnMouseMove"
              PreviewMouseLeftButtonDown="OnPreviewMouseLeftButtonDown"
              PreviewMouseMove="OnPreviewMouseMove"
              PreviewMouseLeftButtonUp="OnPreviewMouseLeftButtonUp"
@@ -23,7 +24,19 @@
             </Canvas>
         </Popup>
         
-        <Grid x:Name="MainCardGrid" Background="Transparent" ClipToBounds="False" Panel.ZIndex="1">
+        <Grid x:Name="MainCardGrid" Background="Transparent" ClipToBounds="False" Panel.ZIndex="1" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="TiltScale" ScaleX="1" ScaleY="1"/>
+                    <SkewTransform x:Name="TiltSkew" AngleX="0" AngleY="0"/>
+                    <RotateTransform x:Name="TiltRotate" Angle="0"/>
+                    <TranslateTransform x:Name="TremorTransform" X="0" Y="0"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
+            <Grid.Effect>
+                <DropShadowEffect x:Name="CardGlow" BlurRadius="0" ShadowDepth="0" Color="Transparent" Opacity="0"/>
+            </Grid.Effect>
+
             <Image Source="../../Assets/images/overseerWars/cards/card_circle.png" Stretch="Fill"/>
             <Image x:Name="ImgDweller" Source="../../Assets/images/overseerWars/dwellers/dweller.png"
                    Stretch="Uniform" Width="160" Height="160"
@@ -33,6 +46,22 @@
             <Image x:Name="ImgTop" Source="../../Assets/images/overseerWars/cards/card_top_common.png" Stretch="Fill"/>
             <Image x:Name="ImgColor" Source="../../Assets/images/overseerWars/cards/card_color_common.png" Stretch="Fill"/>
             <Image x:Name="ImgBorder" Source="../../Assets/images/overseerWars/cards/card_border_common.png" Stretch="Fill"/>
+
+            <!-- Holofoil Sweep Overlay -->
+            <Border x:Name="HolofoilOverlay" CornerRadius="8" IsHitTestVisible="False" Visibility="Collapsed" Opacity="0.9">
+                <Border.Background>
+                    <LinearGradientBrush x:Name="HolofoilBrush" StartPoint="0,0" EndPoint="1,1" MappingMode="RelativeToBoundingBox">
+                        <LinearGradientBrush.Transform>
+                            <TranslateTransform x:Name="HolofoilTransform" X="-1.5" Y="-1.5" />
+                        </LinearGradientBrush.Transform>
+                        <GradientStop Color="#00FFFFFF" Offset="0"/>
+                        <GradientStop Color="#00FFFFFF" Offset="0.35"/>
+                        <GradientStop Color="#30FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#00FFFFFF" Offset="0.65"/>
+                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
 
             <Grid VerticalAlignment="Bottom" Margin="6,0,6,6">
                 <StackPanel>

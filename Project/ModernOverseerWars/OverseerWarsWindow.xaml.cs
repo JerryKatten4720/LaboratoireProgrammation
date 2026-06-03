@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -19,7 +22,21 @@ namespace LaboratoireProgrammation.Project.ModernOverseerWars;
 
 public partial class OverseerWarsWindow : Window {
 
-    public static ControlCard? heldCard;
+    private static ControlCard? _heldCard;
+    public static ControlCard? heldCard {
+        get => _heldCard;
+        set {
+            if (_heldCard != value) {
+                if (_heldCard != null) {
+                    _heldCard.IsSelected = false;
+                }
+                _heldCard = value;
+                if (_heldCard != null) {
+                    _heldCard.IsSelected = true;
+                }
+            }
+        }
+    }
 
     private GameState       _state   = null!;
     private TurnService     _turns   = null!;
@@ -49,6 +66,7 @@ public partial class OverseerWarsWindow : Window {
     private Dweller? _dwellerInAssignmentSlot;
 
     private Panel? _originalCardParent;
+    private Decorator? _originalCardDecorator;
     private int _originalCardIndex;
     private UIElement? _dragPlaceholder;
 
@@ -203,6 +221,21 @@ public partial class OverseerWarsWindow : Window {
         }
     }
 
+    private static Color LightenColor(Color c, double amount) {
+        if (amount > 0) {
+            return Color.FromRgb(
+                (byte)Math.Max(0, Math.Min(255, c.R + (255 - c.R) * amount)),
+                (byte)Math.Max(0, Math.Min(255, c.G + (255 - c.G) * amount)),
+                (byte)Math.Max(0, Math.Min(255, c.B + (255 - c.B) * amount)));
+        } else {
+            double f = 1.0 + amount;
+            return Color.FromRgb(
+                (byte)Math.Max(0, Math.Min(255, c.R * f)),
+                (byte)Math.Max(0, Math.Min(255, c.G * f)),
+                (byte)Math.Max(0, Math.Min(255, c.B * f)));
+        }
+    }
+
     private void ApplyTheme(bool isP1) {
         Color accent = isP1 ? _p1Color : _p2Color;
         Color bg     = isP1 ? _p1Bg   : _p2Bg;
@@ -222,22 +255,17 @@ public partial class OverseerWarsWindow : Window {
             : $"{_state.Player2.Pseudo}'s Turn";
         HexTileControl.ActivePlayerColor = accent;
 
-        Color bgLight = Color.FromRgb(
-            (byte)Math.Max(0, Math.Min(255, bg.R + 25)),
-            (byte)Math.Max(0, Math.Min(255, bg.G + 25)),
-            (byte)Math.Max(0, Math.Min(255, bg.B + 25)));
-        Color bgDark = Color.FromRgb(
-            (byte)Math.Max(0, Math.Min(255, bg.R - 25)),
-            (byte)Math.Max(0, Math.Min(255, bg.G - 25)),
-            (byte)Math.Max(0, Math.Min(255, bg.B - 25)));
+        Color bgLight = LightenColor(bg, 0.10);
+        Color bgDark = LightenColor(bg, -0.10);
 
         DeckPickerControl.ApplyTheme(bgDark, accent);
         CombatLogBorder.Background = new SolidColorBrush(bgDark);
-        EquipBorder.Background = new SolidColorBrush(bgLight);
+        EquipInnerBorder.Background = new SolidColorBrush(bgLight);
         ReturnBorder.Background = new SolidColorBrush(bg);
+        InfoPanel.Background = new SolidColorBrush(bgDark);
 
         foreach (VaultCardHolder h in RoomsPanel.Children.OfType<VaultCardHolder>())
-            h.ApplyTheme(bg, accent);
+            h.ApplyTheme(bgDark, accent);
         EndTurnButton.BorderBrush = new SolidColorBrush(accent);
         EndTurnButton.Foreground  = new SolidColorBrush(accent);
 
@@ -289,6 +317,11 @@ public partial class OverseerWarsWindow : Window {
             holder.TechBonusRequested += OnTechBonus;
             RoomsPanel.Children.Add(holder);
         }
+        Color accent = _state.IsPlayer1Turn ? _p1Color : _p2Color;
+        Color bg = _state.IsPlayer1Turn ? _p1Bg : _p2Bg;
+        Color bgDark = Color.FromRgb((byte)(bg.R * 0.7), (byte)(bg.G * 0.7), (byte)(bg.B * 0.7));
+        foreach (VaultCardHolder h in RoomsPanel.Children.OfType<VaultCardHolder>())
+            h.ApplyTheme(bgDark, accent);
     }
 
     private void RefreshVaultUI() {
@@ -341,13 +374,26 @@ public partial class OverseerWarsWindow : Window {
     private void OnCardDroppedOnTile(HexTileControl ctrl, ControlCard card) {
         if (_selectedTile != null && _selectedTile != ctrl) _selectedTile.SetSelected(false);
         _selectedTile = ctrl;
-        ctrl.SetSelected(true);
         DeployCard(card);
+    }
+
+    private void OnToggleInfoPanel(object sender, RoutedEventArgs e) {
+        if (InfoContentPanel.Visibility == Visibility.Visible) {
+            InfoContentPanel.Visibility = Visibility.Collapsed;
+            CollapseInfoButton.Content = " + ";
+        } else {
+            InfoContentPanel.Visibility = Visibility.Visible;
+            CollapseInfoButton.Content = " - ";
+        }
     }
 
     private void UpdateInfoPanel() {
         DeployButton.Visibility = Visibility.Collapsed;
-        if (_selectedTile?.BoundTile == null) return;
+        if (_selectedTile?.BoundTile == null) {
+            InfoTitle.Text = "Select a tile or dweller";
+            InfoBody.Text = "";
+            return;
+        }
         var tile = _selectedTile.BoundTile;
         bool isP1 = _state.IsPlayer1Turn;
         bool revealed = tile.IsRevealedFor(isP1);
@@ -355,11 +401,27 @@ public partial class OverseerWarsWindow : Window {
             : tile.Type == TileType.Player1Vault ? "P1 Vault"
             : tile.Type == TileType.Player2Vault ? "P2 Vault"
             : "Wasteland") : "Fog of War";
-        InfoBody.Text = revealed
-            ? $"P1 dwellers: {tile.Player1Dwellers.Count(d => d.IsAlive)}\nP2 dwellers: {tile.Player2Dwellers.Count(d => d.IsAlive)}"
-            : "Unexplored";
-                var canAct = _state.ActiveVault.ActionPoints > 0;
-        if (canAct) {
+
+        string body = "";
+        if (revealed) {
+            body += $"P1 dwellers: {tile.Player1Dwellers.Count(d => d.IsAlive)}\n";
+            body += $"P2 dwellers: {tile.Player2Dwellers.Count(d => d.IsAlive)}\n\n";
+
+            var enemyDwellers = isP1 ? tile.Player2Dwellers : tile.Player1Dwellers;
+            foreach (var enemy in enemyDwellers.Where(d => d.IsAlive)) {
+                body += $"⚔ {enemy.Name} (HP: {enemy.CurrentHp}/{enemy.MaxHp})\n";
+                body += $"   S:{enemy.Special_S} P:{enemy.Special_P} E:{enemy.Special_E} C:{enemy.Special_C}\n";
+                body += $"   I:{enemy.Special_I} A:{enemy.Special_A} L:{enemy.Special_L}\n";
+                if (enemy.EquippedWeapon != null) body += $"   W: {enemy.EquippedWeapon.Name}\n";
+                if (enemy.EquippedOutfit != null) body += $"   O: {enemy.EquippedOutfit.Name}\n";
+            }
+        } else {
+            body = "Unexplored";
+        }
+        InfoBody.Text = body.TrimEnd();
+
+        var canAct = _state.ActiveVault.ActionPoints > 0;
+        if (canAct && revealed && tile.IsNavigable) {
             DeployButton.Visibility = Visibility.Visible;
         }
     }
@@ -371,7 +433,7 @@ public partial class OverseerWarsWindow : Window {
                 ? _state.Map.Get(0, _state.Map.Rows / 2)
                 : _state.Map.Get(_state.Map.Cols - 1, _state.Map.Rows / 2);
         }
-        return Helpers.HexMath.GetDistance(current, target);
+        return Helpers.GridMath.GetDistance(current, target);
     }
 
     private HexTile? FindDwellerTile(Dweller d) {
@@ -390,17 +452,32 @@ public partial class OverseerWarsWindow : Window {
         OpenDwellerSelection();
     }
 
-    private void DeployCard(ControlCard? card) {
-        if (card?.BoundDweller == null || _selectedTile?.BoundTile == null) return;
-        if (!_selectedTile.BoundTile.IsNavigable) { ShowWarning("Tile is unnavigable!"); return; }
+    private bool DeployCard(ControlCard? card) {
+        if (card?.BoundDweller == null || _selectedTile?.BoundTile == null) {
+            _selectedTile = null;
+            return false;
+        }
+        if (!_selectedTile.BoundTile.IsNavigable) {
+            ShowWarning("Tile is unnavigable!");
+            _selectedTile = null;
+            return false;
+        }
         var vault = _state.ActiveVault;
-        var tile  = _selectedTile.BoundTile;
-        int cost  = GetDeploymentCost(card.BoundDweller, tile);
-        if (cost > vault.ActionPoints) { ShowWarning("Tile too far away, you need more PA"); return; }
+        var tile = _selectedTile.BoundTile;
+        int cost = GetDeploymentCost(card.BoundDweller, tile);
+        if (cost > vault.ActionPoints) {
+            ShowWarning("Tile too far away, you need more PA");
+            _selectedTile = null;
+            return false;
+        }
         
         if (card.OwnerDweller != null) {
-            if (card.BoundWeapon != null) card.OwnerDweller.EquippedWeapon = null;
-            if (card.BoundOutfit != null) card.OwnerDweller.EquippedOutfit = null;
+            if (card.BoundWeapon != null) {
+                card.OwnerDweller.EquippedWeapon = null;
+            }
+            if (card.BoundOutfit != null) {
+                card.OwnerDweller.EquippedOutfit = null;
+            }
         }
 
         vault.ActionPoints -= cost;
@@ -414,12 +491,19 @@ public partial class OverseerWarsWindow : Window {
         tile.IsRevealedByP1 = isP1 ? true : tile.IsRevealedByP1;
         tile.IsRevealedByP2 = isP1 ? tile.IsRevealedByP2 : true;
 
-        if (tile.HasConflict) { _combat.ResolveCombatsOnMap(); CheckGameOver(); }
+        if (tile.HasConflict) {
+            _combat.ResolveCombatsOnMap();
+            CheckGameOver();
+        }
         _state.AddLog($"{card.BoundDweller.Name} → ({tile.Col},{tile.Row}) [{cost} PA]");
         heldCard = null;
-        if (_selectedTile != null) _selectedTile.SetSelected(false);
+        if (_selectedTile != null) {
+            _selectedTile.SetSelected(false);
+        }
         _selectedTile = null;
+        heldCard = null;
         RefreshAll();
+        return true;
     }
 
     private void ShowWarning(string message) {
@@ -439,6 +523,15 @@ public partial class OverseerWarsWindow : Window {
         if (card.BoundDweller == null || holder.BoundRoom == null) return;
         if (holder.BoundRoom.AssignedDwellers.Contains(card.BoundDweller)) return; // Already in room, no PA cost
         if (_state.ActiveVault.ActionPoints <= 0) { ShowWarning("No action points left!"); return; }
+
+        bool isHeavyTask = holder.BoundRoom.Type == RoomType.Generator || 
+                           holder.BoundRoom.Type == RoomType.WeaponFactory || 
+                           holder.BoundRoom.Type == RoomType.OutfitFactory || 
+                           holder.BoundRoom.Type == RoomType.TrainingCenter;
+        if (isHeavyTask) {
+            ControlCard.DwellersToShakeOnLoad.Add(card.BoundDweller);
+        }
+
         _res.TryAssignDweller(_state.ActiveVault, card.BoundDweller, holder.BoundRoom);
         _state.ActiveVault.ActionPoints--;
         RefreshAll();
@@ -452,9 +545,17 @@ public partial class OverseerWarsWindow : Window {
 
     private void OnEndTurn(object s, RoutedEventArgs e) => OnEndTurn_Internal();
     private void OnEndTurn_Internal() {
-        if (_state.Phase == GamePhase.GameOver) return;
-        
+        if (_state.Phase == GamePhase.GameOver) {
+            return;
+        }
+
+        if (_selectedTile != null) {
+            _selectedTile.SetSelected(false);
+            _selectedTile = null;
+        }
+
         bool isP1 = _state.IsPlayer1Turn;
+
         for (int c = 0; c < _state.Map.Cols; c++) {
             for (int r = 0; r < _state.Map.Rows; r++) {
                 var t = _state.Map.Get(c, r);
@@ -464,21 +565,29 @@ public partial class OverseerWarsWindow : Window {
                         var vault = isP1 ? _state.Vault1 : _state.Vault2;
                         var (card, msg) = _loot.SearchTile(t, dweller, isP1, vault);
                         AppendLog($"[Auto-Loot ({c},{r})] {msg}");
-                        if (card is Dweller nd) vault.Dwellers.Add(nd);
-                        else if (card is IWeapon w) vault.Weapons.Add(w);
-                        else if (card is IOutfit o) vault.Outfits.Add(o);
+                        if (card is Dweller nd) {
+                            vault.Dwellers.Add(nd);
+                        } else if (card is IWeapon w) {
+                            vault.Weapons.Add(w);
+                        } else if (card is IOutfit o) {
+                            vault.Outfits.Add(o);
+                        }
                     }
                 }
             }
         }
-        
+
         _turns.EndTurn();
         _combat.ResolveCombatsOnMap();
         CheckGameOver();
+
         if (_state.Phase != GamePhase.GameOver) {
             ApplyTheme(isP1: _state.IsPlayer1Turn);
-            if (_showingVault) BuildVaultUI();
+            if (_showingVault) {
+                BuildVaultUI();
+            }
         }
+
         RefreshAll();
     }
 
@@ -684,6 +793,13 @@ public partial class OverseerWarsWindow : Window {
 
         if (_targetRoomForAssignment != null) {
             if (_state.ActiveVault.ActionPoints <= 0) { ShowWarning("No action points left!"); return; }
+            bool isHeavyTask = _targetRoomForAssignment.Type == RoomType.Generator || 
+                               _targetRoomForAssignment.Type == RoomType.WeaponFactory || 
+                               _targetRoomForAssignment.Type == RoomType.OutfitFactory || 
+                               _targetRoomForAssignment.Type == RoomType.TrainingCenter;
+            if (isHeavyTask) {
+                ControlCard.DwellersToShakeOnLoad.Add(dw);
+            }
             _res.TryAssignDweller(_state.ActiveVault, dw, _targetRoomForAssignment);
             _state.ActiveVault.ActionPoints--;
             RemoveDwellerFromMap(dw);
@@ -894,21 +1010,47 @@ public partial class OverseerWarsWindow : Window {
         }
     }
 
-    private Point _dragStartWinPos;
-    public void StartDraggingCard(ControlCard card, Point initialMousePos) {
-        _dragStartWinPos = card.TranslatePoint(new Point(0, 0), this);
-        _originalCardParent = VisualTreeHelper.GetParent(card) as Panel;
-        if (_originalCardParent != null) {
-            int idx = _originalCardParent.Children.IndexOf(card);
-            _dragPlaceholder = new Border { Width = card.ActualWidth, Height = card.ActualHeight, Margin = card.Margin };
-            _originalCardParent.Children.Insert(idx, _dragPlaceholder);
-            _originalCardParent.Children.Remove(card);
+
+    public void StartDraggingCard(ControlCard card, Point position) {
+        if (card.Parent is Panel p) {
+            _originalCardParent = p;
+            _originalCardDecorator = null;
+            _originalCardIndex = p.Children.IndexOf(card);
+            
+            _dragPlaceholder = new Border {
+                Width = card.ActualWidth,
+                Height = card.ActualHeight,
+                Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(100, 255, 255, 255)),
+                BorderThickness = new Thickness(1, 1, 1, 1),
+                Margin = card.Margin
+            };
+            p.Children.Insert(_originalCardIndex, _dragPlaceholder);
+            p.Children.Remove(card);
+        } else if (card.Parent is Decorator d) {
+            _originalCardParent = null;
+            _originalCardDecorator = d;
+            
+            _dragPlaceholder = new Border {
+                Width = card.ActualWidth,
+                Height = card.ActualHeight,
+                Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(100, 255, 255, 255)),
+                BorderThickness = new Thickness(1, 1, 1, 1),
+                Margin = card.Margin
+            };
+            d.Child = _dragPlaceholder;
         }
-        
-        DragOverlayCanvas.Children.Clear();
+
         DragOverlayCanvas.Children.Add(card);
-        Canvas.SetLeft(card, initialMousePos.X - 70);
-        Canvas.SetTop(card, initialMousePos.Y - 100);
+        Canvas.SetLeft(card, position.X - card.ActualWidth / 2);
+        Canvas.SetTop(card, position.Y - card.ActualHeight / 2);
+        
+        heldCard = card;
+        if (_selectedTile != null) {
+            _selectedTile.SetSelected(false);
+            _selectedTile = null;
+        }
 
         if (card.BoundDweller != null) {
             foreach (HexTileControl tileCtrl in MapCanvas.Children.OfType<HexTileControl>()) {
@@ -990,8 +1132,9 @@ public partial class OverseerWarsWindow : Window {
             var hoveredTile = GetPreciseHoveredTile(dropPoint);
             if (hoveredTile != null) {
                 hoveredTile.SetHovered(false);
-                OnCardDroppedOnTile(hoveredTile, card);
-                handled = true;
+                if (_selectedTile != null && _selectedTile != hoveredTile) _selectedTile.SetSelected(false);
+                _selectedTile = hoveredTile;
+                handled = DeployCard(card);
             }
             foreach (HexTileControl tileCtrl in MapCanvas.Children.OfType<HexTileControl>()) {
                 tileCtrl.SetHovered(false);
@@ -1018,62 +1161,32 @@ public partial class OverseerWarsWindow : Window {
                 foreach (var r in _state.ActiveVault.Rooms) {
                     if (r.AssignedDwellers.Contains(card.BoundDweller)) {
                         r.AssignedDwellers.Remove(card.BoundDweller);
-                        handled = true;
-                        _state.AddLog($"{card.BoundDweller.Name} returned to Deck");
                         break;
                     }
                 }
+                RemoveDwellerFromMap(card.BoundDweller);
+                RefreshAll();
+                handled = true;
             }
         }
-        
-        if (!handled && _originalCardParent != null) {
-            double curLeft = Canvas.GetLeft(card);
-            if (double.IsNaN(curLeft)) curLeft = _dragStartWinPos.X;
-            double curTop = Canvas.GetTop(card);
-            if (double.IsNaN(curTop)) curTop = _dragStartWinPos.Y;
 
-            var leftAnim = new DoubleAnimation(curLeft, _dragStartWinPos.X, TimeSpan.FromSeconds(0.4)) { EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut } };
-            var topAnim = new DoubleAnimation(curTop, _dragStartWinPos.Y, TimeSpan.FromSeconds(0.4)) { EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut } };
-            var scale = card.RenderTransform as ScaleTransform ?? new ScaleTransform(1, 1);
-            card.RenderTransform = scale;
-            var scaleAnim = new DoubleAnimation(scale.ScaleX, 1.0, TimeSpan.FromSeconds(1)) { EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut } };
-            
-            leftAnim.Completed += (s, e) => {
-                DragOverlayCanvas.Children.Remove(card);
-                if (_dragPlaceholder != null && _originalCardParent.Children.Contains(_dragPlaceholder)) {
-                    int idx = _originalCardParent.Children.IndexOf(_dragPlaceholder);
-                    _originalCardParent.Children.Insert(idx, card);
-                    _originalCardParent.Children.Remove(_dragPlaceholder);
-                } else if (!_originalCardParent.Children.Contains(card)) {
-                    _originalCardParent.Children.Add(card);
-                }
-                _dragPlaceholder = null;
-                card.RenderTransform = new ScaleTransform(1, 1);
-                card.BeginAnimation(Canvas.LeftProperty, null);
-                card.BeginAnimation(Canvas.TopProperty, null);
-            };
-            
-            card.BeginAnimation(Canvas.LeftProperty, leftAnim);
-            card.BeginAnimation(Canvas.TopProperty, topAnim);
-            scale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnim);
-            scale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnim);
-            return;
-        }
-        
         DragOverlayCanvas.Children.Remove(card);
         card.RenderTransform = new ScaleTransform(1, 1);
-        if (_dragPlaceholder != null && _originalCardParent != null) {
-            if (!handled) {
-                int idx = _originalCardParent.Children.IndexOf(_dragPlaceholder);
-                if (idx >= 0) _originalCardParent.Children.Insert(idx, card);
-                else _originalCardParent.Children.Add(card);
-            }
-            _originalCardParent.Children.Remove(_dragPlaceholder);
-        } else if (handled && _originalCardParent != null) {
-            if (_dragPlaceholder != null) _originalCardParent.Children.Remove(_dragPlaceholder);
-        }
-        _dragPlaceholder = null;
+        card.BeginAnimation(Canvas.LeftProperty, null);
+        card.BeginAnimation(Canvas.TopProperty, null);
 
+        if (_originalCardParent != null) {
+            if (_dragPlaceholder != null) _originalCardParent.Children.Remove(_dragPlaceholder);
+            if (!handled) _originalCardParent.Children.Insert(_originalCardIndex, card);
+        } else if (_originalCardDecorator != null) {
+            if (!handled) _originalCardDecorator.Child = card;
+            else _originalCardDecorator.Child = null;
+        }
+
+        _originalCardParent = null;
+        _originalCardDecorator = null;
+        _dragPlaceholder = null;
+        heldCard = null;
         RefreshAll();
     }
     
@@ -1115,7 +1228,7 @@ public partial class OverseerWarsWindow : Window {
                         }
 
                         bool onPath = false;
-                        if (startTile != null) onPath = Helpers.HexMath.IsOnLine(startTile, hoveredTile.BoundTile, tileCtrl.BoundTile);
+                        if (startTile != null) onPath = Helpers.GridMath.IsOnLine(startTile, hoveredTile.BoundTile, tileCtrl.BoundTile);
                         
                         tileCtrl.SetPath(onPath);
                     } else {

@@ -4,6 +4,9 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -107,10 +110,20 @@ public partial class DeckPicker : UserControl {
         TabScrapsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Scraps ? active : inactive);
     }
 
-    private static Color Lighten(Color c, double amount) => Color.FromRgb(
-        (byte)Math.Min(255, c.R + 255 * amount),
-        (byte)Math.Min(255, c.G + 255 * amount),
-        (byte)Math.Min(255, c.B + 255 * amount));
+    private static Color Lighten(Color c, double amount) {
+        if (amount > 0) {
+            return Color.FromRgb(
+                (byte)Math.Max(0, Math.Min(255, c.R + (255 - c.R) * amount)),
+                (byte)Math.Max(0, Math.Min(255, c.G + (255 - c.G) * amount)),
+                (byte)Math.Max(0, Math.Min(255, c.B + (255 - c.B) * amount)));
+        } else {
+            double f = 1.0 + amount;
+            return Color.FromRgb(
+                (byte)Math.Max(0, Math.Min(255, c.R * f)),
+                (byte)Math.Max(0, Math.Min(255, c.G * f)),
+                (byte)Math.Max(0, Math.Min(255, c.B * f)));
+        }
+    }
 
     public void RefreshAll() {
         foreach (ControlCard card in CardRow.Children)

@@ -322,7 +322,6 @@
         <Folder Include="Assets\images\overseerWars\dwellers\"/>
         <Folder Include="Project\ViewModels\Laboratoires\Laboratoire - DB\"/>
         <Folder Include="Project\ViewModels\Laboratoires\OverseerWars\VaultManagement\"/>
-        <Folder Include="Project\ViewM\" />
         <Folder Include="Project\Views\Laboratoires\OverseerWars\"/>
     </ItemGroup>
 

@@ -2,6 +2,7 @@ namespace LaboratoireProgrammation.Project.ModernOverseerWars.Services;
 
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
@@ -25,9 +26,89 @@ public class CombatService {
                 if (tile.HasConflict) {
                     ResolveTile(tile);
                 }
+
+                if (tile.Type == TileType.Player1Vault) {
+                    var attackers = tile.Player2Dwellers.Where(d => d.IsAlive).ToList();
+                    if (attackers.Any()) {
+                        var defenders = GetDwellersInDeck(_state.Vault1);
+                        ResolveVaultAttack(tile, _state.Vault2, _state.Vault1, attackers, defenders);
+                    }
+                }
+
+                if (tile.Type == TileType.Player2Vault) {
+                    var attackers = tile.Player1Dwellers.Where(d => d.IsAlive).ToList();
+                    if (attackers.Any()) {
+                        var defenders = GetDwellersInDeck(_state.Vault2);
+                        ResolveVaultAttack(tile, _state.Vault1, _state.Vault2, attackers, defenders);
+                    }
+                }
             }
         }
         CheckVictory();
+    }
+
+    private List<Dweller> GetDwellersInDeck(Vault vault) {
+        var onMap = new HashSet<Dweller>();
+        for (int c = 0; c < _state.Map.Cols; c++) {
+            for (int r = 0; r < _state.Map.Rows; r++) {
+                var t = _state.Map.Get(c, r);
+                foreach (var d in t.Player1Dwellers) {
+                    onMap.Add(d);
+                }
+                foreach (var d in t.Player2Dwellers) {
+                    onMap.Add(d);
+                }
+            }
+        }
+
+        var working = new HashSet<Dweller>();
+        foreach (var room in vault.Rooms) {
+            foreach (var d in room.AssignedDwellers) {
+                working.Add(d);
+            }
+        }
+
+        var deckDwellers = new List<Dweller>();
+        foreach (var d in vault.Dwellers) {
+            if (d.IsAlive && !onMap.Contains(d) && !working.Contains(d)) {
+                deckDwellers.Add(d);
+            }
+        }
+        return deckDwellers;
+    }
+
+    private void ResolveVaultAttack(HexTile tile, Vault atkVault, Vault defVault, List<Dweller> attackers, List<Dweller> defenders) {
+        if (!attackers.Any() || !defenders.Any()) {
+            return;
+        }
+
+        CombatEvent?.Invoke($"⚔️ Attack on {defVault.OwnerName}'s Vault!");
+
+        foreach (var atk in attackers.Where(d => d.IsAlive).ToList()) {
+            var tgt = defenders.Where(d => d.IsAlive).OrderBy(_ => RandomProvider.Next(1000)).FirstOrDefault();
+            if (tgt != null) {
+                Attack(atk, tgt, atkVault, defVault);
+            }
+        }
+        foreach (var atk in defenders.Where(d => d.IsAlive).ToList()) {
+            var tgt = attackers.Where(d => d.IsAlive).OrderBy(_ => RandomProvider.Next(1000)).FirstOrDefault();
+            if (tgt != null) {
+                Attack(atk, tgt, defVault, atkVault);
+            }
+        }
+
+        foreach (var dead in defenders.Where(d => !d.IsAlive).ToList()) {
+            LootTransfer(dead, atkVault);
+        }
+        foreach (var dead in attackers.Where(d => !d.IsAlive).ToList()) {
+            LootTransfer(dead, defVault);
+            if (tile.Player1Dwellers.Contains(dead)) {
+                tile.Player1Dwellers.Remove(dead);
+            }
+            if (tile.Player2Dwellers.Contains(dead)) {
+                tile.Player2Dwellers.Remove(dead);
+            }
+        }
     }
 
     private void ResolveTile(HexTile tile) {

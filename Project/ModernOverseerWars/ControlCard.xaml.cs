@@ -49,17 +49,50 @@ public partial class ControlCard : UserControl {
     private TranslateTransform _translateTransform = new();
     private bool _isDragging;
 
-    public ControlCard() { InitializeComponent(); }
+    public static double GlowSubtleness { get; set; } = 0.8;
+    public static double ShakeIntensity { get; set; } = 1.0;
+    public static readonly HashSet<Dweller> DwellersToShakeOnLoad = new();
+
+    private bool _isSelected;
+    public bool IsSelected {
+        get => _isSelected;
+        set {
+            if (_isSelected != value) {
+                _isSelected = value;
+                UpdateGlowEffect();
+            }
+        }
+    }
+
+    public ControlCard() {
+        InitializeComponent();
+        Unloaded += (s, e) => {
+            if (BoundDweller != null) {
+                BoundDweller.Damaged -= OnDwellerDamaged;
+            }
+        };
+    }
 
     public void BindDweller(Dweller d) {
+        if (BoundDweller != null) {
+            BoundDweller.Damaged -= OnDwellerDamaged;
+        }
         BoundDweller = d;
+        d.Damaged += OnDwellerDamaged;
+
         CardImage    = d.Name;
         SupervisorBadge.Visibility = d.IsSupervisor ? Visibility.Visible : Visibility.Collapsed;
         StatsLine.Text = $"S:{d.Special_S} P:{d.Special_P} E:{d.Special_E} C:{d.Special_C}";
         HpBar.Maximum  = d.MaxHp;
         RefreshHp();
+        UpdateGlowEffect();
         ApplyRarity(d.Rarity);
         ImgDweller.Source = MakeImageSource($"../../Assets/images/overseerWars/dwellers/{d.Texture}") ?? MakeImageSource("../../Assets/images/overseerWars/dwellers/dweller.png");
+
+        if (DwellersToShakeOnLoad.Contains(d)) {
+            DwellersToShakeOnLoad.Remove(d);
+            Dispatcher.InvokeAsync(() => TriggerShake());
+        }
 
         if (d.EquippedWeapon != null) {
             WeaponCardContainer.Visibility = Visibility.Visible;
@@ -144,6 +177,59 @@ public partial class ControlCard : UserControl {
         ImgBorder.Source = MakeImageSource($"{base_}card_border_{r}.png");
         ImgColor.Source  = MakeImageSource($"{base_}card_color_{r}.png");
         ImgTop.Source    = MakeImageSource($"{base_}card_top_{r}.png");
+
+        if (HolofoilOverlay == null) return;
+
+        if (rarity == CardRarity.Epic || rarity == CardRarity.Legendary) {
+            HolofoilOverlay.Visibility = Visibility.Visible;
+            
+            var brush = new LinearGradientBrush {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1),
+                MappingMode = BrushMappingMode.RelativeToBoundingBox
+            };
+            
+            var transform = new TranslateTransform(-1.5, -1.5);
+            brush.Transform = transform;
+            
+            if (rarity == CardRarity.Epic) {
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0.35));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x37, 0x88, 0xC0, 0xFF), 0.45));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x5C, 0xE0, 0xE0, 0xFF), 0.5));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x37, 0x88, 0x80, 0xFF), 0.55));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0.65));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0));
+            } else {
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0.3));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x2A, 0xFF, 0x80, 0x80), 0.4));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x3C, 0xFF, 0xFF, 0x80), 0.45));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x4C, 0xFF, 0x80, 0xFF), 0.5));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x3C, 0xFF, 0xFF, 0x80), 0.55));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0x2A, 0xFF, 0x80, 0x80), 0.6));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0.7));
+                brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0));
+            }
+            
+            HolofoilOverlay.Background = brush;
+            
+            var sweepAnim = new DoubleAnimation {
+                From = -1.5,
+                To = 1.5,
+                Duration = TimeSpan.FromSeconds(3.5),
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            
+            transform.BeginAnimation(TranslateTransform.XProperty, sweepAnim);
+            transform.BeginAnimation(TranslateTransform.YProperty, sweepAnim);
+        } else {
+            HolofoilOverlay.Visibility = Visibility.Collapsed;
+            if (HolofoilOverlay.Background is LinearGradientBrush lgb && lgb.Transform is TranslateTransform tt) {
+                tt.BeginAnimation(TranslateTransform.XProperty, null);
+                tt.BeginAnimation(TranslateTransform.YProperty, null);
+            }
+        }
     }
     
     private ImageSource MakeImageSource(string relativePath) {
@@ -178,7 +264,7 @@ public partial class ControlCard : UserControl {
     public void SetDeckMode(bool deckMode) {
         _isDeckMode = deckMode;
         if (deckMode) {
-            RenderTransform = new ScaleTransform(0.9, 0.9);
+            LayoutTransform = new ScaleTransform(0.9, 0.9);
             RenderTransformOrigin = new Point(0.5, 0.5);
 
             EquipmentCanvas.Children.Remove(WeaponCardContainer);
@@ -223,7 +309,7 @@ public partial class ControlCard : UserControl {
     private void OnMouseEnter(object s, MouseEventArgs e) {
         Panel.SetZIndex(this, 1000);
         RenderTransformOrigin = new Point(0.5, 0.5);
-        var scale = new ScaleTransform(_isDeckMode ? 0.96 : 1.06, _isDeckMode ? 0.96 : 1.06);
+        var scale = new ScaleTransform(1.06, 1.06);
         RenderTransform = scale;
 
         if (_isDeckMode) return;
@@ -242,10 +328,26 @@ public partial class ControlCard : UserControl {
 
     private void OnMouseLeave(object s, MouseEventArgs e) {
         Panel.SetZIndex(this, 0);
-        var scale = new ScaleTransform(_isDeckMode ? 0.9 : 1.0, _isDeckMode ? 0.9 : 1.0);
+        var scale = new ScaleTransform(1.0, 1.0);
         RenderTransform = scale;
         _hoverTimer?.Stop();
         if (!_isDeckMode) SlideDownEquipment();
+
+        if (TiltSkew != null && TiltRotate != null) {
+            var animX = new DoubleAnimation(0, TimeSpan.FromSeconds(0.5)) {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            var animY = new DoubleAnimation(0, TimeSpan.FromSeconds(0.5)) {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            var animRot = new DoubleAnimation(0, TimeSpan.FromSeconds(0.5)) {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            TiltSkew.BeginAnimation(SkewTransform.AngleXProperty, animX);
+            TiltSkew.BeginAnimation(SkewTransform.AngleYProperty, animY);
+            TiltRotate.BeginAnimation(RotateTransform.AngleProperty, animRot);
+        }
     }
 
     public void ExpandEquipment() {
@@ -351,5 +453,108 @@ public partial class ControlCard : UserControl {
         cm.Items.Add(miWeapon);
         cm.Items.Add(miOutfit);
         cm.IsOpen = true;
+    }
+
+    private void OnDwellerDamaged(int damageAmount) {
+        Dispatcher.InvokeAsync(() => {
+            RefreshHp();
+            UpdateGlowEffect();
+            TriggerShake();
+        });
+    }
+
+    public void UpdateGlowEffect() {
+        if (CardGlow == null) return;
+
+        Color targetColor = Colors.Transparent;
+        bool shouldGlow = false;
+
+        if (IsSelected) {
+            targetColor = Color.FromRgb(0x33, 0xFF, 0x33); // Green for selected
+            shouldGlow = true;
+        } else if (BoundDweller != null) {
+            if (BoundDweller.IsSupervisor) {
+                targetColor = Color.FromRgb(0xFF, 0xD7, 0x00); // Golden for supervisor
+                shouldGlow = true;
+            } else if (BoundDweller.CurrentHp < BoundDweller.MaxHp * 0.5) {
+                targetColor = Color.FromRgb(0xFF, 0x33, 0x33); // Red for low health/injured
+                shouldGlow = true;
+            }
+        }
+
+        if (shouldGlow) {
+            CardGlow.Color = targetColor;
+            
+            var blurAnim = new DoubleAnimation {
+                From = 6,
+                To = 18,
+                Duration = TimeSpan.FromSeconds(1.2),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            var opacityAnim = new DoubleAnimation {
+                From = 0.3 * GlowSubtleness,
+                To = 0.9 * GlowSubtleness,
+                Duration = TimeSpan.FromSeconds(1.2),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            CardGlow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, blurAnim);
+            CardGlow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.OpacityProperty, opacityAnim);
+        } else {
+            CardGlow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, null);
+            CardGlow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.OpacityProperty, null);
+            CardGlow.BlurRadius = 0;
+            CardGlow.Opacity = 0;
+            CardGlow.Color = Colors.Transparent;
+        }
+    }
+
+    public void TriggerShake() {
+        if (TremorTransform == null) return;
+        
+        double offset = 8.0 * ShakeIntensity;
+        
+        var shakeAnim = new DoubleAnimationUsingKeyFrames {
+            Duration = TimeSpan.FromMilliseconds(400)
+        };
+        
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(-offset, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(50))));
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(offset, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(100))));
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(-offset * 0.7, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(150))));
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(offset * 0.7, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(200))));
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(-offset * 0.4, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(250))));
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(offset * 0.4, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(300))));
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(-offset * 0.2, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(350))));
+        shakeAnim.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(400))));
+        
+        TremorTransform.BeginAnimation(TranslateTransform.XProperty, shakeAnim);
+    }
+
+    private void OnMouseMove(object sender, MouseEventArgs e) {
+        if (_isDragging) return;
+        if (TiltSkew == null || TiltRotate == null) return;
+
+        Point localPos = e.GetPosition(MainCardGrid);
+        double w = MainCardGrid.ActualWidth > 0 ? MainCardGrid.ActualWidth : 140;
+        double h = MainCardGrid.ActualHeight > 0 ? MainCardGrid.ActualHeight : 200;
+        double nx = (localPos.X - w / 2) / (w / 2);
+        double ny = (localPos.Y - h / 2) / (h / 2);
+
+        nx = Math.Max(-1, Math.Min(1, nx));
+        ny = Math.Max(-1, Math.Min(1, ny));
+
+        double targetAngleX = -ny * 3.5; // max 3.5 degrees skew
+        double targetAngleY = nx * 3.5;
+        double targetAngle = nx * ny * -1.5;
+
+        var animX = new DoubleAnimation(targetAngleX, TimeSpan.FromMilliseconds(80));
+        var animY = new DoubleAnimation(targetAngleY, TimeSpan.FromMilliseconds(80));
+        var animRot = new DoubleAnimation(targetAngle, TimeSpan.FromMilliseconds(80));
+
+        TiltSkew.BeginAnimation(SkewTransform.AngleXProperty, animX);
+        TiltSkew.BeginAnimation(SkewTransform.AngleYProperty, animY);
+        TiltRotate.BeginAnimation(RotateTransform.AngleProperty, animRot);
     }
 }

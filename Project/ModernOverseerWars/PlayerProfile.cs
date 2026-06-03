@@ -8,12 +8,16 @@ public class PlayerTheme {
 
 public static class PlayerThemes {
     public static readonly PlayerTheme[] All = {
-        new() { Name = "Olive",   Color = "#41521F", BgColor = "#171E0B" },
-        new() { Name = "Purple",  Color = "#783F8E", BgColor = "#2A1535" },
-        new() { Name = "Red",     Color = "#C84630", BgColor = "#2A0C08" },
-        new() { Name = "Lime",    Color = "#CCFF66", BgColor = "#2A3510" },
-        new() { Name = "Teal",    Color = "#2EC4B6", BgColor = "#0A2926" },
-        new() { Name = "Gold",    Color = "#FDCA40", BgColor = "#2A2208" },
+        new() { Name = "Blue",    Color = "#2A66FF", BgColor = "#0A1224" },
+        new() { Name = "Red",     Color = "#FF3A30", BgColor = "#240A08" },
+        new() { Name = "Green",   Color = "#10C850", BgColor = "#061A0A" },
+        new() { Name = "Gold",    Color = "#FFC000", BgColor = "#241B00" },
+        new() { Name = "Purple",  Color = "#9D4EDD", BgColor = "#1B0630" },
+        new() { Name = "Teal",    Color = "#00E5FF", BgColor = "#00242B" },
+        new() { Name = "Orange",  Color = "#FF6F00", BgColor = "#241000" },
+        new() { Name = "Mint",    Color = "#00FF88", BgColor = "#002414" },
+        new() { Name = "Pink",    Color = "#FF007F", BgColor = "#240012" },
+        new() { Name = "Silver",  Color = "#CCCCCC", BgColor = "#1E1E21" },
     };
 }
 

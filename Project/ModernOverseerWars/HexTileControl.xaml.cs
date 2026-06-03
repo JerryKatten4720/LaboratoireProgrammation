@@ -3,7 +3,11 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Data;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -169,23 +173,51 @@ public partial class HexTileControl : UserControl {
     public void SetPath(bool isPath) { IsPath = isPath; UpdateVisual(); }
 
     private void UpdateVisual() {
-        if (BoundTile == null || !BoundTile.IsNavigable) return;
+        if (BoundTile == null || !BoundTile.IsNavigable) {
+            return;
+        }
+
         bool revealed = BoundTile.IsRevealedFor(_lastIsP1);
         Color baseColor = revealed ? ExploredColor : FogColor;
-
         Color fill = baseColor;
+
         bool hasSelf = _lastIsP1 ? BoundTile.Player1Dwellers.Any(d => d.IsAlive) : BoundTile.Player2Dwellers.Any(d => d.IsAlive);
         bool hasEnemy = _lastIsP1 ? BoundTile.Player2Dwellers.Any(d => d.IsAlive) : BoundTile.Player1Dwellers.Any(d => d.IsAlive);
 
-        if (IsPath) fill = Lighten(ActivePlayerColor, 0.40);
-        else if (IsSelected) fill = Blend(fill, ActivePlayerColor, 0.55);
+        if (IsSelected) {
+            fill = Blend(fill, ActivePlayerColor, 0.55);
+        }
 
-        if (hasSelf && hasEnemy) fill = Blend(fill, Color.FromRgb(200, 100, 50), 0.3); // Orange/Red conflict
-        else if (hasSelf) fill = Blend(fill, Color.FromRgb(50, 200, 50), 0.3); // Green tint
-        else if (hasEnemy) fill = Blend(fill, Color.FromRgb(200, 50, 50), 0.3); // Red tint
+        if (hasSelf && hasEnemy) {
+            fill = Blend(fill, Color.FromRgb(200, 100, 50), 0.3);
+        } else if (hasSelf) {
+            fill = Blend(fill, Color.FromRgb(50, 200, 50), 0.3);
+        } else if (hasEnemy) {
+            fill = Blend(fill, Color.FromRgb(200, 50, 50), 0.3);
+        }
 
-        if (IsHovered)  fill = Lighten(fill, 0.10);
+        if (IsPath) {
+            Color pathColor = Color.FromArgb(165, 255, 215, 0);
+            try {
+                pathColor = (Color)ColorConverter.ConvertFromString(GameConfigRepository.Config.PathColor);
+            } catch {
+            }
+            fill = Blend(fill, pathColor, 0.55);
+        }
+
+        if (IsHovered) {
+            fill = Lighten(fill, 0.10);
+        }
+
         ApplyColors(fill);
+
+        if (PathOverlay != null) {
+            PathOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        if (SelectedOverlay != null) {
+            SelectedOverlay.Visibility = IsSelected ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 
     private void ApplyColors(Color fill) {

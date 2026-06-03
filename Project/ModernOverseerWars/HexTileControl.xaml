@@ -20,7 +20,7 @@
         <Rectangle x:Name="HexShape" StrokeThickness="1" Width="100" Height="100" SnapsToDevicePixels="True"/>
         <Rectangle x:Name="ReachableOverlay" Width="100" Height="100" Visibility="Collapsed" SnapsToDevicePixels="True"/>
         <Rectangle x:Name="HoverOverlay" Fill="#33FFFFFF" Visibility="Collapsed" IsHitTestVisible="False" Width="100" Height="100"/>
-        <Rectangle x:Name="PathOverlay" Fill="#33FFFF00" Visibility="Collapsed" IsHitTestVisible="False" Width="100" Height="100"/>
+        <Ellipse x:Name="PathOverlay" Fill="#A5FFD700" Visibility="Collapsed" IsHitTestVisible="False" Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Rectangle x:Name="SelectedOverlay" Stroke="White" StrokeThickness="2" Visibility="Collapsed" IsHitTestVisible="False" Width="100" Height="100"/>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.3" IsHitTestVisible="False">
             <TextBlock x:Name="TileIcon"    Text="?" FontSize="22" HorizontalAlignment="Center"/>

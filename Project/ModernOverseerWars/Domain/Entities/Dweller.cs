@@ -42,13 +42,26 @@ public class Dweller : IDweller {
     public int Special_L { get => _l + (EquippedOutfit is Outfit o ? o.L : 0); set => _l = value; }
     
     public int MaxHp => 10 + Special_E * 2;
-    public int CurrentHp { get; set; }
+    
+    private int _currentHp;
+    public int CurrentHp {
+        get => _currentHp;
+        set {
+            int old = _currentHp;
+            _currentHp = value;
+            if (_currentHp < old) {
+                Damaged?.Invoke(old - _currentHp);
+            }
+        }
+    }
+    public event Action<int>? Damaged;
+
     public bool IsSupervisor { get; set; } = false;
     public IWeapon? EquippedWeapon { get; set; }
     public IOutfit? EquippedOutfit { get; set; }
     public int AttackDamage => Special_S + (EquippedWeapon?.Damage ?? 0);
-    public bool IsAlive => CurrentHp > 0;
+    public bool IsAlive => _currentHp > 0;
     public string Texture { get; set; } = "dweller.png";
 
-    public Dweller() { CurrentHp = MaxHp; }
+    public Dweller() { _currentHp = 16; }
 }
