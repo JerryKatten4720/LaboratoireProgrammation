@@ -39,6 +39,12 @@ public partial class DeckPicker : UserControl {
         _weapons = weapons.ToList();
         _outfits = outfits.ToList();
         _scraps = scraps.ToList();
+
+        TabDwellersBtn.Content = $"DWELLERS ({_dwellers.Count})";
+        TabWeaponsBtn.Content = $"WEAPONS ({_weapons.Count})";
+        TabOutfitsBtn.Content = $"OUTFITS ({_outfits.Count})";
+        TabScrapsBtn.Content = $"SCRAPS ({_scraps.Count})";
+
         RefreshDeck();
     }
 

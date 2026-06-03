@@ -7,6 +7,7 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Data;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -451,11 +452,155 @@ public partial class ControlCard : UserControl {
         var win = Window.GetWindow(this) as OverseerWarsWindow;
         if (win == null) return;
 
-        var cm = new ContextMenu();
-        var miWeapon = new MenuItem { Header = "Assign Weapon" };
-        miWeapon.Click += (s, ev) => win.OpenEquipmentSelection(BoundDweller, true);
-        var miOutfit = new MenuItem { Header = "Assign Outfit" };
-        miOutfit.Click += (s, ev) => win.OpenEquipmentSelection(BoundDweller, false);
+        Color fgColor = win.GetThemeColor();
+        Color bgColor = win.GetThemeBgDark();
+        var fgBrush = new SolidColorBrush(fgColor);
+        var bgBrush = new SolidColorBrush(bgColor);
+        var hoverBrush = new SolidColorBrush(Color.FromArgb(60, fgColor.R, fgColor.G, fgColor.B));
+
+        var cm = new ContextMenu {
+            Style = (Style)FindResource("ThemedContextMenu")
+        };
+        cm.Resources["ThemeFgBrush"] = fgBrush;
+        cm.Resources["ThemeBgBrush"] = bgBrush;
+        cm.Resources["ThemeHoverBrush"] = hoverBrush;
+
+        var vault = win.ActiveVault;
+        var rc = new[] { "#969696", "#64C864", "#6496FA", "#B450DC", "#FFB400" };
+
+        var miWeapon = new MenuItem {
+            Header = "Assign Weapon",
+            Style = (Style)FindResource("ThemedMenuItem")
+        };
+
+        var equippedWeapon = BoundDweller.EquippedWeapon;
+        var unusedWeapons = vault.UnusedWeapons.ToList();
+
+        if (equippedWeapon != null) {
+            var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
+            nameStack.Children.Add(new Border {
+                Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)equippedWeapon.Rarity])!,
+                Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
+                VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+            });
+            nameStack.Children.Add(new TextBlock { Text = $"{equippedWeapon.Name} (Equipped)", Foreground = Brushes.White, FontWeight = FontWeights.Bold });
+            nameStack.Children.Add(new TextBlock { Text = $"Dmg: {equippedWeapon.Damage}", Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+
+            var miEquipped = new MenuItem {
+                Header = nameStack,
+                IsChecked = true,
+                Style = (Style)FindResource("ThemedMenuItem")
+            };
+            miEquipped.Click += (s, ev) => {
+                BoundDweller.EquippedWeapon = null;
+                win.State.AddLog($"{BoundDweller.Name} unequipped {equippedWeapon.Name}");
+                win.RefreshAll();
+            };
+            miWeapon.Items.Add(miEquipped);
+            miWeapon.Items.Add(new Separator());
+        }
+
+        if (unusedWeapons.Count == 0 && equippedWeapon == null) {
+            var miNoWeapons = new MenuItem {
+                Header = "No weapons available",
+                IsEnabled = false,
+                Style = (Style)FindResource("ThemedMenuItem")
+            };
+            miWeapon.Items.Add(miNoWeapons);
+        } else {
+            foreach (var weapon in unusedWeapons) {
+                var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
+                nameStack.Children.Add(new Border {
+                    Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)weapon.Rarity])!,
+                    Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
+                    VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+                });
+                nameStack.Children.Add(new TextBlock { Text = weapon.Name, Foreground = Brushes.White, FontWeight = FontWeights.Bold });
+                nameStack.Children.Add(new TextBlock { Text = $"Dmg: {weapon.Damage}", Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+
+                var miW = new MenuItem {
+                    Header = nameStack,
+                    Style = (Style)FindResource("ThemedMenuItem")
+                };
+                miW.Click += (s, ev) => {
+                    BoundDweller.EquippedWeapon = weapon;
+                    win.State.AddLog($"{BoundDweller.Name} equipped {weapon.Name}");
+                    win.RefreshAll();
+                };
+                miWeapon.Items.Add(miW);
+            }
+        }
+
+        var miOutfit = new MenuItem {
+            Header = "Assign Outfit",
+            Style = (Style)FindResource("ThemedMenuItem")
+        };
+
+        var equippedOutfit = BoundDweller.EquippedOutfit;
+        var unusedOutfits = vault.UnusedOutfits.ToList();
+
+        if (equippedOutfit != null) {
+            var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
+            nameStack.Children.Add(new Border {
+                Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)equippedOutfit.Rarity])!,
+                Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
+                VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+            });
+            nameStack.Children.Add(new TextBlock { Text = $"{equippedOutfit.Name} (Equipped)", Foreground = Brushes.White, FontWeight = FontWeights.Bold });
+            string statsStr = $"Armor: {equippedOutfit.ArmorValue}";
+            if (equippedOutfit is Outfit op) {
+                statsStr += $" (S:{op.S} P:{op.P} E:{op.E} L:{op.L})";
+            }
+            nameStack.Children.Add(new TextBlock { Text = statsStr, Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+
+            var miEquipped = new MenuItem {
+                Header = nameStack,
+                IsChecked = true,
+                Style = (Style)FindResource("ThemedMenuItem")
+            };
+            miEquipped.Click += (s, ev) => {
+                BoundDweller.EquippedOutfit = null;
+                win.State.AddLog($"{BoundDweller.Name} unequipped {equippedOutfit.Name}");
+                win.RefreshAll();
+            };
+            miOutfit.Items.Add(miEquipped);
+            miOutfit.Items.Add(new Separator());
+        }
+
+        if (unusedOutfits.Count == 0 && equippedOutfit == null) {
+            var miNoOutfits = new MenuItem {
+                Header = "No outfits available",
+                IsEnabled = false,
+                Style = (Style)FindResource("ThemedMenuItem")
+            };
+            miOutfit.Items.Add(miNoOutfits);
+        } else {
+            foreach (var outfit in unusedOutfits) {
+                var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
+                nameStack.Children.Add(new Border {
+                    Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)outfit.Rarity])!,
+                    Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
+                    VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+                });
+                nameStack.Children.Add(new TextBlock { Text = outfit.Name, Foreground = Brushes.White, FontWeight = FontWeights.Bold });
+                string statsStr = $"Armor: {outfit.ArmorValue}";
+                if (outfit is Outfit op) {
+                    statsStr += $" (S:{op.S} P:{op.P} E:{op.E} L:{op.L})";
+                }
+                nameStack.Children.Add(new TextBlock { Text = statsStr, Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+
+                var miO = new MenuItem {
+                    Header = nameStack,
+                    Style = (Style)FindResource("ThemedMenuItem")
+                };
+                miO.Click += (s, ev) => {
+                    BoundDweller.EquippedOutfit = outfit;
+                    win.State.AddLog($"{BoundDweller.Name} equipped {outfit.Name}");
+                    win.RefreshAll();
+                };
+                miOutfit.Items.Add(miO);
+            }
+        }
 
         cm.Items.Add(miWeapon);
         cm.Items.Add(miOutfit);

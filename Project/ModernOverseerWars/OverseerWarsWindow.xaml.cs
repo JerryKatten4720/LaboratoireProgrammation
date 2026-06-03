@@ -39,6 +39,8 @@ public partial class OverseerWarsWindow : Window {
     }
 
     private GameState       _state   = null!;
+    public GameState State => _state;
+    public Vault ActiveVault => _state.ActiveVault;
     private TurnService     _turns   = null!;
     private ResourceService _res     = null!;
     private CombatService   _combat  = null!;
@@ -94,8 +96,8 @@ public partial class OverseerWarsWindow : Window {
         _turns.TurnTick    += () => Dispatcher.InvokeAsync(OnTick);
         _turns.TurnExpired += () => Dispatcher.InvokeAsync(OnEndTurn_Internal);
         _combat.CombatEvent += msg => Dispatcher.InvokeAsync(() => AppendLog(msg));
-        _combat.DamagePopup += text =>
-            Dispatcher.InvokeAsync(() => SpawnDamagePopup(text));
+        _combat.DamagePopup += (text, tile, isP1Dweller) =>
+            Dispatcher.InvokeAsync(() => SpawnDamagePopup(text, tile, isP1Dweller));
 
         SetupPlayers();
         BuildMapUI();
@@ -261,8 +263,7 @@ public partial class OverseerWarsWindow : Window {
         DeckPickerControl.ApplyTheme(bgDark, accent);
         CombatLogBorder.Background = new SolidColorBrush(bgDark);
         EquipBorder.Background = new SolidColorBrush(bgDark);
-        EquipInnerBorder.Background = new SolidColorBrush(LightenColor(bgDark, -0.10));
-        ReturnBorder.Background = new SolidColorBrush(bg);
+        ReturnBorder.Background = new SolidColorBrush(bgDark);
         InfoPanel.Background = new SolidColorBrush(bgDark);
 
         foreach (VaultCardHolder h in RoomsPanel.Children.OfType<VaultCardHolder>())
@@ -273,9 +274,19 @@ public partial class OverseerWarsWindow : Window {
         string pseudo = isP1 ? _state.Player1.Pseudo : _state.Player2.Pseudo;
         BgUsernameText.Text = pseudo;
         BgUsernameText.Fill = new SolidColorBrush(accent);
+        BgUsernameText.Opacity = 0.1;
 
         _dwellerInAssignmentSlot = null;
         UpdateAssignmentSlotUI();
+    }
+
+    public Color GetThemeColor() {
+        return _state.IsPlayer1Turn ? _p1Color : _p2Color;
+    }
+
+    public Color GetThemeBgDark() {
+        Color bg = _state.IsPlayer1Turn ? _p1Bg : _p2Bg;
+        return LightenColor(bg, -0.10);
     }
 
     private void BuildMapUI() {
@@ -335,6 +346,13 @@ public partial class OverseerWarsWindow : Window {
             var activeDwellers = _state.IsPlayer1Turn ? _selectedTile.BoundTile.Player1Dwellers : _selectedTile.BoundTile.Player2Dwellers;
             var dw = heldCard?.BoundDweller ?? activeDwellers.LastOrDefault(d => d.IsAlive);
             if (dw != null && (activeDwellers.Contains(dw) || heldCard?.BoundDweller == dw)) {
+                bool hasEnemy = _state.IsPlayer1Turn 
+                    ? ctrl.BoundTile.Player2Dwellers.Any(d => d.IsAlive) 
+                    : ctrl.BoundTile.Player1Dwellers.Any(d => d.IsAlive);
+                if (hasEnemy) {
+                    ShowWarning("Cannot move to enemy occupied tile!");
+                    return;
+                }
                 int cost = GetDeploymentCost(dw, ctrl.BoundTile);
                 if (cost <= _state.ActiveVault.ActionPoints) {
                     _state.ActiveVault.ActionPoints -= cost;
@@ -465,6 +483,15 @@ public partial class OverseerWarsWindow : Window {
         }
         var vault = _state.ActiveVault;
         var tile = _selectedTile.BoundTile;
+        bool isP1 = _state.IsPlayer1Turn;
+        bool hasEnemy = isP1 
+            ? tile.Player2Dwellers.Any(d => d.IsAlive) 
+            : tile.Player1Dwellers.Any(d => d.IsAlive);
+        if (hasEnemy) {
+            ShowWarning("Cannot deploy to enemy occupied tile!");
+            _selectedTile = null;
+            return false;
+        }
         int cost = GetDeploymentCost(card.BoundDweller, tile);
         if (cost > vault.ActionPoints) {
             ShowWarning("Tile too far away, you need more PA");
@@ -483,7 +510,6 @@ public partial class OverseerWarsWindow : Window {
 
         vault.ActionPoints -= cost;
         RemoveDwellerFromMap(card.BoundDweller);
-        bool isP1 = _state.IsPlayer1Turn;
         bool isHomeVault = (isP1 && tile.Type == TileType.Player1Vault) || (!isP1 && tile.Type == TileType.Player2Vault);
         if (!isHomeVault) {
             var dwellerList = isP1 ? tile.Player1Dwellers : tile.Player2Dwellers;
@@ -629,11 +655,19 @@ public partial class OverseerWarsWindow : Window {
         }
     }
 
-    private void SpawnDamagePopup(string text) {
-        var rng = Random.Shared;
-        double x = rng.Next(50, (int)PopupCanvas.ActualWidth - 50);
-        double y = rng.Next(50, (int)PopupCanvas.ActualHeight - 80);
-        Color col = _state.IsPlayer1Turn ? _p1Color : _p2Color;
+    private void SpawnDamagePopup(string text, HexTile tile, bool isP1Dweller) {
+        var tileCtrl = MapCanvas.Children.OfType<HexTileControl>().FirstOrDefault(c => c.BoundTile == tile);
+        double x = PopupCanvas.ActualWidth / 2;
+        double y = PopupCanvas.ActualHeight / 2;
+        if (tileCtrl != null && tileCtrl.IsVisible) {
+            try {
+                Point center = tileCtrl.TranslatePoint(new Point(tileCtrl.ActualWidth / 2, tileCtrl.ActualHeight / 2), PopupCanvas);
+                x = center.X;
+                y = center.Y;
+            } catch {
+            }
+        }
+        Color col = isP1Dweller ? _p1Color : _p2Color;
         DamagePopupHelper.Spawn(text, PopupCanvas, x, y, col);
     }
 
@@ -646,7 +680,7 @@ public partial class OverseerWarsWindow : Window {
         TurnText.Text  = $"Turn {_state.TurnNumber}";
     }
 
-    private void RefreshAll() {
+    public void RefreshAll() {
         RefreshHUD();
         RefreshMapUI();
         if (_showingVault) RefreshVaultUI();
@@ -980,15 +1014,15 @@ public partial class OverseerWarsWindow : Window {
         AssignmentSlotContainer.Children.Clear();
         if (_dwellerInAssignmentSlot == null) {
             var placeholder = new Border {
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0x33, 0x33, 0x44)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(10, 10, 10)),
                 BorderThickness = new Thickness(2),
                 CornerRadius = new CornerRadius(8),
                 Width = 140, Height = 200,
-                Background = new SolidColorBrush(Color.FromRgb(0x11, 0x11, 0x22))
+                Background = new SolidColorBrush(Color.FromRgb(19, 19, 19))
             };
             placeholder.Child = new TextBlock {
                 Text = "Drag dweller card here",
-                Foreground = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x55)),
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
                 FontSize = 11, FontStyle = FontStyles.Italic,
                 VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap

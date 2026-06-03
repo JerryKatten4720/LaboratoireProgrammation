@@ -14,19 +14,18 @@ public class CombatService {
     private readonly GameState _state;
 
     public event Action<string>? CombatEvent;
-    public event Action<string>? DamagePopup;
+    public event Action<string, HexTile, bool>? DamagePopup;
 
     public CombatService(GameState state) {
         _state = state;
     }
 
     public void ResolveCombatsOnMap() {
+        var resolvedPairs = new HashSet<string>();
+
         for (int c = 0; c < _state.Map.Cols; c++) {
             for (int r = 0; r < _state.Map.Rows; r++) {
                 var tile = _state.Map.Get(c, r);
-                if (tile.HasConflict) {
-                    ResolveTile(tile);
-                }
 
                 if (tile.Type == TileType.Player1Vault) {
                     var attackers = tile.Player2Dwellers.Where(d => d.IsAlive).ToList();
@@ -43,9 +42,43 @@ public class CombatService {
                         ResolveVaultAttack(tile, _state.Vault1, _state.Vault2, attackers, defenders);
                     }
                 }
+
+                if (tile.Player1Dwellers.Any(d => d.IsAlive)) {
+                    var neighbors = GetAdjacentTiles(tile);
+                    foreach (var neighbor in neighbors) {
+                        if (neighbor.Player2Dwellers.Any(d => d.IsAlive)) {
+                            string key = GetPairKey(tile, neighbor);
+                            if (!resolvedPairs.Contains(key)) {
+                                resolvedPairs.Add(key);
+                                ResolveAdjacentCombat(tile, neighbor);
+                            }
+                        }
+                    }
+                }
             }
         }
         CheckVictory();
+    }
+
+    private string GetPairKey(HexTile a, HexTile b) {
+        int idA = a.Col * 1000 + a.Row;
+        int idB = b.Col * 1000 + b.Row;
+        int min = Math.Min(idA, idB);
+        int max = Math.Max(idA, idB);
+        return $"{min}_{max}";
+    }
+
+    private List<HexTile> GetAdjacentTiles(HexTile tile) {
+        var list = new List<HexTile>();
+        for (int c = 0; c < _state.Map.Cols; c++) {
+            for (int r = 0; r < _state.Map.Rows; r++) {
+                var other = _state.Map.Get(c, r);
+                if (Helpers.GridMath.GetDistance(tile, other) == 1) {
+                    list.Add(other);
+                }
+            }
+        }
+        return list;
     }
 
     private List<Dweller> GetDwellersInDeck(Vault vault) {
@@ -112,29 +145,35 @@ public class CombatService {
         }
     }
 
-    private void ResolveTile(HexTile tile) {
-        var p1 = tile.Player1Dwellers.Where(d => d.IsAlive).ToList();
-        var p2 = tile.Player2Dwellers.Where(d => d.IsAlive).ToList();
-        if (!p1.Any() || !p2.Any()) return;
-        
-        CombatEvent?.Invoke($"⚔️ Combat at ({tile.Col},{tile.Row})!");
+    private void ResolveAdjacentCombat(HexTile tileA, HexTile tileB) {
+        var p1 = tileA.Player1Dwellers.Where(d => d.IsAlive).ToList();
+        var p2 = tileB.Player2Dwellers.Where(d => d.IsAlive).ToList();
+        if (!p1.Any() || !p2.Any()) {
+            return;
+        }
+
+        CombatEvent?.Invoke($"⚔️ Combat between ({tileA.Col},{tileA.Row}) and ({tileB.Col},{tileB.Row})!");
 
         foreach (var atk in p1.Where(d => d.IsAlive).ToList()) {
             var tgt = p2.Where(d => d.IsAlive).OrderBy(_ => RandomProvider.Next(1000)).FirstOrDefault();
-            if (tgt != null) Attack(atk, tgt, _state.Vault1, _state.Vault2);
+            if (tgt != null) {
+                Attack(atk, tgt, _state.Vault1, _state.Vault2);
+            }
         }
         foreach (var atk in p2.Where(d => d.IsAlive).ToList()) {
             var tgt = p1.Where(d => d.IsAlive).OrderBy(_ => RandomProvider.Next(1000)).FirstOrDefault();
-            if (tgt != null) Attack(atk, tgt, _state.Vault2, _state.Vault1);
+            if (tgt != null) {
+                Attack(atk, tgt, _state.Vault2, _state.Vault1);
+            }
         }
 
         foreach (var dead in p2.Where(d => !d.IsAlive).ToList()) {
             LootTransfer(dead, _state.Vault1);
-            tile.Player2Dwellers.Remove(dead);
+            tileB.Player2Dwellers.Remove(dead);
         }
         foreach (var dead in p1.Where(d => !d.IsAlive).ToList()) {
             LootTransfer(dead, _state.Vault2);
-            tile.Player1Dwellers.Remove(dead);
+            tileA.Player1Dwellers.Remove(dead);
         }
     }
 
@@ -157,7 +196,9 @@ public class CombatService {
             : $"{atk.Name}🔫{tgt.Name} -{dmg}❤️";
             
         CombatEvent?.Invoke(msg);
-        DamagePopup?.Invoke($"-{dmg} ❤️");
+        var tile = FindDwellerTileOrVault(tgt, defV);
+        bool isP1Dweller = (defV == _state.Vault1);
+        DamagePopup?.Invoke($"-{dmg} ❤️", tile, isP1Dweller);
 
         if (tgt.CurrentHp <= 0) {
             bool flees = RandomProvider.Next(100) < tgt.Special_A * GameConfigRepository.Config.CombatFleeChanceMultiplier;
@@ -168,6 +209,28 @@ public class CombatService {
                 CombatEvent?.Invoke($"☠️ {tgt.Name} killed!");
             }
         }
+    }
+
+    private HexTile FindDwellerTileOrVault(Dweller dw, Vault ownerVault) {
+        for (int c = 0; c < _state.Map.Cols; c++) {
+            for (int r = 0; r < _state.Map.Rows; r++) {
+                var t = _state.Map.Get(c, r);
+                if (t.Player1Dwellers.Contains(dw) || t.Player2Dwellers.Contains(dw)) {
+                    return t;
+                }
+            }
+        }
+
+        TileType vaultType = ownerVault == _state.Vault1 ? TileType.Player1Vault : TileType.Player2Vault;
+        for (int c = 0; c < _state.Map.Cols; c++) {
+            for (int r = 0; r < _state.Map.Rows; r++) {
+                var t = _state.Map.Get(c, r);
+                if (t.Type == vaultType) {
+                    return t;
+                }
+            }
+        }
+        return _state.Map.Get(0, 0);
     }
 
     private void LootTransfer(Dweller dead, Vault winner) {
