@@ -10,7 +10,7 @@ public class GameConfig {
     public int MapRows { get; set; } = 5;
     public double MapTransparency { get; set; } = 0.8;
     public double VaultUITransparency { get; set; } = 1.0;
-    public string UIColor { get; set; } = "#0D0D20";
+    public string UIColor { get; set; } = "#1a1a1a";
     public bool EnableFogOfWar { get; set; } = false;
     public string PathColor { get; set; } = "#A5FFD700";
 

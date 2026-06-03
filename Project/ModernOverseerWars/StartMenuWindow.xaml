@@ -41,7 +41,7 @@
 
             <StackPanel Grid.Column="0">
                 <TextBlock Text="PLAYER 1" Foreground="#888" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
-                <TextBlock Text="Pseudo" Foreground="#AAAACC" FontSize="12"/>
+                <TextBlock Text="Your cool username :" Foreground="#AAAACC" FontSize="12"/>
                 <TextBox x:Name="P1Name" Text="Player 1" Style="{StaticResource PlayerInput}"/>
                 <TextBlock Text="Color theme" Foreground="#AAAACC" FontSize="12" Margin="0,0,0,6"/>
                 <ItemsControl x:Name="P1Themes">
@@ -75,7 +75,7 @@
 
             <StackPanel Grid.Column="2">
                 <TextBlock Text="PLAYER 2" Foreground="#888" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
-                <TextBlock Text="Pseudo" Foreground="#AAAACC" FontSize="12"/>
+                <TextBlock Text="Your cool username :" Foreground="#AAAACC" FontSize="12"/>
                 <TextBox x:Name="P2Name" Text="Player 2" Style="{StaticResource PlayerInput}"/>
                 <TextBlock Text="Color theme" Foreground="#AAAACC" FontSize="12" Margin="0,0,0,6"/>
                 <ItemsControl x:Name="P2Themes">
@@ -103,10 +103,12 @@
                                FontSize="14" FontWeight="Bold" Foreground="White"/>
                 </Border>
             </StackPanel>
+            
+            <Image Source="../../Assets/images/vaultTec.png" Grid.ColumnSpan="3" HorizontalAlignment="Center" Panel.ZIndex="-5" Opacity="0.05"></Image>
         </Grid>
 
 
-        <Button Grid.Row="2" x:Name="StartBtn" Content="⚔ START GAME"
+        <Button Grid.Row="2" x:Name="StartBtn" Content=" -| START GAME |- "
                 FontSize="16" FontWeight="Bold" Padding="24,10"
                 HorizontalAlignment="Center" Margin="0,24,0,0"
                 Background="#1A2A1A" Foreground="#66BB66"
