@@ -22,17 +22,17 @@ public partial class AddPrescriptionForm : Window {
 
     private void BtnSave_Click(object sender, RoutedEventArgs e) {
         if (CbMedicament.SelectedItem is not Medicament med) {
-            MessageBox.Show("Veuillez sélectionner un médicament en stock.");
+            PopupFactory.ShowAlert(this, "Veuillez sélectionner un médicament en stock.");
             return;
         }
 
         if (!int.TryParse(TbQuantite.Text, out var qte) || qte <= 0) {
-            MessageBox.Show("Quantité invalide.");
+            PopupFactory.ShowAlert(this, "Quantité invalide.");
             return;
         }
 
         if (qte > med.StockActuel) {
-            MessageBox.Show($"Stock insuffisant (disponible : {med.StockActuel}).");
+            PopupFactory.ShowAlert(this, $"Stock insuffisant (disponible : {med.StockActuel}).");
             return;
         }
 
@@ -41,7 +41,7 @@ public partial class AddPrescriptionForm : Window {
             DialogResult = true;
             Close();
         } catch (Exception ex) {
-            MessageBox.Show("Erreur: " + ex.Message);
+            PopupFactory.ShowAlert(this, "Erreur: " + ex.Message);
         }
     }
 }

@@ -6,6 +6,8 @@ using System.Windows.Controls;
 namespace LaboratoireProgrammation.Project.ModernHospital;
 
 public partial class DoctorCreationForm : Window {
+    private readonly DatabaseManager _db;
+
     private readonly Dictionary<string, List<string>> _roleByCategory = new() {
         {
             "Corps Médical",
@@ -27,7 +29,8 @@ public partial class DoctorCreationForm : Window {
         }
     };
 
-    public DoctorCreationForm() {
+    public DoctorCreationForm(DatabaseManager db) {
+        _db = db;
         InitializeComponent();
         CbCategorie.SelectedIndex = 0;
     }
@@ -76,8 +79,7 @@ public partial class DoctorCreationForm : Window {
         var shift = (CbShift.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Jour";
 
         try {
-            var db = new DatabaseManager();
-            db.CreateEmploye(nom, prenom, categorie, role, specialite, salaire, shift);
+            _db.CreateEmploye(nom, prenom, categorie, role, specialite, salaire, shift);
 
             var successPopup = PopupFactory.CreateConfirmationPopup(
                 $"{prenom} {nom} a été créé avec succès!\n\nPoste: {role}\nSalaire: ${salaire:N0}/jour",

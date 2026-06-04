@@ -9,9 +9,6 @@ using Color = System.Windows.Media.Color;
 namespace LaboratoireProgrammation.Project.ModernHospital;
 
 public partial class HospitalWindow : Window {
-    private static readonly Style _navActive = Application.Current.Resources.Contains("NavBtnActive")
-        ? (Style)Application.Current.Resources["NavBtnActive"]
-        : new Style(typeof(Button));
 
     private readonly DatabaseManager _db = new();
     private readonly ObservableCollection<string> _eventLog = new();
@@ -35,6 +32,7 @@ public partial class HospitalWindow : Window {
         };
         _simulationService.OnEventLog += LogEvent;
         _simulationService.OnPersonnelChanged += RefreshPersonnel;
+        Closing += (_, _) => _simulationService.Dispose();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e) {
@@ -65,23 +63,7 @@ public partial class HospitalWindow : Window {
 
         SetStatus("✔️ Connexion établie", Color.FromRgb(0, 212, 170));
 
-        Button? firstBtn = null;
-        foreach (var child in LogicalTreeHelper.GetChildren(this)) {
-            if (child is StackPanel sp) {
-                foreach (var inner in sp.Children) {
-                    if (inner is Button b && b.Tag?.ToString() == "dashboard") {
-                        firstBtn = b; break;
-                    }
-                }
-            }
-        }
-        
-        if (firstBtn != null) {
-            Nav_Click(firstBtn, null);
-        } else {
-            PanelDashboard.Visibility = Visibility.Visible;
-            RefreshDashboard();
-        }
+        Nav_Click(BtnDashboard, null!);
 
         LoadAdmitForm();
 
@@ -175,7 +157,7 @@ public partial class HospitalWindow : Window {
         KpiAttente.Text = $"{stats.PatientsEnAttente} en attente";
         KpiPersonnel.Text = stats.TotalPersonnel.ToString();
         KpiLitsLibres.Text = stats.LitsLibres.ToString();
-        KpiLitsOccupes.Text = "occupés";
+        KpiLitsOccupes.Text = $"{stats.LitsOccupes} occupés";
         KpiRevenu.Text = $"${stats.RevenuJour:N0}";
         KpiDepenses.Text = $"${stats.DepensesJour:N0} dépenses";
         KpiGueris.Text = stats.PatientsGueris.ToString();
@@ -235,13 +217,13 @@ public partial class HospitalWindow : Window {
 
     private void BtnReserver_Click(object sender, RoutedEventArgs e) {
         if (CbResMaladie.SelectedItem == null || CbResLit.SelectedItem == null || CbResMedecin.SelectedItem == null) {
-            MessageBox.Show("Veuillez sélectionner la maladie, le lit et le médecin pour la réservation.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+            PopupFactory.ShowAlert(this, "Veuillez sélectionner la maladie, le lit et le médecin pour la réservation.");
             return;
         }
 
         string nom = TbResPatientNom.Text;
         if (string.IsNullOrWhiteSpace(nom)) {
-            MessageBox.Show("Veuillez entrer un nom de patient valide.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+            PopupFactory.ShowAlert(this, "Veuillez entrer un nom de patient valide.");
             return;
         }
 
@@ -251,18 +233,7 @@ public partial class HospitalWindow : Window {
         string classe = ((ComboBoxItem)CbResClasse.SelectedItem).Content.ToString();
 
         try {
-            _db.ExecuteNonQuery($"INSERT INTO Patients_Actifs (Nom, IdMaladie, IdLit, IdMedecinAssigné, Classe, TempsTraitementRestant, Statut) VALUES ('{nom.Replace("'", "''")}', {maladie.IdCas}, {lit.IdLit}, {medecin.IdEmploye}, '{classe}', {maladie.TempsTraitementHeures}, 'Réservé')");
-            _db.ExecuteNonQuery($"UPDATE Lit SET Statut = 'Réservé' WHERE IdLit = {lit.IdLit}");
-            int dayTime = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalDays;
-            int patientId = 0;
-            _db.ExecuteCommand("SELECT MAX(IdPatient) AS IdPatient FROM Patients_Actifs", cmd => {
-                using var reader = cmd.ExecuteReader();
-                if (reader.Read() && !reader.IsDBNull(0)) {
-                    patientId = reader.GetInt32(0);
-                }
-            });
-            
-            _db.ExecuteNonQuery($"INSERT INTO Reservation (IdPatient, IdLit, IdMedecin, DateEntree) VALUES ({patientId}, {lit.IdLit}, {medecin.IdEmploye}, {dayTime})");
+            _db.ReservePatient(nom, maladie.IdCas, lit.IdLit, medecin.IdEmploye, classe, maladie.TempsTraitementHeures);
 
             LogEvent($"📅 Réservation enregistrée pour {nom} au lit {lit.NumeroLit}");
             TbResPatientNom.Text = "";
@@ -337,7 +308,7 @@ public partial class HospitalWindow : Window {
     }
 
     private void BtnHire_Click(object sender, RoutedEventArgs e) {
-        var doctorForm = new DoctorCreationForm {
+        var doctorForm = new DoctorCreationForm(_db) {
             OnDoctorCreated = () => {
                 RefreshPersonnel();
                 RefreshDashboard();
@@ -394,15 +365,24 @@ public partial class HospitalWindow : Window {
 
     private void LvPatients_MouseRightButtonUp(object sender, MouseButtonEventArgs e) {
         if (LvPatients.SelectedItem is PatientActif patient) {
-            PatientMenu.Patient = patient;
-            PatientPopup.IsOpen = true;
+            var menu = new PatientActionMenu(patient) { Owner = this };
+            menu.ActionTriggered += (act) => HandlePatientAction(patient, act);
+
+            var mousePos = PointToScreen(Mouse.GetPosition(this));
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget != null) {
+                var matrix = source.CompositionTarget.TransformToDevice;
+                menu.Left = mousePos.X / matrix.M11;
+                menu.Top = mousePos.Y / matrix.M22;
+            } else {
+                menu.Left = mousePos.X;
+                menu.Top = mousePos.Y;
+            }
+            menu.Show();
         }
     }
 
-    private void PatientMenu_ActionTriggered(string action) {
-        PatientPopup.IsOpen = false;
-        if (PatientMenu.Patient is not PatientActif patient) return;
-
+    private void HandlePatientAction(PatientActif patient, string action) {
         switch (action) {
             case "Gueri":
                 PatientHelper.HandlePatientStatusChange(_db, patient, "Guéri");
@@ -425,6 +405,12 @@ public partial class HospitalWindow : Window {
                     RefreshMedicaments();
                 }
                 break;
+            case "AssignerMedecin":
+                var assignForm = new AssignDoctorWindow(_db, patient.IdPatient) { Owner = this };
+                if (assignForm.ShowDialog() == true) {
+                    LogEvent($"🩺 Médecin assigné pour {patient.Nom}");
+                }
+                break;
             case "Facture":
                 Nav_Click(BtnFacturation, null!);
                 break;
@@ -438,17 +424,41 @@ public partial class HospitalWindow : Window {
 
     private void LvPersonnel_MouseRightButtonUp(object sender, MouseButtonEventArgs e) {
         if (LvPersonnel.SelectedItem is Employe emp) {
-            PersonnelMenu.Employe = emp;
-            PersonnelPopup.IsOpen = true;
+            var menu = new PersonnelActionMenu(emp) { Owner = this };
+            menu.ActionTriggered += (act) => HandlePersonnelAction(emp, act);
+
+            var mousePos = PointToScreen(Mouse.GetPosition(this));
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget != null) {
+                var matrix = source.CompositionTarget.TransformToDevice;
+                menu.Left = mousePos.X / matrix.M11;
+                menu.Top = mousePos.Y / matrix.M22;
+            } else {
+                menu.Left = mousePos.X;
+                menu.Top = mousePos.Y;
+            }
+            menu.Show();
         }
     }
 
-    private void PersonnelMenu_ActionTriggered(string action) {
-        PersonnelPopup.IsOpen = false;
-        if (PersonnelMenu.Employe is not Employe emp) return;
-
+    private void HandlePersonnelAction(Employe emp, string action) {
         if (action == "Licencier") {
-            BtnFire_Click(null!, null!);
+            var firePopup = PopupFactory.CreateConfirmationPopup(
+                $"Êtes-vous sûr de vouloir licencier {emp.NomComplet} ?",
+                "#FF4D6A",
+                () => {
+                    _db.FireEmploye(emp.IdEmploye);
+                    LogEvent($"🗑 {emp.NomComplet} licencié(e)");
+                    RefreshPersonnel();
+                    RefreshDashboard();
+                    SetStatus($"✅ {emp.NomComplet} a été licencié", Color.FromRgb(255, 77, 106));
+                },
+                () => { }
+            );
+            firePopup.Owner = this;
+            DimOverlay.Visibility = Visibility.Visible;
+            firePopup.ShowDialog();
+            DimOverlay.Visibility = Visibility.Collapsed;
         }
         else {
             _db.UpdatePersonnelStatus(emp.IdEmploye, action);
@@ -486,7 +496,25 @@ public partial class HospitalWindow : Window {
         DimOverlay.Visibility = Visibility.Collapsed;
     }
 
-    private void BtnRemoveLit_Click(object sender, RoutedEventArgs e) { }
+    private void BtnRemoveLit_Click(object sender, RoutedEventArgs e) {
+        if (sender is not FrameworkElement fe || fe.DataContext is not LitInventaire lit) return;
+
+        var deletePopup = PopupFactory.CreateConfirmationPopup(
+            $"Êtes-vous sûr de vouloir supprimer le lit {lit.NumeroLit} ?",
+            "#FF4D6A",
+            () => {
+                _db.RemoveLit(lit.IdLit);
+                LogEvent($"🗑 Lit {lit.NumeroLit} détruit");
+                RefreshChambres();
+                RefreshDashboard();
+            },
+            () => { }
+        );
+        deletePopup.Owner = this;
+        DimOverlay.Visibility = Visibility.Visible;
+        deletePopup.ShowDialog();
+        DimOverlay.Visibility = Visibility.Collapsed;
+    }
 
     private void BtnRemoveChambre_Click(object sender, RoutedEventArgs e) {
         if (sender is not FrameworkElement fe || fe.DataContext is not ChambreGroup chambre) return;
@@ -538,8 +566,15 @@ public partial class HospitalWindow : Window {
             };
 
             var mousePos = PointToScreen(e.GetPosition(this));
-            _dragWindow.Left = mousePos.X + 15;
-            _dragWindow.Top = mousePos.Y + 15;
+            double dpiX = 1.0;
+            double dpiY = 1.0;
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget != null) {
+                dpiX = source.CompositionTarget.TransformToDevice.M11;
+                dpiY = source.CompositionTarget.TransformToDevice.M22;
+            }
+            _dragWindow.Left = (mousePos.X / dpiX) + 15;
+            _dragWindow.Top = (mousePos.Y / dpiY) + 15;
             _dragWindow.Show();
 
             fe.GiveFeedback += Fe_GiveFeedback;
@@ -565,8 +600,15 @@ public partial class HospitalWindow : Window {
         if (_dragWindow != null) {
             Win32Point pt = new Win32Point();
             GetCursorPos(ref pt);
-            _dragWindow.Left = pt.X + 15;
-            _dragWindow.Top = pt.Y + 15;
+            double dpiX = 1.0;
+            double dpiY = 1.0;
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget != null) {
+                dpiX = source.CompositionTarget.TransformToDevice.M11;
+                dpiY = source.CompositionTarget.TransformToDevice.M22;
+            }
+            _dragWindow.Left = (pt.X / dpiX) + 15;
+            _dragWindow.Top = (pt.Y / dpiY) + 15;
         }
     }
 
@@ -630,9 +672,9 @@ public partial class HospitalWindow : Window {
     private void RefreshMedicaments() {
         var list = _db.GetMedicaments();
         LvMedicaments.ItemsSource = list;
-        foreach (var m in list) {
-            if (m.StockActuel < m.StockMinimum) {
-            }
+        var lowStock = list.Where(m => m.StockActuel < m.StockMinimum).ToList();
+        foreach (var m in lowStock) {
+            LogEvent($"⚠️ Stock bas: {m.Nom} ({m.StockActuel}/{m.StockMinimum})");
         }
     }
 
@@ -658,7 +700,7 @@ public partial class HospitalWindow : Window {
             if (!string.IsNullOrEmpty(path) && System.IO.File.Exists(path)) {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
             } else {
-                MessageBox.Show("Le fichier HTML de la facture est introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                PopupFactory.ShowAlert(this, "Le fichier HTML de la facture est introuvable.");
             }
         }
     }

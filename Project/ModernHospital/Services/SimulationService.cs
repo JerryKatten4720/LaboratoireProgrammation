@@ -4,7 +4,7 @@ using System.Windows.Threading;
 
 namespace LaboratoireProgrammation.Project.ModernHospital;
 
-public class SimulationService {
+public class SimulationService : IDisposable {
     private readonly DatabaseManager _db;
     private DispatcherTimer? _clockTimer;
     private DateTime _gameTime;
@@ -52,33 +52,33 @@ public class SimulationService {
             if (doc.Statut == "En poste") {
                 doc.MinutesTravaillees += minutesPassed;
                 if (doc.MinutesTravaillees >= 120 && doc.MinutesTravaillees < 120 + 10) {
-                    _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET Statut = 'En pause', MinutesEnPause = 0 WHERE IdEmploye = {doc.IdEmploye}");
+                    _db.UpdatePersonnelShiftData(doc.IdEmploye, "En pause", doc.MinutesTravaillees, 0, doc.MinutesHorsPoste);
                     changed = true;
                     OnEventLog?.Invoke($"☕ {doc.NomComplet} part en pause.");
                 } else if (doc.MinutesTravaillees >= 600) {
-                    _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET Statut = 'Hors poste', MinutesHorsPoste = 0, MinutesTravaillees = 0 WHERE IdEmploye = {doc.IdEmploye}");
+                    _db.UpdatePersonnelShiftData(doc.IdEmploye, "Hors poste", 0, doc.MinutesEnPause, 0);
                     changed = true;
                     OnEventLog?.Invoke($"🌙 {doc.NomComplet} a terminé son service (10h).");
                 } else {
-                    _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET MinutesTravaillees = {doc.MinutesTravaillees} WHERE IdEmploye = {doc.IdEmploye}");
+                    _db.UpdatePersonnelMinutes(doc.IdEmploye, "MinutesTravaillees", doc.MinutesTravaillees);
                 }
             } else if (doc.Statut == "En pause") {
                 doc.MinutesEnPause += minutesPassed;
                 if (doc.MinutesEnPause >= 10) {
-                    _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET Statut = 'En poste', MinutesTravaillees = 0 WHERE IdEmploye = {doc.IdEmploye}");
+                    _db.UpdatePersonnelShiftData(doc.IdEmploye, "En poste", 0, doc.MinutesEnPause, doc.MinutesHorsPoste);
                     changed = true;
                     OnEventLog?.Invoke($"🩺 {doc.NomComplet} revient de pause.");
                 } else {
-                    _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET MinutesEnPause = {doc.MinutesEnPause} WHERE IdEmploye = {doc.IdEmploye}");
+                    _db.UpdatePersonnelMinutes(doc.IdEmploye, "MinutesEnPause", doc.MinutesEnPause);
                 }
             } else if (doc.Statut == "Hors poste") {
                 doc.MinutesHorsPoste += minutesPassed;
                 if (doc.MinutesHorsPoste >= 720) {
-                    _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET Statut = 'En poste', MinutesTravaillees = 0 WHERE IdEmploye = {doc.IdEmploye}");
+                    _db.UpdatePersonnelShiftData(doc.IdEmploye, "En poste", 0, doc.MinutesEnPause, doc.MinutesHorsPoste);
                     changed = true;
                     OnEventLog?.Invoke($"☀️ {doc.NomComplet} commence son service.");
                 } else {
-                    _db.ExecuteNonQuery($"UPDATE Personnel_Actif SET MinutesHorsPoste = {doc.MinutesHorsPoste} WHERE IdEmploye = {doc.IdEmploye}");
+                    _db.UpdatePersonnelMinutes(doc.IdEmploye, "MinutesHorsPoste", doc.MinutesHorsPoste);
                 }
             }
         }
@@ -86,5 +86,10 @@ public class SimulationService {
         if (changed) {
             OnPersonnelChanged?.Invoke();
         }
+    }
+
+    public void Dispose() {
+        Stop();
+        _clockTimer = null;
     }
 }

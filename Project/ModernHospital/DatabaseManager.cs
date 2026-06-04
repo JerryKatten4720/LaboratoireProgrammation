@@ -258,6 +258,18 @@ public class DatabaseManager {
             });
     }
 
+    public void UpdatePatientDoctor(int idPatient, int? idMedecin) {
+        ExecuteCommand("UPDATE Patients_Actifs SET IdMedecinAssigné = @med WHERE IdPatient = @id", cmd => {
+            cmd.Parameters.AddWithValue("@med", (object?)idMedecin ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@id", idPatient);
+        });
+
+        ExecuteCommand("UPDATE Reservation SET IdMedecin = @med WHERE IdPatient = @id AND Statut = 'Active'", cmd => {
+            cmd.Parameters.AddWithValue("@med", (object?)idMedecin ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@id", idPatient);
+        });
+    }
+
     public void DischargePatient(int idPatient, int? idLit, decimal revenu, int jour, string typeRevenu) {
         ExecuteCommand("UPDATE Patients_Actifs SET Statut='Guéri' WHERE IdPatient=@id", cmd => cmd.Parameters.AddWithValue("@id", idPatient));
         
@@ -514,7 +526,7 @@ public class DatabaseManager {
         }
 
         ExecuteCommand("UPDATE Patients_Actifs SET IdFacture=@f WHERE IdPatient=@p", cmd => { cmd.Parameters.AddWithValue("@f", idFacture); cmd.Parameters.AddWithValue("@p", idPatient); });
-        LogTransactionInternal(hopitalJour, "Facturation Patient", mTotal, $"Facture générée pour patient {idPatient}");
+        AddBudget(mTotal, $"Facture #{idFacture} patient #{idPatient}", hopitalJour, "Revenu Patient");
 
         return idFacture;
     }
@@ -715,6 +727,77 @@ public class DatabaseManager {
             cmd.Parameters.AddWithValue("@id", idEmploye);
         });
     }
+
+    public void UpdatePersonnelShiftData(int idEmploye, string statut, int minutesTravaillees, int minutesEnPause, int minutesHorsPoste) {
+        ExecuteCommand("UPDATE Personnel_Actif SET Statut=@s, MinutesTravaillees=@mt, MinutesEnPause=@mp, MinutesHorsPoste=@mh WHERE IdEmploye=@id", cmd => {
+            cmd.Parameters.AddWithValue("@s", statut);
+            cmd.Parameters.AddWithValue("@mt", minutesTravaillees);
+            cmd.Parameters.AddWithValue("@mp", minutesEnPause);
+            cmd.Parameters.AddWithValue("@mh", minutesHorsPoste);
+            cmd.Parameters.AddWithValue("@id", idEmploye);
+        });
+    }
+
+    public void UpdatePersonnelMinutes(int idEmploye, string minuteColumn, int value) {
+        ExecuteCommand($"UPDATE Personnel_Actif SET {minuteColumn}=@v WHERE IdEmploye=@id", cmd => {
+            cmd.Parameters.AddWithValue("@v", value);
+            cmd.Parameters.AddWithValue("@id", idEmploye);
+        });
+    }
+
+    public void ReservePatient(string nom, int idMaladie, int idLit, int idMedecin, string classe, int tempsTraitement) {
+        var jour = ExecuteScalar<int>("SELECT JourSimulation FROM Hopital LIMIT 1");
+        ExecuteCommand(
+            "INSERT INTO Patients_Actifs (Nom,IdMaladie,IdLit,IdMedecinAssigné,Classe,TempsTraitementRestant,Statut,DateEntree) VALUES (@n,@m,@l,@md,@cl,@t,'Réservé',@j)",
+            cmd => {
+                cmd.Parameters.AddWithValue("@n", nom);
+                cmd.Parameters.AddWithValue("@m", idMaladie);
+                cmd.Parameters.AddWithValue("@l", idLit);
+                cmd.Parameters.AddWithValue("@md", idMedecin);
+                cmd.Parameters.AddWithValue("@cl", classe);
+                cmd.Parameters.AddWithValue("@t", tempsTraitement);
+                cmd.Parameters.AddWithValue("@j", jour);
+            });
+
+        int idPatient = ExecuteScalar<int>("SELECT MAX(IdPatient) FROM Patients_Actifs");
+        
+        ExecuteCommand("INSERT INTO Reservation (IdPatient, IdLit, IdMedecin, DateEntree, Statut) VALUES (@p, @l, @m, @d, 'Active')", cmd => {
+            cmd.Parameters.AddWithValue("@p", idPatient);
+            cmd.Parameters.AddWithValue("@l", idLit);
+            cmd.Parameters.AddWithValue("@m", idMedecin);
+            cmd.Parameters.AddWithValue("@d", jour);
+        });
+
+        ExecuteCommand("UPDATE Lit SET Statut='Réservé' WHERE IdLit=@id", cmd => cmd.Parameters.AddWithValue("@id", idLit));
+    }
+
+    public void AdmitReservedPatient(int idPatient) {
+        var jour = ExecuteScalar<int>("SELECT JourSimulation FROM Hopital LIMIT 1");
+        int litId = 0;
+        ExecuteCommand("SELECT IdLit FROM Patients_Actifs WHERE IdPatient = @id", cmd => {
+            cmd.Parameters.AddWithValue("@id", idPatient);
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read() && !reader.IsDBNull(0)) {
+                litId = reader.GetInt32(0);
+            }
+        });
+
+        ExecuteCommand("UPDATE Patients_Actifs SET Statut = 'En Diagnostic', DateEntree = @j WHERE IdPatient = @id", cmd => {
+            cmd.Parameters.AddWithValue("@j", jour);
+            cmd.Parameters.AddWithValue("@id", idPatient);
+        });
+
+        if (litId > 0) {
+            ExecuteCommand("UPDATE Lit SET Statut = 'Occupé' WHERE IdLit = @litId", cmd => {
+                cmd.Parameters.AddWithValue("@litId", litId);
+            });
+        }
+
+        ExecuteCommand("UPDATE Reservation SET Statut = 'Terminée' WHERE IdPatient = @id AND Statut = 'Active'", cmd => {
+            cmd.Parameters.AddWithValue("@id", idPatient);
+        });
+    }
+
 
     public class ChambreBase {
         public int IdChambre { get; set; }

@@ -23,7 +23,7 @@
         <SolidColorBrush x:Key="SidebarBg" Color="#111116" />
 
         <Style TargetType="ScrollViewer">
-            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
             <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
         </Style>
 
@@ -411,7 +411,7 @@
                                 <WrapPanel>
                                     <StackPanel Margin="0,0,12,0" Width="160">
                                         <TextBlock Text="Nom du patient" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
-                                        <TextBox x:Name="TbPatientNom" Text="John Doe" />
+                                        <TextBox x:Name="TbPatientNom" />
                                     </StackPanel>
                                     <StackPanel Margin="0,0,12,0" Width="200">
                                         <TextBlock Text="Maladie" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
@@ -697,7 +697,7 @@
                                         <GridViewColumn Header="Médecin" DisplayMemberBinding="{Binding Nom}" Width="150" />
                                         <GridViewColumn Header="Patients" DisplayMemberBinding="{Binding PatientsTraites}" Width="150" />
                                         <GridViewColumn Header="Guérison" DisplayMemberBinding="{Binding TauxGuerison}" Width="150" />
-                                        <GridViewColumn Header="Revenus" DisplayMemberBinding="{Binding RevenusGeneres}" Width="150" />
+                                        <GridViewColumn Header="Revenus" DisplayMemberBinding="{Binding RevenuGenere}" Width="150" />
                                     </GridView>
                                 </ListView.View>
                             </ListView>
@@ -722,7 +722,7 @@
                                 <WrapPanel>
                                     <StackPanel Margin="0,0,12,0" Width="160">
                                         <TextBlock Text="Nom du patient" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
-                                        <TextBox x:Name="TbResPatientNom" Text="Jane Doe" />
+                                        <TextBox x:Name="TbResPatientNom" />
                                     </StackPanel>
                                     <StackPanel Margin="0,0,12,0" Width="200">
                                         <TextBlock Text="Maladie" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
@@ -753,10 +753,10 @@
                             <ListView x:Name="LvReservations" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Chambre" DisplayMemberBinding="{Binding NumeroChambre}" Width="80" />
-                                        <GridViewColumn Header="Lit" DisplayMemberBinding="{Binding NumeroLit}" Width="80" />
-                                        <GridViewColumn Header="Patient" DisplayMemberBinding="{Binding PatientNom}" Width="150" />
-                                        <GridViewColumn Header="Médecin" DisplayMemberBinding="{Binding MedecinNom}" Width="150" />
+                                        <GridViewColumn Header="Chambre" DisplayMemberBinding="{Binding Chambre}" Width="80" />
+                                        <GridViewColumn Header="Lit" DisplayMemberBinding="{Binding Lit}" Width="80" />
+                                        <GridViewColumn Header="Patient" DisplayMemberBinding="{Binding Patient}" Width="150" />
+                                        <GridViewColumn Header="Médecin" DisplayMemberBinding="{Binding Medecin}" Width="150" />
                                         <GridViewColumn Header="Entrée" DisplayMemberBinding="{Binding DateEntree}" Width="100" />
                                         <GridViewColumn Header="Durée" DisplayMemberBinding="{Binding DureeSejour}" Width="100" />
                                         <GridViewColumn Header="Statut" DisplayMemberBinding="{Binding Statut}" Width="100" />
@@ -766,13 +766,7 @@
                         </Border>
                     </Grid>
 
-                    <Popup x:Name="PatientPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
-                        <local:PatientActionMenu x:Name="PatientMenu" ActionTriggered="PatientMenu_ActionTriggered" />
-                    </Popup>
 
-                    <Popup x:Name="PersonnelPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
-                        <local:PersonnelActionMenu x:Name="PersonnelMenu" ActionTriggered="PersonnelMenu_ActionTriggered" />
-                    </Popup>
 
                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#0e0e14" Height="40" Padding="16,2" Margin="0,0">
                         <DockPanel VerticalAlignment="Center">

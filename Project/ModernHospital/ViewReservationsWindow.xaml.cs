@@ -24,31 +24,15 @@ namespace LaboratoireProgrammation.Project.ModernHospital {
         private void BtnAdmettre_Click(object sender, RoutedEventArgs e) {
             if (LvReservations.SelectedItem is PatientActif patient) {
                 try {
-                    int dayTime = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalDays;
-                    _db.ExecuteNonQuery($"UPDATE Patients_Actifs SET Statut = 'En Attente', DateEntree = {dayTime} WHERE IdPatient = {patient.IdPatient}");
-                    
-                    int litId = 0;
-                    _db.ExecuteCommand($"SELECT IdLit FROM Patients_Actifs WHERE IdPatient = {patient.IdPatient}", cmd => {
-                        using var reader = cmd.ExecuteReader();
-                        if (reader.Read() && !reader.IsDBNull(0)) {
-                            litId = reader.GetInt32(0);
-                        }
-                    });
-
-                    if (litId > 0) {
-                        _db.ExecuteNonQuery($"UPDATE Lit SET Statut = 'Occupé' WHERE IdLit = {litId}");
-                    }
-
-                    _db.ExecuteNonQuery($"UPDATE Reservation SET Statut = 'Terminée' WHERE IdPatient = {patient.IdPatient} AND Statut = 'Active'");
-
-                    MessageBox.Show($"Le patient {patient.Nom} a été admis avec succès.", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _db.AdmitReservedPatient(patient.IdPatient);
+                    PopupFactory.ShowAlert(this, $"Le patient {patient.Nom} a été admis avec succès.", "#00d4aa");
                     DialogResult = true;
                 }
                 catch (Exception ex) {
-                    MessageBox.Show($"Erreur lors de l'admission : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    PopupFactory.ShowAlert(this, $"Erreur lors de l'admission : {ex.Message}", "#FF4D6A");
                 }
             } else {
-                MessageBox.Show("Veuillez sélectionner une réservation à admettre.", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                PopupFactory.ShowAlert(this, "Veuillez sélectionner une réservation à admettre.");
             }
         }
     }

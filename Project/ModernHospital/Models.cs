@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -178,7 +177,7 @@ public class HitParadeEntry {
 public static class PatientHelper {
     public static bool HandlePatientStatusChange(DatabaseManager db, PatientActif p, string s) {
         if (p == null) return false;
-        db.ExecuteNonQuery($"UPDATE Patients_Actifs SET Statut = '{s}' WHERE IdPatient = {p.IdPatient}");
+        db.UpdatePatientStatut(p.IdPatient, s);
         
         if (s == "Guéri" || s == "Décédé") {
             int idFacture = db.GenerateFacture(p.IdPatient);
@@ -187,7 +186,6 @@ public static class PatientHelper {
             var hosp = db.GetHospital();
             if (facture != null && hosp != null) {
                 Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes, p.MedecinEnCharge ?? "Docteur Inconnu");
-                db.ExecuteNonQuery($"UPDATE Hopital SET Budget = Budget + {facture.MontantTotal.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
             }
             db.CloseReservation(p.IdPatient);
             db.ReleaseBed(p.IdPatient);

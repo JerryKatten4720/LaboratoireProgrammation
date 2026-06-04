@@ -37,27 +37,27 @@ public partial class AddMedicamentForm : Window {
 
     private void BtnSave_Click(object sender, RoutedEventArgs e) {
         if (string.IsNullOrWhiteSpace(TbNom.Text)) {
-            MessageBox.Show("Le nom est obligatoire.");
+            PopupFactory.ShowAlert(this, "Le nom est obligatoire.");
             return;
         }
 
         if (!int.TryParse(TbStockActuel.Text, out var sa) || sa < 0) {
-            MessageBox.Show("Stock actuel invalide.");
+            PopupFactory.ShowAlert(this, "Stock actuel invalide.");
             return;
         }
 
         if (!int.TryParse(TbStockMinimum.Text, out var sm) || sm < 0) {
-            MessageBox.Show("Stock minimum invalide.");
+            PopupFactory.ShowAlert(this, "Stock minimum invalide.");
             return;
         }
 
         if (!decimal.TryParse(TbPrix.Text, out var prix) || prix < 0) {
-            MessageBox.Show("Prix unitaire invalide.");
+            PopupFactory.ShowAlert(this, "Prix unitaire invalide.");
             return;
         }
 
         if (CbUnite.SelectedValue is not int idUnite) {
-            MessageBox.Show("Veuillez sélectionner une unité.");
+            PopupFactory.ShowAlert(this, "Veuillez sélectionner une unité.");
             return;
         }
 
@@ -70,7 +70,7 @@ public partial class AddMedicamentForm : Window {
             DialogResult = true;
             Close();
         } catch (Exception ex) {
-            MessageBox.Show("Erreur: " + ex.Message);
+            PopupFactory.ShowAlert(this, "Erreur: " + ex.Message);
         }
     }
 }

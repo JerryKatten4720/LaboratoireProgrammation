@@ -1,3 +1,5 @@
+using System;
+using System.Windows;
 using System.Windows.Media;
 
 namespace LaboratoireProgrammation.Project.ModernHospital;
@@ -14,5 +16,11 @@ public static class PopupFactory {
             OnYesConfirmed = yesAction,
             OnNoConfirmed = noAction
         };
+    }
+
+    public static void ShowAlert(Window owner, string message, string hexColor = "#FFB347") {
+        var alertPopup = CreateConfirmationPopup(message, hexColor, () => { });
+        alertPopup.Owner = owner;
+        alertPopup.ShowDialog();
     }
 }
