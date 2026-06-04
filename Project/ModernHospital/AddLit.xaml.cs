@@ -26,7 +26,10 @@ public partial class AddLitForm : Window {
         var numLit = TbNumeroLit.Text.Trim();
         if (string.IsNullOrEmpty(numLit)) return;
 
-        _db.AddLit(chambre.IdChambre, numLit);
+        if (!_db.AddLit(chambre.IdChambre, numLit)) {
+            MessageBox.Show("Impossible d'ajouter le lit : la chambre a atteint sa capacité maximale de lits.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
 
         OnLitCreated?.Invoke();
         Close();

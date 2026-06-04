@@ -224,6 +224,35 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="FilterRadioStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+            <Setter Property="FontFamily" Value="Segoe UI Semibold" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="8,4" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+                                <Setter Property="Background" Value="#1e1e28" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource AccentTeal}" />
+                                <Setter Property="Background" Value="#1a2e2b" />
+                                <Setter Property="BorderBrush" Value="{StaticResource AccentTeal}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Window.Resources>
     
     <Grid>
@@ -378,7 +407,15 @@
 
                         <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
                             <DockPanel>
-                                <TextBlock DockPanel.Dock="Top" Text="Journal des Événements" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" Margin="0,0,0,14" />
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+                                    <TextBlock Text="Journal des Événements" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" VerticalAlignment="Center" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <RadioButton x:Name="RbFilterAll" Content="Tous" IsChecked="True" Style="{StaticResource FilterRadioStyle}" Click="RbFilter_Click" Margin="0,0,8,0" />
+                                        <RadioButton x:Name="RbFilterPatient" Content="Patients" Style="{StaticResource FilterRadioStyle}" Click="RbFilter_Click" Margin="0,0,8,0" />
+                                        <RadioButton x:Name="RbFilterMedecin" Content="Médecins" Style="{StaticResource FilterRadioStyle}" Click="RbFilter_Click" Margin="0,0,8,0" />
+                                        <RadioButton x:Name="RbFilterLogistique" Content="Logistique" Style="{StaticResource FilterRadioStyle}" Click="RbFilter_Click" />
+                                    </StackPanel>
+                                </DockPanel>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl x:Name="IcEventLog">
                                         <ItemsControl.ItemTemplate>
@@ -459,12 +496,14 @@
                                             <GridView>
                                                 <GridViewColumn Header="!" Width="30" DisplayMemberBinding="{Binding WarningIcon}" />
                                                 <GridViewColumn Header="ID" Width="45" DisplayMemberBinding="{Binding IdPatient}" />
-                                                <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding Nom}" />
-                                                <GridViewColumn Header="Maladie" Width="160" DisplayMemberBinding="{Binding Maladie}" />
-                                                <GridViewColumn Header="Statut" Width="110" DisplayMemberBinding="{Binding Statut}" />
-                                                <GridViewColumn Header="Classe" Width="90" DisplayMemberBinding="{Binding Classe}" />
-                                                <GridViewColumn Header="Chambre" Width="90" DisplayMemberBinding="{Binding NumeroChambre}" />
-                                                <GridViewColumn Header="Médecin" Width="140" DisplayMemberBinding="{Binding MedecinEnCharge}" />
+                                                <GridViewColumn Header="Nom" Width="120" DisplayMemberBinding="{Binding Nom}" />
+                                                <GridViewColumn Header="Maladie" Width="140" DisplayMemberBinding="{Binding Maladie}" />
+                                                <GridViewColumn Header="Statut" Width="100" DisplayMemberBinding="{Binding Statut}" />
+                                                <GridViewColumn Header="Classe" Width="80" DisplayMemberBinding="{Binding Classe}" />
+                                                <GridViewColumn Header="Chambre" Width="80" DisplayMemberBinding="{Binding NumeroChambre}" />
+                                                <GridViewColumn Header="Médecin" Width="120" DisplayMemberBinding="{Binding MedecinEnCharge}" />
+                                                <GridViewColumn Header="Temps Restant" Width="110" DisplayMemberBinding="{Binding TempsRestantAffichage}" />
+                                                <GridViewColumn Header="Profit Estimé" Width="100" DisplayMemberBinding="{Binding EstimatedProfit, StringFormat={}{0:C}}" />
                                             </GridView>
                                         </ListView.View>
                                     </ListView>
@@ -531,7 +570,7 @@
                                                 <GridViewColumn Header="Catégorie" Width="140" DisplayMemberBinding="{Binding Categorie}" />
                                                 <GridViewColumn Header="Rôle" Width="160" DisplayMemberBinding="{Binding RoleExact}" />
                                                 <GridViewColumn Header="Spécialité" Width="140" DisplayMemberBinding="{Binding Specialite}" />
-                                                <GridViewColumn Header="Statut" Width="100" DisplayMemberBinding="{Binding Statut}" />
+                                                <GridViewColumn Header="Statut" Width="180" DisplayMemberBinding="{Binding StatutAffichage}" />
                                                 <GridViewColumn Header="Salaire/J" Width="90" DisplayMemberBinding="{Binding SalaireJour, StringFormat={}{0:C}}" />
                                             </GridView>
                                         </ListView.View>
@@ -689,22 +728,28 @@
                     <Grid x:Name="PanelFacturation" Visibility="Collapsed" Margin="28,24,28,24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Margin="0,0,0,20">
                             <TextBlock Text="Facturation" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
                             <TextBlock Text="Gestion des factures" Foreground="{StaticResource TextSecondary}" FontSize="13" />
                         </StackPanel>
-                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,15">
+                            <Button x:Name="BtnFilterAllInvoices" Content="Toutes les factures" Click="BtnFilterInvoices_Click" Tag="Tous" Height="34" Width="150" Background="#3a3a4d" Foreground="White" BorderThickness="0" Margin="0,0,10,0" FontFamily="Segoe UI Semibold" Cursor="Hand"/>
+                            <Button x:Name="BtnFilterPatientInvoices" Content="Factures Patients" Click="BtnFilterInvoices_Click" Tag="Patient" Height="34" Width="140" Background="#2a2a38" Foreground="White" BorderThickness="0" Margin="0,0,10,0" FontFamily="Segoe UI Semibold" Cursor="Hand"/>
+                            <Button x:Name="BtnFilterHospitalInvoices" Content="Factures Hôpital" Click="BtnFilterInvoices_Click" Tag="Hopital" Height="34" Width="140" Background="#2a2a38" Foreground="White" BorderThickness="0" FontFamily="Segoe UI Semibold" Cursor="Hand"/>
+                        </StackPanel>
+                        <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
                             <ListView x:Name="LvFactures" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Facture #" DisplayMemberBinding="{Binding CodeFacture}" Width="100" />
-                                        <GridViewColumn Header="Patient" DisplayMemberBinding="{Binding PatientNom}" Width="150" />
+                                        <GridViewColumn Header="Destinataire / Patient" DisplayMemberBinding="{Binding PatientNom}" Width="200" />
                                         <GridViewColumn Header="Date" DisplayMemberBinding="{Binding JourEmission}" Width="100" />
                                         <GridViewColumn Header="Total" DisplayMemberBinding="{Binding MontantTotal}" Width="100" />
                                         <GridViewColumn Header="Statut" DisplayMemberBinding="{Binding Statut}" Width="100" />
-                                        <GridViewColumn Header="Action" Width="100">
+                                        <GridViewColumn Header="Action" Width="110">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Button Content="Ouvrir HTML" Click="BtnOuvrirFactureHtml_Click" Tag="{Binding}" Background="#3b82f6" Foreground="White" BorderThickness="0" Padding="5,2" Cursor="Hand" />

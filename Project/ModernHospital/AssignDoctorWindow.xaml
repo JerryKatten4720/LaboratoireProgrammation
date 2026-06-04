@@ -2,53 +2,50 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Assigner un Médecin" Height="220" Width="380"
-        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
-    <Border Background="#121218" CornerRadius="12" BorderBrush="#2a2a38" BorderThickness="1.5">
-        <Grid Margin="24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="#121218">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Text="Assigner un Médecin" Foreground="#f0f0f5" FontSize="16" FontWeight="Bold" Margin="0,0,0,16"/>
+        <TextBlock Grid.Row="0" Text="Assigner un Médecin" Foreground="#f0f0f5" FontSize="16" FontWeight="Bold" Margin="0,0,0,16"/>
 
-            <StackPanel Grid.Row="1" VerticalAlignment="Center">
-                <TextBlock Text="Médecin traitant" Foreground="#8888aa" FontSize="11" Margin="0,0,0,6"/>
-                <ComboBox x:Name="CbMedecin" Background="#1c1c22" Foreground="#f0f0f5" BorderBrush="#2a2a38" Height="38" Padding="10,0">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding NomComplet}" Foreground="White" Background="Transparent"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-            </StackPanel>
+        <StackPanel Grid.Row="1" VerticalAlignment="Center">
+            <TextBlock Text="Médecin traitant" Foreground="#8888aa" FontSize="11" Margin="0,0,0,6"/>
+            <ComboBox x:Name="CbMedecin" Background="#1c1c22" Foreground="#f0f0f5" BorderBrush="#2a2a38" Height="38" Padding="10,0">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding NomComplet}" Foreground="White" Background="Transparent"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
 
-            <Grid Grid.Row="2" Margin="0,16,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="Annuler" Click="BtnCancel_Click" Margin="0,0,8,0" Height="36" Background="Transparent" Foreground="#8888aa" BorderBrush="#2a2a38" BorderThickness="1" FontWeight="SemiBold">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-                <Button Grid.Column="1" Content="Confirmer" Click="BtnConfirm_Click" Margin="8,0,0,0" Height="36" Background="#5865F2" Foreground="White" BorderThickness="0" FontWeight="SemiBold">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Grid>
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Annuler" Click="BtnCancel_Click" Margin="0,0,8,0" Height="36" Background="Transparent" Foreground="#8888aa" BorderBrush="#2a2a38" BorderThickness="1" FontWeight="SemiBold">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button Grid.Column="1" Content="Confirmer" Click="BtnConfirm_Click" Margin="8,0,0,0" Height="36" Background="#5865F2" Foreground="White" BorderThickness="0" FontWeight="SemiBold">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
         </Grid>
-    </Border>
+    </Grid>
 </Window>

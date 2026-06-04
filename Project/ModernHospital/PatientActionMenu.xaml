@@ -74,6 +74,13 @@
                 </StackPanel>
             </Button>
 
+            <Button Style="{StaticResource MenuBtn}" Click="FraisSupplementaires_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="💰 " Margin="0,0,10,0" />
+                    <TextBlock Text="Frais supplémentaires" Foreground="#bbaaff" />
+                </StackPanel>
+            </Button>
+
             <Separator Background="#2a2a38" Margin="8,4" />
 
             <TextBlock Text="CHANGER STATUT" Foreground="#8888aa" FontSize="10" FontWeight="Bold" Margin="12,4,12,4" />

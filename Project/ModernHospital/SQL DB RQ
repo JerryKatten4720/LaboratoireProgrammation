@@ -249,12 +249,13 @@ CREATE TABLE Cas_Cliniques (
                                Symptomes TEXT NOT NULL,
                                Diagnostic TEXT NOT NULL,
                                Traitements TEXT NOT NULL,
+
                                TempsTraitementHeures FLOAT NOT NULL,
                                RevenuPatient DECIMAL(10, 2) NOT NULL,
                                PrixChambreJour DECIMAL(10, 2) DEFAULT 500.00,
                                PrixSoinBase DECIMAL(10, 2) DEFAULT 1000.00,
                                RisqueErreurMedicale INT DEFAULT 5,
-                               TauxRemission FLOAT DEFAULT 50.0,
+                               TauxRemission FLOAT(5,2) DEFAULT 50.0,
                                SpecialisteTraitement VARCHAR(100),
                                FOREIGN KEY (IdService) REFERENCES Service(IdService) ON DELETE CASCADE
 );

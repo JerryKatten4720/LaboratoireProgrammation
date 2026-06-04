@@ -52,4 +52,9 @@ public partial class PatientActionMenu : Window {
         ActionTriggered?.Invoke("Facture");
         Close();
     }
+
+    private void FraisSupplementaires_Click(object sender, RoutedEventArgs e) {
+        ActionTriggered?.Invoke("FraisSupplementaires");
+        Close();
+    }
 }

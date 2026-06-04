@@ -5,8 +5,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         x:Name="RootComponent"
-        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" SizeToContent="WidthAndHeight">
+        Title="Alerte / Confirmation" Height="315" Width="488"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="#121212">
 
     <Window.Resources>
         <Style x:Key="ModernHospitalButtonStyle" TargetType="Button">
@@ -35,57 +35,48 @@
         </Style>
     </Window.Resources>
 
-        <Border Width="488"
-                Height="315"
-                Background="#121212"
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Background="#181818"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Padding="12,8,18,8"
                 BorderBrush="{Binding OutlineBrush, ElementName=RootComponent}"
-                BorderThickness="2"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Border Background="#181818"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Padding="12,8,18,8"
-                        BorderBrush="{Binding OutlineBrush, ElementName=RootComponent}"
-                        BorderThickness="0,0,1,1">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <TextBlock Text="✚ " Foreground="{Binding OutlineBrush, ElementName=RootComponent}"
-                                       FontSize="9" FontWeight="Bold" VerticalAlignment="Center" />
-                            <TextBlock Text="RUE DE LONDRES"
-                                       Foreground="{Binding OutlineBrush, ElementName=RootComponent}" FontSize="9"
-                                       FontWeight="Bold" />
-                        </StackPanel>
-                        <TextBlock Text="MEMORIAL" Foreground="White" FontSize="16" FontWeight="Black" Margin="0,0,0,1" />
-                        <TextBlock Text="SAFEZONE • HOSPITAL" Foreground="#555555" FontSize="8" FontWeight="Bold" />
-                    </StackPanel>
-                </Border>
-
-                <TextBlock Grid.Row="1"
-                           Text="{Binding MessageText, ElementName=RootComponent}"
-                           Foreground="White"
-                           FontSize="20"
-                           TextAlignment="Center"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           TextWrapping="Wrap"
-                           MaxWidth="400"
-                           LineHeight="28" />
-
-                <UniformGrid Grid.Row="2" Columns="2" Margin="18,0,18,24">
-                    <Button Content="YES" Style="{StaticResource ModernHospitalButtonStyle}" Margin="0,0,8,0"
-                            Click="YesButton_Click" />
-                    <Button Content="NO" Style="{StaticResource ModernHospitalButtonStyle}" Margin="8,0,0,0"
-                            Click="NoButton_Click" />
-                </UniformGrid>
-            </Grid>
+                BorderThickness="0,0,1,1">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                    <TextBlock Text="✚ " Foreground="{Binding OutlineBrush, ElementName=RootComponent}"
+                               FontSize="9" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="RUE DE LONDRES"
+                               Foreground="{Binding OutlineBrush, ElementName=RootComponent}" FontSize="9"
+                               FontWeight="Bold" />
+                </StackPanel>
+                <TextBlock Text="MEMORIAL" Foreground="White" FontSize="16" FontWeight="Black" Margin="0,0,0,1" />
+                <TextBlock Text="SAFEZONE • HOSPITAL" Foreground="#555555" FontSize="8" FontWeight="Bold" />
+            </StackPanel>
         </Border>
+
+        <TextBlock Grid.Row="1"
+                   Text="{Binding MessageText, ElementName=RootComponent}"
+                   Foreground="White"
+                   FontSize="20"
+                   TextAlignment="Center"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   MaxWidth="400"
+                   LineHeight="28" />
+
+        <UniformGrid Grid.Row="2" Columns="2" Margin="18,0,18,24">
+            <Button Content="YES" Style="{StaticResource ModernHospitalButtonStyle}" Margin="0,0,8,0"
+                    Click="YesButton_Click" />
+            <Button Content="NO" Style="{StaticResource ModernHospitalButtonStyle}" Margin="8,0,0,0"
+                    Click="NoButton_Click" />
+        </UniformGrid>
+    </Grid>
 </Window>

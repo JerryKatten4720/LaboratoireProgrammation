@@ -51,7 +51,23 @@ public class Employe {
     public int MinutesTravaillees { get; set; }
     public int MinutesEnPause { get; set; }
     public int MinutesHorsPoste { get; set; }
+    public int ProchainePauseMinutes { get; set; } = 120;
     public string NomComplet => $"{Prenom} {Nom}";
+    public string StatutAffichage {
+        get {
+            if (Statut == "En poste") {
+                int remaining = 600 - MinutesTravaillees;
+                if (remaining < 0) remaining = 0;
+                return $"En poste ({remaining / 60}h {remaining % 60:D2}m)";
+            }
+            if (Statut == "Hors poste") {
+                int remaining = 720 - MinutesHorsPoste;
+                if (remaining < 0) remaining = 0;
+                return $"Hors poste ({remaining / 60}h {remaining % 60:D2}m)";
+            }
+            return Statut;
+        }
+    }
 }
 
 public class Candidat {
@@ -85,6 +101,17 @@ public class PatientActif {
     public string WarningIcon => string.IsNullOrEmpty(NumeroChambre) || string.IsNullOrEmpty(MedecinEnCharge) ? "⚠️" : "";
     public int? DateEntree { get; set; }
     public int? IdFacture { get; set; }
+    public float TempsTraitementTotal { get; set; }
+    public decimal EstimatedProfit { get; set; }
+    public float TempsSansMedecin { get; set; }
+    public string TempsRestantAffichage {
+        get {
+            if (Statut == "Réservé") return "Non démarré";
+            int totalMinutes = (int)(TempsTraitementRestant * 60);
+            if (totalMinutes < 0) totalMinutes = 0;
+            return $"{totalMinutes / 60}h {totalMinutes % 60:D2}m";
+        }
+    }
 }
 
 public class LitInventaire {
@@ -167,6 +194,18 @@ public class Facture {
     }
 }
 
+public class FactureDisplayItem {
+    public string CodeFacture { get; set; } = "";
+    public string PatientNom { get; set; } = "";
+    public int JourEmission { get; set; }
+    public decimal MontantTotal { get; set; }
+    public string Statut { get; set; } = "";
+    public string Type { get; set; } = "";
+    public string Description { get; set; } = "";
+    public int IdRealFacture { get; set; }
+    public string CheminFichier { get; set; } = "";
+}
+
 public class LigneFacture {
     public int IdLigne { get; set; }
     public int IdFacture { get; set; }
@@ -214,7 +253,17 @@ public static class PatientHelper {
                     Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes, p.MedecinEnCharge ?? "Docteur Inconnu");
                 }
                 db.CloseReservation(p.IdPatient);
-                db.ReleaseBed(p.IdPatient);
+                if (s == "Décédé") {
+                    int? coldBedId = db.GetFreeColdChamberBed();
+                    if (coldBedId.HasValue) {
+                        db.TransferToColdChamber(p.IdPatient, coldBedId.Value);
+                    } else {
+                        db.ReleaseBed(p.IdPatient);
+                        db.IncrementAccumulatedFuneralFees();
+                    }
+                } else {
+                    db.ReleaseBed(p.IdPatient);
+                }
             }
             return true;
         } catch (System.Exception ex) {
@@ -270,4 +319,9 @@ public class DashboardStats {
     public int PatientsEnTraitement { get; set; }
     public int PatientsGueris { get; set; }
     public int PatientsDeces { get; set; }
+}
+
+public class EventEntry {
+    public string Message { get; set; } = "";
+    public string Category { get; set; } = "Logistique";
 }

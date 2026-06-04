@@ -128,7 +128,8 @@ public class DatabaseManager {
             Statut = reader.GetString("Statut"),
             MinutesTravaillees = reader.GetInt32("MinutesTravaillees"),
             MinutesEnPause = reader.GetInt32("MinutesEnPause"),
-            MinutesHorsPoste = reader.GetInt32("MinutesHorsPoste")
+            MinutesHorsPoste = reader.GetInt32("MinutesHorsPoste"),
+            ProchainePauseMinutes = reader.IsDBNull(reader.GetOrdinal("ProchainePauseMinutes")) ? 120 : reader.GetInt32("ProchainePauseMinutes")
         });
     }
 
@@ -192,22 +193,78 @@ public class DatabaseManager {
     }
 
     public List<PatientActif> GetPatients() {
-        return GetList("SELECT * FROM Helper_Patients_Dashboard", reader => new PatientActif {
-            IdPatient = reader.GetInt32("IdPatient"),
-            Nom = reader.GetString("Patient"),
-            Maladie = reader.GetString("Maladie"),
-            SanteActuelle = reader.GetInt32("SanteActuelle"),
-            Satisfaction = reader.GetInt32("Satisfaction"),
-            Classe = reader.GetString("Classe"),
-            Statut = reader.GetString("Statut"),
-            NumeroChambre = GetStringNullable(reader, "NumeroChambre") ?? "N/A",
-            NumeroLit = GetStringNullable(reader, "NumeroLit") ?? "N/A",
-            MedecinEnCharge = GetStringNullable(reader, "MedecinEnCharge") ?? "Non assigné"
+        var sql = @"
+            SELECT 
+                p.IdPatient,
+                p.Nom AS Patient,
+                m.Maladie,
+                p.SanteActuelle,
+                p.Satisfaction,
+                p.Classe,
+                p.Statut,
+                c.NumeroChambre,
+                l.NumeroLit,
+                med.Nom AS MedecinEnCharge,
+                p.TempsTraitementRestant,
+                p.IdMaladie,
+                p.IdLit,
+                p.IdMedecinAssigné,
+                p.DateEntree,
+                p.IdFacture,
+                m.TempsTraitementHeures,
+                m.PrixChambreJour,
+                m.PrixSoinBase,
+                (SELECT JourSimulation FROM Hopital LIMIT 1) AS JourSimulation,
+                COALESCE((
+                    SELECT SUM(pr.Quantite * med_p.PrixUnitaire)
+                    FROM Prescription pr
+                    JOIN Medicament med_p ON pr.IdMedicament = med_p.IdMedicament
+                    WHERE pr.IdPatient = p.IdPatient
+                ), 0) AS MontantMedicaments
+            FROM Patients_Actifs p
+            JOIN Cas_Cliniques m ON p.IdMaladie = m.IdCas
+            LEFT JOIN Lit l ON p.IdLit = l.IdLit
+            LEFT JOIN Chambre c ON l.IdChambre = c.IdChambre
+            LEFT JOIN Personnel_Actif med ON p.IdMedecinAssigné = med.IdEmploye";
+
+        return GetList(sql, reader => {
+            int currentJour = reader.GetInt32("JourSimulation");
+            int dateEntree = reader.IsDBNull(reader.GetOrdinal("DateEntree")) ? currentJour : reader.GetInt32("DateEntree");
+            int duree = currentJour - dateEntree;
+            if (duree <= 0) duree = 1;
+            decimal prixChambreJour = reader.GetDecimal("PrixChambreJour");
+            decimal prixSoinBase = reader.GetDecimal("PrixSoinBase");
+            decimal montMedicaments = reader.GetDecimal("MontantMedicaments");
+            decimal estimatedProfit = (duree * prixChambreJour) + prixSoinBase + montMedicaments;
+
+            return new PatientActif {
+                IdPatient = reader.GetInt32("IdPatient"),
+                Nom = reader.GetString("Patient"),
+                Maladie = reader.GetString("Maladie"),
+                SanteActuelle = reader.GetInt32("SanteActuelle"),
+                Satisfaction = reader.GetInt32("Satisfaction"),
+                Classe = reader.GetString("Classe"),
+                Statut = reader.GetString("Statut"),
+                NumeroChambre = GetStringNullable(reader, "NumeroChambre") ?? "N/A",
+                NumeroLit = GetStringNullable(reader, "NumeroLit") ?? "N/A",
+                MedecinEnCharge = GetStringNullable(reader, "MedecinEnCharge") ?? "Non assigné",
+                TempsTraitementRestant = reader.IsDBNull(reader.GetOrdinal("TempsTraitementRestant")) ? 0f : reader.GetFloat("TempsTraitementRestant"),
+                IdMaladie = reader.GetInt32("IdMaladie"),
+                IdLit = GetIntNullable(reader, "IdLit"),
+                IdMedecinAssigne = GetIntNullable(reader, "IdMedecinAssigné"),
+                DateEntree = reader.IsDBNull(reader.GetOrdinal("DateEntree")) ? (int?)null : reader.GetInt32("DateEntree"),
+                IdFacture = GetIntNullable(reader, "IdFacture"),
+                TempsTraitementTotal = reader.IsDBNull(reader.GetOrdinal("TempsTraitementHeures")) ? 0f : reader.GetFloat("TempsTraitementHeures"),
+                EstimatedProfit = estimatedProfit
+            };
         });
     }
 
     public List<PatientActif> GetPatientsRaw() {
-        return GetList("SELECT * FROM Patients_Actifs", reader => new PatientActif {
+        return GetList(@"
+            SELECT p.*, c.TempsTraitementHeures 
+            FROM Patients_Actifs p 
+            JOIN Cas_Cliniques c ON p.IdMaladie = c.IdCas", reader => new PatientActif {
             IdPatient = reader.GetInt32("IdPatient"),
             Nom = reader.GetString("Nom"),
             IdMaladie = reader.GetInt32("IdMaladie"),
@@ -217,7 +274,8 @@ public class DatabaseManager {
             Satisfaction = reader.GetInt32("Satisfaction"),
             Classe = reader.GetString("Classe"),
             TempsTraitementRestant = reader.IsDBNull(reader.GetOrdinal("TempsTraitementRestant")) ? 0f : reader.GetFloat("TempsTraitementRestant"),
-            Statut = reader.GetString("Statut")
+            Statut = reader.GetString("Statut"),
+            TempsTraitementTotal = reader.IsDBNull(reader.GetOrdinal("TempsTraitementHeures")) ? 0f : reader.GetFloat("TempsTraitementHeures")
         });
     }
 
@@ -513,7 +571,17 @@ public class DatabaseManager {
             mMed /= 2;
         }
 
-        decimal mTotal = mChambre + mSoins + mMed;
+        var extraFees = GetList("SELECT NomFrais, Montant FROM Frais_Supplementaires WHERE IdPatient=@id", reader => new {
+            Nom = reader.GetString("NomFrais"),
+            Montant = reader.GetDecimal("Montant")
+        }, cmd => cmd.Parameters.AddWithValue("@id", idPatient));
+
+        decimal mExtra = 0;
+        foreach (var fee in extraFees) {
+            mExtra += fee.Montant;
+        }
+
+        decimal mTotal = mChambre + mSoins + mMed + mExtra;
         string codeFacture = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
 
         int idFacture = 0;
@@ -554,6 +622,15 @@ public class DatabaseManager {
                 cmd.Parameters.AddWithValue("@s", sTotal);
             });
             ExecuteCommand("UPDATE Prescription SET Statut='Terminée' WHERE IdPrescription=@id", cmd => cmd.Parameters.AddWithValue("@id", p.IdPrescription));
+        }
+
+        foreach (var fee in extraFees) {
+            ExecuteCommand("INSERT INTO LigneFacture (IdFacture, TypePrestation, Description, Quantite, PrixUnitaire, SousTotal) VALUES (@id, 'Autre', @d, 1, @p, @s)", cmd => {
+                cmd.Parameters.AddWithValue("@id", idFacture);
+                cmd.Parameters.AddWithValue("@d", fee.Nom);
+                cmd.Parameters.AddWithValue("@p", fee.Montant);
+                cmd.Parameters.AddWithValue("@s", fee.Montant);
+            });
         }
 
         ExecuteCommand("UPDATE Patients_Actifs SET IdFacture=@f WHERE IdPatient=@p", cmd => { cmd.Parameters.AddWithValue("@f", idFacture); cmd.Parameters.AddWithValue("@p", idPatient); });
@@ -715,11 +792,17 @@ public class DatabaseManager {
         });
     }
 
-    public void AddLit(int idChambre, string numeroLit) {
+    public bool AddLit(int idChambre, string numeroLit) {
+        int count = ExecuteScalar<int>("SELECT COUNT(*) FROM Lit WHERE IdChambre = @id", cmd => cmd.Parameters.AddWithValue("@id", idChambre));
+        int capacity = ExecuteScalar<int>("SELECT COALESCE(CapaciteLits, 2) FROM Chambre WHERE IdChambre = @id", cmd => cmd.Parameters.AddWithValue("@id", idChambre));
+        if (count >= capacity) {
+            return false;
+        }
         ExecuteCommand("INSERT INTO Lit (IdChambre, NumeroLit, Statut) VALUES (@id, @num, 'Libre')", cmd => {
             cmd.Parameters.AddWithValue("@id", idChambre);
             cmd.Parameters.AddWithValue("@num", numeroLit);
         });
+        return true;
     }
 
     public List<UniteBase> GetUnitesList() {
@@ -729,12 +812,22 @@ public class DatabaseManager {
         });
     }
 
-    public void AddChambre(int idUnite, string numeroChambre, string typeChambre) {
-        ExecuteCommand("INSERT INTO Chambre (IdUnite, NumeroChambre, TypeChambre) VALUES (@id, @num, @type)", cmd => {
+    public void AddChambre(int idUnite, string numeroChambre, string typeChambre, int capaciteLits) {
+        ExecuteCommand("INSERT INTO Chambre (IdUnite, NumeroChambre, TypeChambre, CapaciteLits) VALUES (@id, @num, @type, @cap)", cmd => {
             cmd.Parameters.AddWithValue("@id", idUnite);
             cmd.Parameters.AddWithValue("@num", numeroChambre);
             cmd.Parameters.AddWithValue("@type", typeChambre);
+            cmd.Parameters.AddWithValue("@cap", capaciteLits);
         });
+
+        decimal coutEntretien = ExecuteScalar<decimal>("SELECT CoutEntretienJour FROM Unite WHERE IdUnite = @id", cmd => cmd.Parameters.AddWithValue("@id", idUnite));
+        decimal cost = 15000 + coutEntretien + (0.20m * coutEntretien * capaciteLits);
+
+        int jour = ExecuteScalar<int>("SELECT JourSimulation FROM Hopital LIMIT 1");
+        string uniteNom = ExecuteScalar<string>("SELECT Nom FROM Unite WHERE IdUnite = @id", cmd => cmd.Parameters.AddWithValue("@id", idUnite)) ?? "";
+
+        AddBudget(-cost, $"Création chambre {numeroChambre} ({uniteNom})", jour, "Dépense Construction");
+        CreateFactureHopital("Construction Chambre", cost, $"Construction de la chambre {numeroChambre} dans l'unité {uniteNom} avec une capacité de {capaciteLits} lits.");
     }
 
     public void RemoveChambre(int idChambre) {
@@ -853,19 +946,35 @@ public class DatabaseManager {
 
     public string EvaluateTreatmentOutcome(int idPatient) {
         var diseaseInfo = GetSingle(
-            @"SELECT c.TauxRemission, c.SpecialisteTraitement, p.IdMedecinAssigné 
+            @"SELECT c.TauxRemission, c.SpecialisteTraitement, p.IdMedecinAssigné, c.UniteRequise 
               FROM Patients_Actifs p 
               JOIN Cas_Cliniques c ON p.IdMaladie = c.IdCas 
               WHERE p.IdPatient = @id",
             reader => new {
                 TauxRemission = reader.IsDBNull(0) ? 50f : reader.GetFloat(0),
                 SpecialisteTraitement = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                IdMedecin = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2)
+                IdMedecin = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2),
+                UniteRequise = reader.IsDBNull(3) ? (string?)null : reader.GetString(3)
             },
             cmd => cmd.Parameters.AddWithValue("@id", idPatient)
         );
 
         if (diseaseInfo == null) return "Guéri";
+
+        if (!string.IsNullOrEmpty(diseaseInfo.UniteRequise)) {
+            var currentUnit = ExecuteScalar<string>(
+                @"SELECT u.Nom 
+                  FROM Patients_Actifs p
+                  JOIN Lit l ON p.IdLit = l.IdLit
+                  JOIN Chambre c ON l.IdChambre = c.IdChambre
+                  JOIN Unite u ON c.IdUnite = u.IdUnite
+                  WHERE p.IdPatient = @id",
+                cmd => cmd.Parameters.AddWithValue("@id", idPatient)
+            );
+            if (string.IsNullOrEmpty(currentUnit) || !currentUnit.Equals(diseaseInfo.UniteRequise, StringComparison.OrdinalIgnoreCase)) {
+                return "Décédé";
+            }
+        }
 
         float baseRemission = diseaseInfo.TauxRemission;
         string requiredSpecialty = diseaseInfo.SpecialisteTraitement;
@@ -890,6 +999,126 @@ public class DatabaseManager {
         var random = new Random();
         double roll = random.NextDouble() * 100.0;
         return (roll <= finalRemission) ? "Guéri" : "Décédé";
+    }
+
+    public void SaveRealLifeTime(DateTime realLifeNow, int jour, TimeSpan heure) {
+        ExecuteCommand(
+            "UPDATE Hopital SET DerniereFermetureVraieVie=@r, JourSimulation=@j, HeureSimulation=@h WHERE IdHopital=1",
+            cmd => {
+                cmd.Parameters.AddWithValue("@r", realLifeNow);
+                cmd.Parameters.AddWithValue("@j", jour);
+                cmd.Parameters.AddWithValue("@h", heure);
+            });
+    }
+
+    public DateTime? GetLastRealLifeTime() {
+        return ExecuteScalar<DateTime?>("SELECT DerniereFermetureVraieVie FROM Hopital LIMIT 1");
+    }
+
+    public void UpdateHospitalTime(int jour, TimeSpan heure) {
+        ExecuteCommand(
+            "UPDATE Hopital SET JourSimulation=@j, HeureSimulation=@h WHERE IdHopital=1",
+            cmd => {
+                cmd.Parameters.AddWithValue("@j", jour);
+                cmd.Parameters.AddWithValue("@h", heure);
+            });
+    }
+
+    public List<Unite> GetUnites() {
+        return GetList("SELECT IdUnite, Nom, CoutEntretienJour FROM Unite", reader => new Unite {
+            IdUnite = reader.GetInt32("IdUnite"),
+            Nom = reader.GetString("Nom"),
+            CoutEntretienJour = reader.GetDecimal("CoutEntretienJour")
+        });
+    }
+
+    public void UpdatePersonnelShiftDataAndNextPause(int idEmploye, string statut, int minutesTravaillees, int minutesEnPause, int minutesHorsPoste, int prochainePause) {
+        ExecuteCommand("UPDATE Personnel_Actif SET Statut=@s, MinutesTravaillees=@mt, MinutesEnPause=@mp, MinutesHorsPoste=@mh, ProchainePauseMinutes=@pp WHERE IdEmploye=@id", cmd => {
+            cmd.Parameters.AddWithValue("@s", statut);
+            cmd.Parameters.AddWithValue("@mt", minutesTravaillees);
+            cmd.Parameters.AddWithValue("@mp", minutesEnPause);
+            cmd.Parameters.AddWithValue("@mh", minutesHorsPoste);
+            cmd.Parameters.AddWithValue("@pp", prochainePause);
+            cmd.Parameters.AddWithValue("@id", idEmploye);
+        });
+    }
+
+    public void AddExtraFee(int idPatient, string nomFrais, decimal montant) {
+        ExecuteCommand("INSERT INTO Frais_Supplementaires (IdPatient, NomFrais, Montant) VALUES (@p, @n, @m)", cmd => {
+            cmd.Parameters.AddWithValue("@p", idPatient);
+            cmd.Parameters.AddWithValue("@n", nomFrais);
+            cmd.Parameters.AddWithValue("@m", montant);
+        });
+    }
+
+    public void CreateFactureHopital(string type, decimal montant, string description) {
+        var day = ExecuteScalar<int>("SELECT JourSimulation FROM Hopital LIMIT 1");
+        string code = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+        ExecuteCommand("INSERT INTO Facture_Hopital (CodeFacture, JourEmission, TypeFacture, MontantTotal, Description, Statut) VALUES (@c, @j, @t, @m, @d, 'Payée')", cmd => {
+            cmd.Parameters.AddWithValue("@c", code);
+            cmd.Parameters.AddWithValue("@j", day);
+            cmd.Parameters.AddWithValue("@t", type);
+            cmd.Parameters.AddWithValue("@m", montant);
+            cmd.Parameters.AddWithValue("@d", description);
+        });
+    }
+
+    public List<FactureDisplayItem> GetFacturesHopital() {
+        return GetList("SELECT fh.* FROM Facture_Hopital fh", reader => new FactureDisplayItem {
+            CodeFacture = reader.GetString("CodeFacture"),
+            PatientNom = "Hôpital (" + reader.GetString("TypeFacture") + ")",
+            JourEmission = reader.GetInt32("JourEmission"),
+            MontantTotal = reader.GetDecimal("MontantTotal"),
+            Statut = reader.GetString("Statut"),
+            Type = "Hopital",
+            Description = reader.GetString("Description"),
+            IdRealFacture = reader.GetInt32("IdFactureHopital")
+        });
+    }
+
+    public List<FactureDisplayItem> GetFacturesPatient() {
+        return GetList("SELECT f.*, p.Nom as PatientNom FROM Facture f JOIN Patients_Actifs p ON f.IdPatient = p.IdPatient", reader => new FactureDisplayItem {
+            CodeFacture = GetColString(reader, "CodeFacture") ?? "",
+            PatientNom = reader.GetString("PatientNom"),
+            JourEmission = reader.GetInt32("JourEmission"),
+            MontantTotal = reader.GetDecimal("MontantTotal"),
+            Statut = reader.GetString("Statut"),
+            Type = "Patient",
+            IdRealFacture = reader.GetInt32("IdFacture"),
+            Description = "Frais de séjour patient"
+        });
+    }
+
+    public int? GetFreeColdChamberBed() {
+        return ExecuteScalar<int?>(
+            @"SELECT l.IdLit 
+              FROM Lit l 
+              JOIN Chambre c ON l.IdChambre = c.IdChambre 
+              JOIN Unite u ON c.IdUnite = u.IdUnite 
+              WHERE u.Nom = 'Chambre froide' AND l.Statut = 'Libre' 
+              LIMIT 1"
+        );
+    }
+
+    public void TransferToColdChamber(int idPatient, int coldBedId) {
+        ReleaseBed(idPatient);
+        ExecuteCommand("UPDATE Lit SET Statut = 'Occupé' WHERE IdLit = @lId", cmd => cmd.Parameters.AddWithValue("@lId", coldBedId));
+        ExecuteCommand("UPDATE Patients_Actifs SET IdLit = @lId WHERE IdPatient = @pId", cmd => {
+            cmd.Parameters.AddWithValue("@lId", coldBedId);
+            cmd.Parameters.AddWithValue("@pId", idPatient);
+        });
+    }
+
+    public decimal GetAccumulatedFuneralFees() {
+        return ExecuteScalar<decimal>("SELECT COALESCE(FraisFuneraireCumule, 0.00) FROM Hopital LIMIT 1");
+    }
+
+    public void ResetAccumulatedFuneralFees() {
+        ExecuteCommand("UPDATE Hopital SET FraisFuneraireCumule = 0.00");
+    }
+
+    public void IncrementAccumulatedFuneralFees() {
+        ExecuteCommand("UPDATE Hopital SET FraisFuneraireCumule = COALESCE(FraisFuneraireCumule, 0.00) + 400.00");
     }
 
     private static string? GetColString(MySqlDataReader reader, string column) {

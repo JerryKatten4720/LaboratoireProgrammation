@@ -11,7 +11,7 @@ namespace LaboratoireProgrammation.Project.ModernHospital;
 public partial class HospitalWindow : Window {
 
     private readonly DatabaseManager _db = new();
-    private readonly ObservableCollection<string> _eventLog = new();
+    private readonly ObservableCollection<EventEntry> _eventLog = new();
     
     private Button? _activeNavBtn;
     private ObservableCollection<ChambreGroup> _chambresGroupes = new();
@@ -39,26 +39,58 @@ public partial class HospitalWindow : Window {
                 RefreshFinances();
             });
         };
-        Closing += (_, _) => _simulationService.Dispose();
+        Closing += (_, _) => {
+            var simTime = _simulationService.GameTime;
+            int simDay = (simTime - new DateTime(2026, 1, 1)).Days + 1;
+            _db.SaveRealLifeTime(DateTime.Now, simDay, simTime.TimeOfDay);
+            _simulationService.Dispose();
+        };
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e) {
-        try {
-            _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard', 'Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL");
-            _db.ExecuteCommand("UPDATE Chambre SET TypeChambre = 'Standard - Commune' WHERE TypeChambre = 'Standard'");
-            _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL");
+        try { _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard', 'Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL"); } catch { }
+        try { _db.ExecuteCommand("UPDATE Chambre SET TypeChambre = 'Standard - Commune' WHERE TypeChambre = 'Standard'"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL"); } catch { }
 
-            _db.ExecuteCommand("ALTER TABLE Personnel_Actif MODIFY COLUMN Statut ENUM('En poste', 'En pause', 'Absent', 'Épuisé', 'Hors poste') DEFAULT 'En poste'");
-            _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesTravaillees INT DEFAULT 0");
-            _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesEnPause INT DEFAULT 0");
-            _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesHorsPoste INT DEFAULT 0");
+        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif MODIFY COLUMN Statut ENUM('En poste', 'En pause', 'Absent', 'Épuisé', 'Hors poste') DEFAULT 'En poste'"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesTravaillees INT DEFAULT 0"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesEnPause INT DEFAULT 0"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesHorsPoste INT DEFAULT 0"); } catch { }
+
+        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TempsTraitementHeures FLOAT NOT NULL"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Patients_Actifs MODIFY COLUMN TempsTraitementRestant FLOAT DEFAULT 0"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN TauxRemission FLOAT(5,2) DEFAULT 50.0"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TauxRemission FLOAT(5,2) DEFAULT 50.0"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN SpecialisteTraitement VARCHAR(100)"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN DerniereFermetureVraieVie DATETIME NULL"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN ProchainePauseMinutes INT DEFAULT 120"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Chambre ADD COLUMN CapaciteLits INT DEFAULT 2"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN UniteRequise VARCHAR(100) NULL"); } catch { }
+        try { _db.ExecuteCommand("UPDATE Cas_Cliniques SET UniteRequise = 'Soins Intensifs Urgences' WHERE Maladie IN ('Infarctus du Myocarde', 'AVC Ischémique', 'Sepsis')"); } catch { }
+        try { _db.ExecuteCommand("UPDATE Cas_Cliniques SET UniteRequise = 'Bloc Opératoire A' WHERE Maladie = 'Appendicite Aiguë'"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN FraisFuneraireCumule DECIMAL(10,2) DEFAULT 0.00"); } catch { }
+        try { _db.ExecuteCommand("ALTER TABLE LigneFacture MODIFY COLUMN TypePrestation ENUM('Chambre', 'Soin', 'Médicament', 'Autre') NOT NULL"); } catch { }
+        try {
+            _db.ExecuteCommand(@"
+                CREATE TABLE IF NOT EXISTS Facture_Hopital (
+                    IdFactureHopital INT AUTO_INCREMENT PRIMARY KEY,
+                    CodeFacture VARCHAR(10) NOT NULL UNIQUE,
+                    JourEmission INT NOT NULL,
+                    TypeFacture VARCHAR(100) NOT NULL,
+                    MontantTotal DECIMAL(10, 2) NOT NULL,
+                    Description TEXT,
+                    Statut VARCHAR(50) DEFAULT 'Payée'
+                )");
         } catch { }
-
         try {
-            _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TempsTraitementHeures FLOAT NOT NULL");
-            _db.ExecuteCommand("ALTER TABLE Patients_Actifs MODIFY COLUMN TempsTraitementRestant FLOAT DEFAULT 0");
-            _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN TauxRemission FLOAT DEFAULT 50.0");
-            _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN SpecialisteTraitement VARCHAR(100)");
+            _db.ExecuteCommand(@"
+                CREATE TABLE IF NOT EXISTS Frais_Supplementaires (
+                    IdFrais INT AUTO_INCREMENT PRIMARY KEY,
+                    IdPatient INT NOT NULL,
+                    NomFrais VARCHAR(150) NOT NULL,
+                    Montant DECIMAL(10, 2) NOT NULL,
+                    FOREIGN KEY (IdPatient) REFERENCES Patients_Actifs(IdPatient) ON DELETE CASCADE
+                )");
         } catch { }
 
         try {
@@ -99,7 +131,7 @@ public partial class HospitalWindow : Window {
         } catch { }
 
         try {
-            _db.ExecuteCommand("ALTER TABLE LigneFacture MODIFY COLUMN TypePrestation ENUM('Chambre', 'Soin', 'Médicament') NOT NULL");
+            _db.ExecuteCommand("ALTER TABLE LigneFacture MODIFY COLUMN TypePrestation ENUM('Chambre', 'Soin', 'Médicament', 'Autre') NOT NULL");
         } catch { }
 
         try {
@@ -239,13 +271,15 @@ public partial class HospitalWindow : Window {
 
     private void RefreshPatients() {
         var patients = _db.GetPatients();
-        LvPatients.ItemsSource = System.Linq.Enumerable.ToList(System.Linq.Enumerable.Where(patients, p => p.Statut != "Guéri" && p.Statut != "Décédé"));
+        LvPatients.ItemsSource = System.Linq.Enumerable.ToList(System.Linq.Enumerable.Where(patients, p => p.Statut != "Guéri" && p.Statut != "Décédé" && p.Statut != "Réservé"));
         LvPatientsHistorique.ItemsSource = System.Linq.Enumerable.ToList(System.Linq.Enumerable.Where(patients, p => p.Statut == "Guéri" || p.Statut == "Décédé"));
     }
 
     private void RefreshPersonnel() {
-        LvPersonnel.ItemsSource = _db.GetPersonnel();
-        LvCandidats.ItemsSource = _db.GetCandidats();
+        Dispatcher.Invoke(() => {
+            LvPersonnel.ItemsSource = _db.GetPersonnel();
+            LvCandidats.ItemsSource = _db.GetCandidats();
+        });
     }
 
     private void RefreshChambres() {
@@ -444,9 +478,38 @@ public partial class HospitalWindow : Window {
     }
 
     private void LogEvent(string msg) {
-        _eventLog.Insert(0, msg);
+        var category = CategorizeEvent(msg);
+        _eventLog.Insert(0, new EventEntry { Message = msg, Category = category });
         if (_eventLog.Count > 100) _eventLog.RemoveAt(_eventLog.Count - 1);
         TbLastEvent.Text = msg;
+        ApplyEventFilter();
+    }
+
+    private void ApplyEventFilter() {
+        string selectedFilter = "All";
+        if (RbFilterPatient.IsChecked == true) selectedFilter = "Patient";
+        else if (RbFilterMedecin.IsChecked == true) selectedFilter = "Medecin";
+        else if (RbFilterLogistique.IsChecked == true) selectedFilter = "Logistique";
+
+        if (selectedFilter == "All") {
+            IcEventLog.ItemsSource = System.Linq.Enumerable.ToList(System.Linq.Enumerable.Select(_eventLog, e => e.Message));
+        } else {
+            IcEventLog.ItemsSource = System.Linq.Enumerable.ToList(System.Linq.Enumerable.Select(System.Linq.Enumerable.Where(_eventLog, e => e.Category == selectedFilter), e => e.Message));
+        }
+    }
+
+    private void RbFilter_Click(object sender, RoutedEventArgs e) {
+        ApplyEventFilter();
+    }
+
+    private string CategorizeEvent(string msg) {
+        if (msg.Contains("☕") || msg.Contains("🩺") || msg.Contains("🌙") || msg.Contains("☀️") || (msg.Contains("🗑") && msg.Contains("licencié")) || msg.Contains("👨‍⚕️") || msg.Contains("🤝")) {
+            return "Medecin";
+        }
+        if (msg.Contains("✨") || msg.Contains("☠") || msg.Contains("📅") || msg.Contains("🏥") || msg.Contains("Patient")) {
+            return "Patient";
+        }
+        return "Logistique";
     }
 
     private void SetStatus(string msg, Color color) {
@@ -511,6 +574,12 @@ public partial class HospitalWindow : Window {
                 var assignForm = new AssignDoctorWindow(_db, patient.IdPatient) { Owner = this };
                 if (assignForm.ShowDialog() == true) {
                     LogEvent($"🩺 Médecin assigné pour {patient.Nom}");
+                }
+                break;
+            case "FraisSupplementaires":
+                var extraFeeForm = new AddExtraFeeWindow(patient.IdPatient) { Owner = this };
+                if (extraFeeForm.ShowDialog() == true) {
+                    LogEvent($"💰 Frais supplémentaire ajouté pour {patient.Nom} : {extraFeeForm.FeeName} ({extraFeeForm.FeeAmount} $)");
                 }
                 break;
             case "Facture":
@@ -589,6 +658,7 @@ public partial class HospitalWindow : Window {
             OnChambreCreated = () => {
                 SetStatus("✅ Nouvelle chambre construite avec succès", Color.FromRgb(0, 212, 170));
                 LogEvent("🏗 Construction d'une nouvelle chambre terminée");
+                RefreshAllData();
             },
             OnCancelled = () => { }
         };
@@ -780,22 +850,67 @@ public partial class HospitalWindow : Window {
         }
     }
 
+    private System.Collections.Generic.List<FactureDisplayItem> _allInvoices = new();
+    private string _activeInvoiceFilter = "Tous";
+
     private void RefreshFactures() {
-        LvFactures.ItemsSource = _db.GetFactures();
+        var patientsInvoices = _db.GetFacturesPatient();
+        var hospitalInvoices = _db.GetFacturesHopital();
+        _allInvoices = patientsInvoices.Concat(hospitalInvoices).OrderByDescending(f => f.JourEmission).ToList();
+        ApplyInvoiceFilter();
+    }
+
+    private void ApplyInvoiceFilter() {
+        if (_activeInvoiceFilter == "Patient") {
+            LvFactures.ItemsSource = _allInvoices.Where(f => f.Type == "Patient").ToList();
+        } else if (_activeInvoiceFilter == "Hopital") {
+            LvFactures.ItemsSource = _allInvoices.Where(f => f.Type == "Hopital").ToList();
+        } else {
+            LvFactures.ItemsSource = _allInvoices;
+        }
+    }
+
+    private void BtnFilterInvoices_Click(object sender, RoutedEventArgs e) {
+        if (sender is Button btn) {
+            _activeInvoiceFilter = btn.Tag.ToString() ?? "Tous";
+            
+            BtnFilterAllInvoices.Background = new SolidColorBrush(Color.FromRgb(42, 42, 56));
+            BtnFilterPatientInvoices.Background = new SolidColorBrush(Color.FromRgb(42, 42, 56));
+            BtnFilterHospitalInvoices.Background = new SolidColorBrush(Color.FromRgb(42, 42, 56));
+            
+            btn.Background = new SolidColorBrush(Color.FromRgb(58, 58, 77));
+            ApplyInvoiceFilter();
+        }
     }
 
     private void BtnOuvrirFactureHtml_Click(object sender, RoutedEventArgs e) {
-        if (sender is Button btn && btn.Tag is Facture facture) {
-            string path = facture.CheminFichier;
-            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path)) {
-                var p = _db.GetPatients().FirstOrDefault(pat => pat.IdPatient == facture.IdPatient);
+        if (sender is Button btn && btn.Tag is FactureDisplayItem item) {
+            string path = "";
+            if (item.Type == "Patient") {
+                var p = _db.GetPatients().FirstOrDefault(pat => pat.IdPatient == item.IdRealFacture);
                 if (p == null) {
-                    p = new PatientActif { Nom = facture.PatientNom, Classe = "Inconnue" };
+                    p = new PatientActif { Nom = item.PatientNom, Classe = "Inconnue" };
                 }
                 var hosp = _db.GetHospital();
-                var lignes = _db.GetLignesFacture(facture.IdFacture);
+                var lignes = _db.GetLignesFacture(item.IdRealFacture);
+                var dummyFacture = new Facture {
+                    IdFacture = item.IdRealFacture,
+                    CodeFacture = item.CodeFacture,
+                    JourEmission = item.JourEmission,
+                    MontantTotal = item.MontantTotal,
+                    Statut = item.Statut,
+                    PatientNom = item.PatientNom
+                };
+                path = dummyFacture.CheminFichier ?? "";
+                if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path)) {
+                    if (hosp != null) {
+                        path = Services.FactureGenerator.ExporterFactureHtml(dummyFacture, p, hosp, lignes);
+                    }
+                }
+            } else if (item.Type == "Hopital") {
+                var hosp = _db.GetHospital();
                 if (hosp != null) {
-                    path = Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes);
+                    path = Services.FactureGenerator.ExporterFactureHopitalHtml(item, hosp);
                 }
             }
 
@@ -852,6 +967,5 @@ public partial class HospitalWindow : Window {
 
         fe.ContextMenu.Items.Add(editItem);
         fe.ContextMenu.Items.Add(delItem);
-        fe.ContextMenu.IsOpen = true;
     }
 }
