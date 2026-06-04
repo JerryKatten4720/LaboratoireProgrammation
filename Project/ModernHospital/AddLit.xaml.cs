@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace LaboratoireProgrammation.Project.ModernHospital;
 
-public partial class AddLitForm : UserControl {
+public partial class AddLitForm : Window {
     private readonly DatabaseManager _db;
 
     public AddLitForm(DatabaseManager db) {
@@ -28,12 +28,12 @@ public partial class AddLitForm : UserControl {
 
         _db.AddLit(chambre.IdChambre, numLit);
 
-        ((Panel)Parent).Children.Remove(this);
         OnLitCreated?.Invoke();
+        Close();
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e) {
-        ((Panel)Parent).Children.Remove(this);
         OnCancelled?.Invoke();
+        Close();
     }
 }

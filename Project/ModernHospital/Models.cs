@@ -49,6 +49,9 @@ public class Employe {
     public decimal SalaireJour { get; set; }
     public string Shift { get; set; } = "Jour";
     public string Statut { get; set; } = "En poste";
+    public int MinutesTravaillees { get; set; }
+    public int MinutesEnPause { get; set; }
+    public int MinutesHorsPoste { get; set; }
     public string NomComplet => $"{Prenom} {Nom}";
 }
 
@@ -183,7 +186,8 @@ public static class PatientHelper {
             var lignes = db.GetLignesFacture(idFacture);
             var hosp = db.GetHospital();
             if (facture != null && hosp != null) {
-                Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes);
+                Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes, p.MedecinEnCharge ?? "Docteur Inconnu");
+                db.ExecuteNonQuery($"UPDATE Hopital SET Budget = Budget + {facture.MontantTotal.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
             }
             db.CloseReservation(p.IdPatient);
             db.ReleaseBed(p.IdPatient);

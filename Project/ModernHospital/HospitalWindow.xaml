@@ -22,6 +22,11 @@
         <SolidColorBrush x:Key="Border" Color="#2a2a38" />
         <SolidColorBrush x:Key="SidebarBg" Color="#111116" />
 
+        <Style TargetType="ScrollViewer">
+            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
+        </Style>
+
         <Style x:Key="NavBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
@@ -434,26 +439,59 @@
                         </Border>
 
                         <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
-                            <DockPanel>
-                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                    <TextBlock Text="Patients Actifs" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
-                                    <Button DockPanel.Dock="Right" Content="↻ Actualiser" Style="{StaticResource ActionBtn}" Width="110" Click="RefreshPatients_Click" />
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Active Patients -->
+                                <DockPanel Grid.Row="0">
+                                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                        <TextBlock Text="Patients Actifs" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
+                                        <Button DockPanel.Dock="Right" Content="↻ Actualiser" Style="{StaticResource ActionBtn}" Width="110" Click="RefreshPatients_Click" />
+                                        <Button DockPanel.Dock="Right" Content="📋 Réservations" Style="{StaticResource ActionBtn}" Width="130" Margin="0,0,8,0" Click="BtnVoirReservations_Click" />
+                                    </DockPanel>
+                                    <ListView x:Name="LvPatients" BorderThickness="0" MouseRightButtonUp="LvPatients_MouseRightButtonUp">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="!" Width="30" DisplayMemberBinding="{Binding WarningIcon}" />
+                                                <GridViewColumn Header="ID" Width="45" DisplayMemberBinding="{Binding IdPatient}" />
+                                                <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding Nom}" />
+                                                <GridViewColumn Header="Maladie" Width="160" DisplayMemberBinding="{Binding Maladie}" />
+                                                <GridViewColumn Header="Statut" Width="110" DisplayMemberBinding="{Binding Statut}" />
+                                                <GridViewColumn Header="Classe" Width="90" DisplayMemberBinding="{Binding Classe}" />
+                                                <GridViewColumn Header="Chambre" Width="90" DisplayMemberBinding="{Binding NumeroChambre}" />
+                                                <GridViewColumn Header="Médecin" Width="140" DisplayMemberBinding="{Binding MedecinEnCharge}" />
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
                                 </DockPanel>
-                                <ListView x:Name="LvPatients" BorderThickness="0" MouseRightButtonUp="LvPatients_MouseRightButtonUp">
-                                    <ListView.View>
-                                        <GridView>
-                                            <GridViewColumn Header="!" Width="30" DisplayMemberBinding="{Binding WarningIcon}" />
-                                            <GridViewColumn Header="ID" Width="45" DisplayMemberBinding="{Binding IdPatient}" />
-                                            <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding Nom}" />
-                                            <GridViewColumn Header="Maladie" Width="160" DisplayMemberBinding="{Binding Maladie}" />
-                                            <GridViewColumn Header="Statut" Width="110" DisplayMemberBinding="{Binding Statut}" />
-                                            <GridViewColumn Header="Classe" Width="90" DisplayMemberBinding="{Binding Classe}" />
-                                            <GridViewColumn Header="Chambre" Width="90" DisplayMemberBinding="{Binding NumeroChambre}" />
-                                            <GridViewColumn Header="Médecin" Width="140" DisplayMemberBinding="{Binding MedecinEnCharge}" />
-                                        </GridView>
-                                    </ListView.View>
-                                </ListView>
-                            </DockPanel>
+
+                                <!-- Splitter -->
+                                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="#2a2a38" Margin="0,10" />
+
+                                <!-- Historic Patients -->
+                                <DockPanel Grid.Row="2">
+                                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                        <TextBlock Text="Patients Traités (Historique)" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
+                                    </DockPanel>
+                                    <ListView x:Name="LvPatientsHistorique" BorderThickness="0">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="ID" Width="45" DisplayMemberBinding="{Binding IdPatient}" />
+                                                <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding Nom}" />
+                                                <GridViewColumn Header="Maladie" Width="160" DisplayMemberBinding="{Binding Maladie}" />
+                                                <GridViewColumn Header="Statut" Width="110" DisplayMemberBinding="{Binding Statut}" />
+                                                <GridViewColumn Header="Classe" Width="90" DisplayMemberBinding="{Binding Classe}" />
+                                                <GridViewColumn Header="Chambre" Width="90" DisplayMemberBinding="{Binding NumeroChambre}" />
+                                                <GridViewColumn Header="Médecin" Width="140" DisplayMemberBinding="{Binding MedecinEnCharge}" />
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </DockPanel>
+                            </Grid>
                         </Border>
                     </Grid>
 
@@ -595,7 +633,7 @@
                             <Button Content="+ Ajouter un médicament" Click="BtnAddMedicament_Click" Style="{StaticResource ActionBtn}" Margin="0,10,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
                         <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
-                            <ListView x:Name="LvMedicaments" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
+                            <ListView x:Name="LvMedicaments" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}" MouseRightButtonUp="LvMedicaments_MouseRightButtonUp">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="ID" DisplayMemberBinding="{Binding IdMedicament}" Width="50" />
@@ -669,13 +707,49 @@
                     <Grid x:Name="PanelReservations" Visibility="Collapsed" Margin="28,24,28,24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
+                        
                         <StackPanel Grid.Row="0" Margin="0,0,0,20">
                             <TextBlock Text="Réservations" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
-                            <TextBlock Text="État des réservations des lits" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                            <TextBlock Text="État des réservations et pré-admissions" Foreground="{StaticResource TextSecondary}" FontSize="13" />
                         </StackPanel>
-                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
+
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Créer une réservation" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="14" Margin="0,0,0,12" />
+                                <WrapPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="160">
+                                        <TextBlock Text="Nom du patient" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <TextBox x:Name="TbResPatientNom" Text="Jane Doe" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="200">
+                                        <TextBlock Text="Maladie" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbResMaladie" DisplayMemberPath="Maladie" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="180">
+                                        <TextBlock Text="Lit" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbResLit" DisplayMemberPath="NumeroLit" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="180">
+                                        <TextBlock Text="Médecin" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbResMedecin" DisplayMemberPath="NomComplet" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0" Width="120">
+                                        <TextBlock Text="Classe" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="CbResClasse">
+                                            <ComboBoxItem Content="Standard" />
+                                            <ComboBoxItem Content="VIP" />
+                                            <ComboBoxItem Content="Non-assuré" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <Button Content="Réserver" Style="{StaticResource ActionBtn}" VerticalAlignment="Bottom" Margin="0,0,0,0" Click="BtnReserver_Click" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
                             <ListView x:Name="LvReservations" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
                                 <ListView.View>
                                     <GridView>
@@ -708,6 +782,8 @@
                     </Border>
                 </Grid>
             </Grid>
+
+            <Border x:Name="DimOverlay" Background="#B3000000" Visibility="Collapsed" Panel.ZIndex="999" />
         </Grid>
         
         <local:DatabaseError x:Name="DbErrorPanel" 

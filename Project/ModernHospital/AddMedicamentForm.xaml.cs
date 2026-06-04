@@ -5,12 +5,34 @@ namespace LaboratoireProgrammation.Project.ModernHospital;
 
 public partial class AddMedicamentForm : Window {
     private readonly DatabaseManager _db;
+    private readonly Medicament _medicament;
 
-    public AddMedicamentForm(DatabaseManager db) {
+    public AddMedicamentForm(DatabaseManager db, Medicament medicament = null) {
         InitializeComponent();
         _db = db;
+        _medicament = medicament;
         CbUnite.ItemsSource = _db.GetUnitesList();
-        if (CbUnite.Items.Count > 0) CbUnite.SelectedIndex = 0;
+        
+        if (_medicament != null) {
+            Title = "Modifier le Médicament";
+            TbNom.Text = _medicament.Nom;
+            TbDci.Text = _medicament.DCI;
+            TbForme.Text = _medicament.Forme;
+            TbStockActuel.Text = _medicament.StockActuel.ToString();
+            TbStockMinimum.Text = _medicament.StockMinimum.ToString();
+            TbPrix.Text = _medicament.PrixUnitaire.ToString();
+            
+            foreach (var item in CbUnite.Items) {
+                var props = item.GetType().GetProperties();
+                var idProp = props.FirstOrDefault(p => p.Name == "IdUniteMesure");
+                if (idProp != null && (int)idProp.GetValue(item) == _medicament.IdUnite) {
+                    CbUnite.SelectedItem = item;
+                    break;
+                }
+            }
+        } else if (CbUnite.Items.Count > 0) {
+            CbUnite.SelectedIndex = 0;
+        }
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e) {
@@ -40,7 +62,11 @@ public partial class AddMedicamentForm : Window {
         }
 
         try {
-            _db.AddMedicament(TbNom.Text.Trim(), TbDci.Text.Trim(), TbForme.Text.Trim(), sa, sm, prix, idUnite);
+            if (_medicament == null) {
+                _db.AddMedicament(TbNom.Text.Trim(), TbDci.Text.Trim(), TbForme.Text.Trim(), sa, sm, prix, idUnite);
+            } else {
+                _db.UpdateMedicament(_medicament.IdMedicament, TbNom.Text.Trim(), TbDci.Text.Trim(), TbForme.Text.Trim(), sa, sm, prix, idUnite);
+            }
             DialogResult = true;
             Close();
         } catch (Exception ex) {

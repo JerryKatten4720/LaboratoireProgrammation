@@ -60,7 +60,7 @@ CREATE TABLE Chambre (
                          IdChambre INT AUTO_INCREMENT PRIMARY KEY,
                          IdUnite INT NOT NULL,
                          NumeroChambre VARCHAR(20) NOT NULL,
-                         TypeChambre ENUM('Standard', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL,
+                         TypeChambre ENUM('Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL,
                          NiveauEquipement INT DEFAULT 1,
                          NiveauSalete INT DEFAULT 0,
                          FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE CASCADE
@@ -70,7 +70,7 @@ CREATE TABLE Lit (
                      IdLit INT AUTO_INCREMENT PRIMARY KEY,
                      IdChambre INT NOT NULL,
                      NumeroLit VARCHAR(10) NOT NULL,
-                     Statut ENUM('Libre', 'Occupé', 'En Nettoyage', 'Maintenance') DEFAULT 'Libre',
+                     Statut ENUM('Libre', 'Occupé', 'En Nettoyage', 'Maintenance', 'Réservé') DEFAULT 'Libre',
                      FOREIGN KEY (IdChambre) REFERENCES Chambre(IdChambre) ON DELETE CASCADE
 );
 
@@ -102,8 +102,8 @@ INSERT INTO Salle_Attente (IdUnite, CapaciteMax) VALUES
                                                      (3, 10);
 
 INSERT INTO Chambre (IdUnite, NumeroChambre, TypeChambre) VALUES
-                                                              (1, 'URG-101', 'Standard'),
-                                                              (1, 'URG-102', 'Standard'),
+                                                              (1, 'URG-101', 'Standard - Commune'),
+                                                              (1, 'URG-102', 'Standard - Commune'),
                                                               (2, 'SI-201', 'Soins Intensifs'),
                                                               (2, 'SI-202', 'Soins Intensifs'),
                                                               (3, 'BLOC-01', 'Bloc Opératoire'),
@@ -151,7 +151,10 @@ CREATE TABLE Personnel_Actif (
 
                                  SalaireJour DECIMAL(10, 2) NOT NULL,
                                  Shift ENUM('Jour', 'Nuit') DEFAULT 'Jour',
-                                 Statut ENUM('En poste', 'En pause', 'Absent', 'Épuisé') DEFAULT 'En poste',
+                                 Statut ENUM('En poste', 'En pause', 'Absent', 'Épuisé', 'Hors poste') DEFAULT 'En poste',
+                                 MinutesTravaillees INT DEFAULT 0,
+                                 MinutesEnPause INT DEFAULT 0,
+                                 MinutesHorsPoste INT DEFAULT 0,
                                  FOREIGN KEY (IdUnite) REFERENCES Unite(IdUnite) ON DELETE SET NULL
 );
 
@@ -288,7 +291,7 @@ CREATE TABLE Patients_Actifs (
                                  Satisfaction INT DEFAULT 100,
                                  Classe ENUM('Standard', 'VIP', 'Non-assuré') DEFAULT 'Standard',
                                  TempsTraitementRestant INT,
-                                 Statut ENUM('En Attente', 'En Diagnostic', 'En Traitement', 'Guéri', 'Décédé') DEFAULT 'En Attente',
+                                 Statut ENUM('En Attente', 'En Diagnostic', 'En Traitement', 'Guéri', 'Décédé', 'Réservé') DEFAULT 'En Attente',
                                  DateEntree INT,
                                  IdFacture INT,
                                  FOREIGN KEY (IdMaladie) REFERENCES Cas_Cliniques(IdCas),

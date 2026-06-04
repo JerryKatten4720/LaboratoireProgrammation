@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace LaboratoireProgrammation.Project.ModernHospital;
 
-public partial class AddChambreForm : UserControl {
+public partial class AddChambreForm : Window {
     private readonly DatabaseManager _db;
 
     public AddChambreForm(DatabaseManager db) {
@@ -31,12 +31,12 @@ public partial class AddChambreForm : UserControl {
 
         _db.AddChambre(unite.IdUnite, numChambre, typeChambre);
 
-        ((Panel)Parent).Children.Remove(this);
         OnChambreCreated?.Invoke();
+        Close();
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e) {
-        ((Panel)Parent).Children.Remove(this);
         OnCancelled?.Invoke();
+        Close();
     }
 }

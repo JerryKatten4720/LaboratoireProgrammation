@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace LaboratoireProgrammation.Project.ModernHospital.Services;
 
 public static class FactureGenerator {
-    public static string ExporterFactureHtml(Facture facture, PatientActif patient, HospitalInfo hospital, List<LigneFacture> lignes) {
+    public static string ExporterFactureHtml(Facture facture, PatientActif patient, HospitalInfo hospital, List<LigneFacture> lignes, string doctorName = "Docteur Inconnu") {
         var nomComplet = patient.Nom ?? "";
         var parts = nomComplet.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         var nom = parts.Length > 0 ? parts[0] : "inconnu";
@@ -16,8 +16,10 @@ public static class FactureGenerator {
         var safeNom = SanitizeName(nom);
         var safePrenom = SanitizeName(prenom);
         
-        var baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Factures");
-        var patientDir = Path.Combine(baseDir, $"{safeNom}_{safePrenom}");
+        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        var facturesDir = Path.Combine(baseDir, "Factures");
+        var patientDir = Path.Combine(facturesDir, $"{safeNom}_{safePrenom}");
+
         if (!Directory.Exists(patientDir)) {
             Directory.CreateDirectory(patientDir);
         }
@@ -27,7 +29,7 @@ public static class FactureGenerator {
         var fileName = $"facture-{facture.IdFacture}-{safeNom}-{safePrenom}-{dateStr}-{uuid}.html";
         var filePath = Path.Combine(patientDir, fileName);
 
-        var html = GenererHtml(facture, patient, hospital, lignes, nomComplet);
+        var html = GenererHtml(facture, patient, hospital, lignes, nomComplet, doctorName);
         File.WriteAllText(filePath, html);
         return filePath;
     }
@@ -39,7 +41,7 @@ public static class FactureGenerator {
         return name;
     }
 
-    private static string GenererHtml(Facture facture, PatientActif patient, HospitalInfo hospital, List<LigneFacture> lignes, string nomComplet) {
+    private static string GenererHtml(Facture facture, PatientActif patient, HospitalInfo hospital, List<LigneFacture> lignes, string nomComplet, string doctorName) {
         var lignesHtml = string.Join("\n", lignes.Select(l => $@"
             <tr>
                 <td>{l.TypePrestation}</td>
@@ -79,6 +81,7 @@ public static class FactureGenerator {
         <div class='header'>
             <div class='hospital-info'>
                 <h1>{hospital?.Nom ?? "Modern Hospital"}</h1>
+                <p>123 Avenue de la Santé, 75000 Paris</p>
                 <p>Directeur: {hospital?.DirecteurGeneral ?? "Inconnu"}</p>
                 <p>Jour de Simulation: {hospital?.JourSimulation ?? facture.JourEmission}</p>
             </div>
@@ -118,7 +121,10 @@ public static class FactureGenerator {
 
         <div class='footer'>
             <p>Merci de votre confiance. Ce document est généré automatiquement.</p>
-            <p>Signature Médecin : _______________________</p>
+            <div style='margin-top: 30px; text-align: right; padding-right: 20px;'>
+                <p>Le médecin traitant,</p>
+                <p style='font-family: ""Brush Script MT"", ""Segoe Print"", cursive, sans-serif; font-size: 26px; color: #1a1a1a; margin: 5px 0;'>{doctorName}</p>
+            </div>
         </div>
     </div>
 </body>

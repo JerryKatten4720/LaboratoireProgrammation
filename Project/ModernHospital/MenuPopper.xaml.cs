@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace LaboratoireProgrammation.Project.ModernHospital;
 
-public partial class MenuPopper : UserControl {
+public partial class MenuPopper : Window {
     public static readonly DependencyProperty MessageTextProperty =
         DependencyProperty.Register(nameof(MessageText), typeof(string), typeof(MenuPopper),
             new PropertyMetadata(string.Empty));
@@ -32,23 +32,11 @@ public partial class MenuPopper : UserControl {
 
     private void YesButton_Click(object sender, RoutedEventArgs e) {
         OnYesConfirmed?.Invoke();
-        ClosePopup();
+        Close();
     }
 
     private void NoButton_Click(object sender, RoutedEventArgs e) {
         OnNoConfirmed?.Invoke();
-        ClosePopup();
-    }
-
-    private void ClosePopup() {
-        DependencyObject current = this;
-        while (current != null) {
-            if (current is Panel panel) {
-                panel.Children.Remove(this);
-                return;
-            }
-
-            current = VisualTreeHelper.GetParent(current);
-        }
+        Close();
     }
 }

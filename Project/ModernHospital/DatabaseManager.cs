@@ -21,7 +21,7 @@ public class DatabaseManager {
         return connection;
     }
 
-    private void ExecuteCommand(string query, Action<MySqlCommand>? setParameters = null) {
+    public void ExecuteCommand(string query, Action<MySqlCommand>? setParameters = null) {
         using var connection = GetConnection();
         using var command = new MySqlCommand(query, connection);
         setParameters?.Invoke(command);
@@ -125,7 +125,10 @@ public class DatabaseManager {
             Experience = reader.GetInt32("Experience"),
             SalaireJour = reader.GetDecimal("SalaireJour"),
             Shift = reader.GetString("Shift"),
-            Statut = reader.GetString("Statut")
+            Statut = reader.GetString("Statut"),
+            MinutesTravaillees = reader.GetInt32("MinutesTravaillees"),
+            MinutesEnPause = reader.GetInt32("MinutesEnPause"),
+            MinutesHorsPoste = reader.GetInt32("MinutesHorsPoste")
         });
     }
 
@@ -413,6 +416,19 @@ public class DatabaseManager {
         });
     }
 
+    public void UpdateMedicament(int id, string nom, string dci, string forme, int stockActuel, int stockMin, decimal prix, int idUnite) {
+        ExecuteCommand("UPDATE Medicament SET Nom=@n, DCI=@d, Forme=@f, StockActuel=@sa, StockMinimum=@sm, PrixUnitaire=@p, IdUnite=@u WHERE IdMedicament=@id", cmd => {
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Parameters.AddWithValue("@n", nom);
+            cmd.Parameters.AddWithValue("@d", dci);
+            cmd.Parameters.AddWithValue("@f", forme);
+            cmd.Parameters.AddWithValue("@sa", stockActuel);
+            cmd.Parameters.AddWithValue("@sm", stockMin);
+            cmd.Parameters.AddWithValue("@p", prix);
+            cmd.Parameters.AddWithValue("@u", idUnite);
+        });
+    }
+
     public void UpdateStock(int idMed, int delta) {
         ExecuteCommand("UPDATE Medicament SET StockActuel = StockActuel + @d WHERE IdMedicament = @id", cmd => {
             cmd.Parameters.AddWithValue("@d", delta);
@@ -679,6 +695,25 @@ public class DatabaseManager {
 
     public void RemoveChambre(int idChambre) {
         ExecuteCommand("DELETE FROM Chambre WHERE IdChambre = @id", cmd => cmd.Parameters.AddWithValue("@id", idChambre));
+    }
+
+    public void RemoveLit(int idLit) {
+        ExecuteCommand("DELETE FROM Lit WHERE IdLit = @id", cmd => cmd.Parameters.AddWithValue("@id", idLit));
+    }
+
+    public void RemoveMedicament(int idMedicament) {
+        ExecuteCommand("DELETE FROM Medicament WHERE IdMedicament = @id", cmd => cmd.Parameters.AddWithValue("@id", idMedicament));
+    }
+
+    public void DeletePatient(int idPatient) {
+        ExecuteCommand("DELETE FROM Patients_Actifs WHERE IdPatient = @id", cmd => cmd.Parameters.AddWithValue("@id", idPatient));
+    }
+
+    public void UpdatePersonnelStatus(int idEmploye, string statut) {
+        ExecuteCommand("UPDATE Personnel_Actif SET Statut = @statut WHERE IdEmploye = @id", cmd => {
+            cmd.Parameters.AddWithValue("@statut", statut);
+            cmd.Parameters.AddWithValue("@id", idEmploye);
+        });
     }
 
     public class ChambreBase {
