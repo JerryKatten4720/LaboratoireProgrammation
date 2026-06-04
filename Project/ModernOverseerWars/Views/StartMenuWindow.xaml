@@ -1,0 +1,118 @@
+<Window x:Class="LaboratoireProgrammation.Project.ModernOverseerWars.Views.StartMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wrappers="clr-namespace:LaboratoireProgrammation.Assets.shaders.wrappers"
+        Title="OVERSEER WARS — New Game"
+        Height="540" Width="640"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized" WindowStyle="None"
+        Background="#07070F">
+
+    <Window.Resources>
+        <Style TargetType="TextBox" x:Key="PlayerInput">
+            <Setter Property="Background"    Value="#1A1A30"/>
+            <Setter Property="Foreground"    Value="White"/>
+            <Setter Property="BorderBrush"   Value="#334"/>
+            <Setter Property="FontSize"      Value="14"/>
+            <Setter Property="Padding"       Value="6,4"/>
+            <Setter Property="Margin"        Value="0,4,0,10"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+
+        <TextBlock Text="OVERSEER WARS" Foreground="#DDDDFF"
+                   FontSize="28" FontWeight="Bold"
+                   HorizontalAlignment="Center" Margin="0,0,0,24"/>
+
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="PLAYER 1" Foreground="#888" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                <TextBlock Text="Your cool username :" Foreground="#AAAACC" FontSize="12"/>
+                <TextBox x:Name="P1Name" Text="Player 1" Style="{StaticResource PlayerInput}"/>
+                <TextBlock Text="Color theme" Foreground="#AAAACC" FontSize="12" Margin="0,0,0,6"/>
+                <ItemsControl x:Name="P1Themes">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border x:Name="ThemeDot" Width="36" Height="36" CornerRadius="18" Margin="4"
+                                    Cursor="Hand" Tag="{Binding}"
+                                    MouseLeftButtonDown="OnP1ThemeClick">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding DisplayColor}"/>
+                                </Border.Background>
+                                <TextBlock x:Name="CheckMark" Text="✓" FontSize="14" FontWeight="Bold"
+                                           Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="Collapsed"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Border x:Name="P1Preview" Height="48" CornerRadius="6" Margin="0,10,0,0">
+                    <TextBlock x:Name="P1PreviewText" Text="Player 1"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontSize="14" FontWeight="Bold" Foreground="White"/>
+                </Border>
+            </StackPanel>
+
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="PLAYER 2" Foreground="#888" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                <TextBlock Text="Your cool username :" Foreground="#AAAACC" FontSize="12"/>
+                <TextBox x:Name="P2Name" Text="Player 2" Style="{StaticResource PlayerInput}"/>
+                <TextBlock Text="Color theme" Foreground="#AAAACC" FontSize="12" Margin="0,0,0,6"/>
+                <ItemsControl x:Name="P2Themes">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="36" Height="36" CornerRadius="18" Margin="4"
+                                    Cursor="Hand" Tag="{Binding}"
+                                    MouseLeftButtonDown="OnP2ThemeClick">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding DisplayColor}"/>
+                                </Border.Background>
+                                <TextBlock x:Name="CheckMark2" Text="✓" FontSize="14" FontWeight="Bold"
+                                           Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="Collapsed"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Border x:Name="P2Preview" Height="48" CornerRadius="6" Margin="0,10,0,0">
+                    <TextBlock x:Name="P2PreviewText" Text="Player 2"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontSize="14" FontWeight="Bold" Foreground="White"/>
+                </Border>
+            </StackPanel>
+            
+            <Image Source="../../Assets/images/vaultTec.png" Grid.ColumnSpan="3" HorizontalAlignment="Center" Panel.ZIndex="-5" Opacity="0.005"></Image>
+        </Grid>
+
+
+        <Button Grid.Row="2" x:Name="StartBtn" Content=" -| START GAME |- "
+                FontSize="16" FontWeight="Bold" Padding="24,10"
+                HorizontalAlignment="Center" Margin="0,24,0,0"
+                Background="#1A2A1A" Foreground="#66BB66"
+                BorderBrush="#446644" BorderThickness="1"
+                Click="OnStart"/>
+    </Grid>
+</Window>

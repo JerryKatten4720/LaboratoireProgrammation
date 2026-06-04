@@ -7,6 +7,7 @@ using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Models.Menu;
 using LaboratoireProgrammation.Project.ModernHospital;
 using LaboratoireProgrammation.Project.ModernOverseerWars;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Views;
 using LaboratoireProgrammation.Project.Services;
 
 namespace LaboratoireProgrammation.Project.ViewModels.Menu;

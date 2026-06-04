@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Views;
+
 namespace LaboratoireProgrammation.Project.ModernOverseerWars;
 
 public class CardStack {

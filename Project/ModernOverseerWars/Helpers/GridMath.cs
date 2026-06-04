@@ -1,5 +1,5 @@
 using System;
-using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Map;
 
 namespace LaboratoireProgrammation.Project.ModernOverseerWars.Helpers;
 

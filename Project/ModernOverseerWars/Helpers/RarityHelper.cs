@@ -1,9 +1,9 @@
-using LaboratoireProgrammation.Project.ModernOverseerWars.Domain;
-using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Entities;
-using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Enums;
-using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Interfaces;
-using LaboratoireProgrammation.Project.ModernOverseerWars.Domain.Map;
-using LaboratoireProgrammation.Project.ModernOverseerWars.Data.Json;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Models;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Entities;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Enums;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Interfaces;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Map;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Data.Json;
 namespace LaboratoireProgrammation.Project.ModernOverseerWars.Helpers;
 
 public static class RarityHelper {

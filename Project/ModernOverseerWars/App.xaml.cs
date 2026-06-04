@@ -1,4 +1,5 @@
 using System.Windows;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Views;
 namespace LaboratoireProgrammation.Project.ModernOverseerWars;
 public partial class App : Application {
     private void OnStartup(object s, StartupEventArgs e) {
