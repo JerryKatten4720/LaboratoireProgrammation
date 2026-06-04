@@ -228,10 +228,8 @@ public class SimulationService : IDisposable {
                         var disease = _db.GetCasCliniques().FirstOrDefault(c => c.IdCas == patient.IdMaladie);
                         if (disease != null && patient.IdMedecinAssigne.HasValue) {
                             var allDrugs = _db.GetMedicaments();
-                            var targetDrugs = allDrugs.Where(d => !string.IsNullOrEmpty(d.MaladiesCibles) &&
-                                d.MaladiesCibles.Split(',').Select(s => s.Trim().ToLower()).Contains(disease.Maladie.ToLower())).ToList();
-                            var adverseDrugs = allDrugs.Where(d => !string.IsNullOrEmpty(d.MaladiesIncompatibles) &&
-                                d.MaladiesIncompatibles.Split(',').Select(s => s.Trim().ToLower()).Contains(disease.Maladie.ToLower())).ToList();
+                            var targetDrugs = allDrugs.Where(d => d.GetCiblesList().Any(c => c.IdCas == disease.IdCas)).ToList();
+                            var adverseDrugs = allDrugs.Where(d => d.GetIncompatiblesList().Any(i => i.IdCas == disease.IdCas)).ToList();
 
                             Medicament? selectedDrug = null;
                             int errorChance = disease.RisqueErreurMedicale;
@@ -256,7 +254,7 @@ public class SimulationService : IDisposable {
                             }
 
                             if (selectedDrug != null) {
-                                int qte = selectedDrug.QuantitePrescriptionDefaut;
+                                int qte = selectedDrug.GetCiblesList().FirstOrDefault(c => c.IdCas == disease.IdCas)?.Quantite ?? selectedDrug.QuantitePrescriptionDefaut;
                                 _db.AddPrescription(patient.IdPatient, patient.IdMedecinAssigne.Value, selectedDrug.IdMedicament, qte, "1 dose par jour");
                                 OnEventLog?.Invoke($"💊 Le médecin a prescrit {qte}x {selectedDrug.Nom} pour {patient.Nom}.");
 

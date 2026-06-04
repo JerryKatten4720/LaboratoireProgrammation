@@ -1,18 +1,38 @@
-﻿using System;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using Newtonsoft.Json;
 
 namespace LaboratoireProgrammation.Project.ModernHospital;
 
 public partial class AddMedicamentForm : Window {
     private readonly DatabaseManager _db;
-    private readonly Medicament _medicament;
+    private readonly Medicament? _medicament;
 
-    public AddMedicamentForm(DatabaseManager db, Medicament medicament = null) {
+    public ObservableCollection<MedicamentCible> Cibles { get; } = new();
+    public ObservableCollection<MedicamentIncompatible> Incompatibles { get; } = new();
+
+    public AddMedicamentForm(DatabaseManager db, Medicament? medicament = null) {
         InitializeComponent();
         _db = db;
         _medicament = medicament;
+
         CbUnite.ItemsSource = _db.GetUnitesList();
         
+        var cases = _db.GetCasCliniques();
+        CbMaladieCible.ItemsSource = cases;
+        CbMaladieIncompatible.ItemsSource = cases;
+
+        LvCibles.ItemsSource = Cibles;
+        LvIncompatibles.ItemsSource = Incompatibles;
+
+        if (cases.Count > 0) {
+            CbMaladieCible.SelectedIndex = 0;
+            CbMaladieIncompatible.SelectedIndex = 0;
+        }
+
         if (_medicament != null) {
             Title = "Modifier le Médicament";
             TbNom.Text = _medicament.Nom;
@@ -21,17 +41,94 @@ public partial class AddMedicamentForm : Window {
             TbStockActuel.Text = _medicament.StockActuel.ToString();
             TbStockMinimum.Text = _medicament.StockMinimum.ToString();
             TbPrix.Text = _medicament.PrixUnitaire.ToString();
-            
-            foreach (var item in CbUnite.Items) {
-                var props = item.GetType().GetProperties();
-                var idProp = props.FirstOrDefault(p => p.Name == "IdUniteMesure");
-                if (idProp != null && (int)idProp.GetValue(item) == _medicament.IdUnite) {
-                    CbUnite.SelectedItem = item;
-                    break;
-                }
+            CbUnite.SelectedValue = _medicament.IdUnite;
+            TbTempsLivraison.Text = _medicament.TempsLivraisonBase.ToString();
+
+            var loadedCibles = _medicament.GetCiblesList();
+            foreach (var c in loadedCibles) {
+                Cibles.Add(c);
+            }
+
+            var loadedIncompatibles = _medicament.GetIncompatiblesList();
+            foreach (var i in loadedIncompatibles) {
+                Incompatibles.Add(i);
             }
         } else if (CbUnite.Items.Count > 0) {
             CbUnite.SelectedIndex = 0;
+        }
+    }
+
+    private void BtnAddCible_Click(object sender, RoutedEventArgs e) {
+        if (CbMaladieCible.SelectedItem is not CasClinique selectedCase) {
+            PopupFactory.ShowAlert(this, "Sélectionnez une maladie cible.");
+            return;
+        }
+
+        if (Cibles.Any(c => c.IdCas == selectedCase.IdCas)) {
+            PopupFactory.ShowAlert(this, "Cette maladie cible est déjà ajoutée.");
+            return;
+        }
+
+        if (Incompatibles.Any(i => i.IdCas == selectedCase.IdCas)) {
+            PopupFactory.ShowAlert(this, "Cette maladie est déjà déclarée incompatible.");
+            return;
+        }
+
+        if (!float.TryParse(TbBonusRemission.Text, out var bonus) || bonus < 0) {
+            PopupFactory.ShowAlert(this, "Bonus de rémission invalide.");
+            return;
+        }
+
+        if (!int.TryParse(TbQuantitePrescription.Text, out var qty) || qty <= 0) {
+            PopupFactory.ShowAlert(this, "Quantité à prescrire invalide.");
+            return;
+        }
+
+        Cibles.Add(new MedicamentCible {
+            IdCas = selectedCase.IdCas,
+            MaladieNom = selectedCase.Maladie,
+            Bonus = bonus,
+            Quantite = qty
+        });
+    }
+
+    private void BtnRemoveCible_Click(object sender, RoutedEventArgs e) {
+        if (sender is Button btn && btn.Tag is MedicamentCible cible) {
+            Cibles.Remove(cible);
+        }
+    }
+
+    private void BtnAddIncompatible_Click(object sender, RoutedEventArgs e) {
+        if (CbMaladieIncompatible.SelectedItem is not CasClinique selectedCase) {
+            PopupFactory.ShowAlert(this, "Sélectionnez une maladie incompatible.");
+            return;
+        }
+
+        if (Incompatibles.Any(i => i.IdCas == selectedCase.IdCas)) {
+            PopupFactory.ShowAlert(this, "Cette maladie incompatible est déjà ajoutée.");
+            return;
+        }
+
+        if (Cibles.Any(c => c.IdCas == selectedCase.IdCas)) {
+            PopupFactory.ShowAlert(this, "Cette maladie est déjà déclarée comme cible.");
+            return;
+        }
+
+        if (!float.TryParse(TbMalusRemission.Text, out var malus) || malus < 0) {
+            PopupFactory.ShowAlert(this, "Malus de rémission invalide.");
+            return;
+        }
+
+        Incompatibles.Add(new MedicamentIncompatible {
+            IdCas = selectedCase.IdCas,
+            MaladieNom = selectedCase.Maladie,
+            Malus = malus
+        });
+    }
+
+    private void BtnRemoveIncompatible_Click(object sender, RoutedEventArgs e) {
+        if (sender is Button btn && btn.Tag is MedicamentIncompatible incompatible) {
+            Incompatibles.Remove(incompatible);
         }
     }
 
@@ -61,11 +158,19 @@ public partial class AddMedicamentForm : Window {
             return;
         }
 
+        if (!int.TryParse(TbTempsLivraison.Text, out var tl) || tl <= 0) {
+            PopupFactory.ShowAlert(this, "Temps de livraison moyen invalide.");
+            return;
+        }
+
+        string ciblesJson = JsonConvert.SerializeObject(Cibles);
+        string incompatiblesJson = JsonConvert.SerializeObject(Incompatibles);
+
         try {
             if (_medicament == null) {
-                _db.AddMedicament(TbNom.Text.Trim(), TbDci.Text.Trim(), TbForme.Text.Trim(), sa, sm, prix, idUnite);
+                _db.AddMedicament(TbNom.Text.Trim(), TbDci.Text.Trim(), TbForme.Text.Trim(), sa, sm, prix, idUnite, ciblesJson, incompatiblesJson, tl);
             } else {
-                _db.UpdateMedicament(_medicament.IdMedicament, TbNom.Text.Trim(), TbDci.Text.Trim(), TbForme.Text.Trim(), sa, sm, prix, idUnite);
+                _db.UpdateMedicament(_medicament.IdMedicament, TbNom.Text.Trim(), TbDci.Text.Trim(), TbForme.Text.Trim(), sa, sm, prix, idUnite, ciblesJson, incompatiblesJson, tl);
             }
             DialogResult = true;
             Close();

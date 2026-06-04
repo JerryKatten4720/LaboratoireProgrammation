@@ -1,4 +1,4 @@
-﻿<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.HospitalWindow"
+<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.HospitalWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -175,25 +175,52 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="false" IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="false" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
-                                        <Border Background="#1c1c22" BorderBrush="{StaticResource Border}" BorderThickness="1">
-                                            <Path x:Name="Arrow" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" Data="M 0 0 L 4 4 L 8 0 Z" />
+                                        <Border Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=ComboBox}}" 
+                                                BorderBrush="{Binding Path=BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}" 
+                                                BorderThickness="{Binding Path=BorderThickness, RelativeSource={RelativeSource AncestorType=ComboBox}}" 
+                                                CornerRadius="6">
+                                            <Path x:Name="Arrow" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0" Data="M 0 0 L 4 4 L 8 0 Z" />
                                         </Border>
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left" TextElement.Foreground="{TemplateBinding Foreground}" />
                             <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                                 <Grid x:Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border x:Name="DropDownBorder" Background="#18181e" BorderThickness="1" BorderBrush="{StaticResource Border}" />
-                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <Border x:Name="DropDownBorder" Background="#18181e" BorderThickness="1" BorderBrush="{StaticResource Border}" CornerRadius="6" />
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                         <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
                                     </ScrollViewer>
                                 </Grid>
                             </Popup>
                         </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Margin="2,1" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1e1e28" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1a2e2b" />
+                                <Setter Property="Foreground" Value="{StaticResource AccentTeal}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -723,8 +750,9 @@
                     <Grid x:Name="PanelMedicaments" Visibility="Collapsed" Margin="28,24,28,24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" MinHeight="100" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" MinHeight="150" />
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Margin="0,0,0,20">
                             <TextBlock Text="Médicaments" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
@@ -754,7 +782,9 @@
                             </ListView>
                         </Border>
 
-                        <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1" Margin="0,16,0,0" Padding="20,16">
+                        <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Background="#2a2a38" Margin="0,10" />
+
+                        <Border Grid.Row="3" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1" Padding="20,16">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -941,7 +971,7 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                             <ItemsControl x:Name="IcSalleAttente">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -1028,6 +1058,24 @@
                                         <Setter Property="BorderThickness" Value="0,0,1,1"/>
                                         <Setter Property="FontWeight" Value="SemiBold"/>
                                     </Style>
+                                    <Style TargetType="DataGridRowHeader">
+                                        <Setter Property="Background" Value="#16161c"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="BorderBrush" Value="#2a2a38"/>
+                                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                    </Style>
+                                    <Style x:Key="{x:Static DataGrid.SelectAllCommand}" TargetType="Button">
+                                        <Setter Property="Background" Value="#2a2a38"/>
+                                        <Setter Property="BorderBrush" Value="#2a2a38"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="#2a2a38" BorderBrush="#2a2a38" BorderThickness="0,0,1,1"/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
                                     <Style TargetType="DataGridCell">
                                         <Setter Property="Padding" Value="8,4"/>
                                         <Style.Triggers>
@@ -1073,11 +1121,11 @@
 
         
         <Grid x:Name="LoadingPanel" Background="#0d0d0f" Panel.ZIndex="1000" Visibility="Visible">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
-                <TextBlock Text="⛨ RUE DE LONDRES MEMORIAL" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4" />
-                <TextBlock Text="Chargement de la base de données..." Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,24" />
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="800">
+                <TextBlock Text="⛨ RUE DE LONDRES MEMORIAL" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,4" />
+                <TextBlock Text="Chargement de la base de données..." Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI" FontSize="28" Opacity="0.5" HorizontalAlignment="Center" Margin="0,0,0,24" />
                 <ProgressBar x:Name="PbLoading" Height="8" Background="#1c1c22" Foreground="{StaticResource AccentTeal}" BorderThickness="0" Minimum="0" Maximum="100" Value="0" Margin="0,0,0,12" />
-                <TextBlock x:Name="TbLoadingStep" Text="Initialisation..." Foreground="{StaticResource TextSecondary}" FontSize="12" HorizontalAlignment="Center" />
+                <TextBlock x:Name="TbLoadingStep" Text="Initialisation..." Foreground="{StaticResource TextSecondary}" FontSize="22" Opacity="0.5" HorizontalAlignment="Center" />
             </StackPanel>
         </Grid>
     </Grid>

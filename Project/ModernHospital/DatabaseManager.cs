@@ -484,12 +484,16 @@ public class DatabaseManager {
             StockActuel = reader.GetInt32("StockActuel"),
             StockMinimum = reader.GetInt32("StockMinimum"),
             PrixUnitaire = reader.GetDecimal("PrixUnitaire"),
-            IdUnite = reader.GetInt32("IdUnite")
+            IdUnite = reader.GetInt32("IdUnite"),
+            MaladiesCibles = GetStringNullable(reader, "Maladies_Cibles"),
+            MaladiesIncompatibles = GetStringNullable(reader, "Maladies_Incompatibles"),
+            TempsLivraisonBase = reader.GetInt32("Temps_Livraison_Base"),
+            QuantitePrescriptionDefaut = reader.GetInt32("Quantite_Prescription_Defaut")
         });
     }
 
-    public void AddMedicament(string nom, string dci, string forme, int stockActuel, int stockMin, decimal prix, int idUnite) {
-        ExecuteCommand("INSERT INTO Medicament (Nom, DCI, Forme, StockActuel, StockMinimum, PrixUnitaire, IdUnite) VALUES (@n, @d, @f, @sa, @sm, @p, @u)", cmd => {
+    public void AddMedicament(string nom, string dci, string forme, int stockActuel, int stockMin, decimal prix, int idUnite, string cibles, string incompatibles, int tempsLivraison) {
+        ExecuteCommand("INSERT INTO Medicament (Nom, DCI, Forme, StockActuel, StockMinimum, PrixUnitaire, IdUnite, Maladies_Cibles, Maladies_Incompatibles, Temps_Livraison_Base) VALUES (@n, @d, @f, @sa, @sm, @p, @u, @c, @i, @tl)", cmd => {
             cmd.Parameters.AddWithValue("@n", nom);
             cmd.Parameters.AddWithValue("@d", dci);
             cmd.Parameters.AddWithValue("@f", forme);
@@ -497,11 +501,14 @@ public class DatabaseManager {
             cmd.Parameters.AddWithValue("@sm", stockMin);
             cmd.Parameters.AddWithValue("@p", prix);
             cmd.Parameters.AddWithValue("@u", idUnite);
+            cmd.Parameters.AddWithValue("@c", cibles);
+            cmd.Parameters.AddWithValue("@i", incompatibles);
+            cmd.Parameters.AddWithValue("@tl", tempsLivraison);
         });
     }
 
-    public void UpdateMedicament(int id, string nom, string dci, string forme, int stockActuel, int stockMin, decimal prix, int idUnite) {
-        ExecuteCommand("UPDATE Medicament SET Nom=@n, DCI=@d, Forme=@f, StockActuel=@sa, StockMinimum=@sm, PrixUnitaire=@p, IdUnite=@u WHERE IdMedicament=@id", cmd => {
+    public void UpdateMedicament(int id, string nom, string dci, string forme, int stockActuel, int stockMin, decimal prix, int idUnite, string cibles, string incompatibles, int tempsLivraison) {
+        ExecuteCommand("UPDATE Medicament SET Nom=@n, DCI=@d, Forme=@f, StockActuel=@sa, StockMinimum=@sm, PrixUnitaire=@p, IdUnite=@u, Maladies_Cibles=@c, Maladies_Incompatibles=@i, Temps_Livraison_Base=@tl WHERE IdMedicament=@id", cmd => {
             cmd.Parameters.AddWithValue("@id", id);
             cmd.Parameters.AddWithValue("@n", nom);
             cmd.Parameters.AddWithValue("@d", dci);
@@ -510,6 +517,9 @@ public class DatabaseManager {
             cmd.Parameters.AddWithValue("@sm", stockMin);
             cmd.Parameters.AddWithValue("@p", prix);
             cmd.Parameters.AddWithValue("@u", idUnite);
+            cmd.Parameters.AddWithValue("@c", cibles);
+            cmd.Parameters.AddWithValue("@i", incompatibles);
+            cmd.Parameters.AddWithValue("@tl", tempsLivraison);
         });
     }
 
@@ -974,7 +984,7 @@ public class DatabaseManager {
 
     public string EvaluateTreatmentOutcome(int idPatient) {
         var diseaseInfo = GetSingle(
-            @"SELECT c.TauxRemission, c.SpecialisteTraitement, p.IdMedecinAssigné, c.UniteRequise 
+            @"SELECT c.TauxRemission, c.SpecialisteTraitement, p.IdMedecinAssigné, c.UniteRequise, p.IdMaladie 
               FROM Patients_Actifs p 
               JOIN Cas_Cliniques c ON p.IdMaladie = c.IdCas 
               WHERE p.IdPatient = @id",
@@ -982,7 +992,8 @@ public class DatabaseManager {
                 TauxRemission = reader.IsDBNull(0) ? 50f : reader.GetFloat(0),
                 SpecialisteTraitement = reader.IsDBNull(1) ? "" : reader.GetString(1),
                 IdMedecin = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2),
-                UniteRequise = reader.IsDBNull(3) ? (string?)null : reader.GetString(3)
+                UniteRequise = reader.IsDBNull(3) ? (string?)null : reader.GetString(3),
+                IdMaladie = reader.GetInt32(4)
             },
             cmd => cmd.Parameters.AddWithValue("@id", idPatient)
         );
@@ -1020,7 +1031,23 @@ public class DatabaseManager {
             }
         }
 
-        float finalRemission = baseRemission + bonus;
+        float drugMod = 0f;
+        var prescriptions = GetPrescriptionsByPatient(idPatient);
+        foreach (var p in prescriptions) {
+            var med = GetMedicamentById(p.IdMedicament);
+            if (med != null) {
+                var target = med.GetCiblesList().FirstOrDefault(c => c.IdCas == diseaseInfo.IdMaladie);
+                if (target != null) {
+                    drugMod += target.Bonus;
+                }
+                var incompatible = med.GetIncompatiblesList().FirstOrDefault(i => i.IdCas == diseaseInfo.IdMaladie);
+                if (incompatible != null) {
+                    drugMod -= incompatible.Malus;
+                }
+            }
+        }
+
+        float finalRemission = baseRemission + bonus + drugMod;
         if (finalRemission < 0f) finalRemission = 0f;
         if (finalRemission > 100f) finalRemission = 100f;
 

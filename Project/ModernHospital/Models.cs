@@ -124,6 +124,19 @@ public class LitInventaire {
     public string Statut { get; set; } = "";
 }
 
+public class MedicamentCible {
+    public int IdCas { get; set; }
+    public string MaladieNom { get; set; } = "";
+    public float Bonus { get; set; }
+    public int Quantite { get; set; }
+}
+
+public class MedicamentIncompatible {
+    public int IdCas { get; set; }
+    public string MaladieNom { get; set; } = "";
+    public float Malus { get; set; }
+}
+
 public class Medicament {
     public int IdMedicament { get; set; }
     public string Nom { get; set; } = "";
@@ -137,6 +150,24 @@ public class Medicament {
     public string? MaladiesIncompatibles { get; set; }
     public int TempsLivraisonBase { get; set; } = 120;
     public int QuantitePrescriptionDefaut { get; set; } = 1;
+
+    public List<MedicamentCible> GetCiblesList() {
+        if (string.IsNullOrEmpty(MaladiesCibles)) return new List<MedicamentCible>();
+        try {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<List<MedicamentCible>>(MaladiesCibles) ?? new List<MedicamentCible>();
+        } catch {
+            return new List<MedicamentCible>();
+        }
+    }
+
+    public List<MedicamentIncompatible> GetIncompatiblesList() {
+        if (string.IsNullOrEmpty(MaladiesIncompatibles)) return new List<MedicamentIncompatible>();
+        try {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<List<MedicamentIncompatible>>(MaladiesIncompatibles) ?? new List<MedicamentIncompatible>();
+        } catch {
+            return new List<MedicamentIncompatible>();
+        }
+    }
 }
 
 public class Prescription {
