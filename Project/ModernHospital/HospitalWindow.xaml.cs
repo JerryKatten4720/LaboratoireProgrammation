@@ -32,6 +32,13 @@ public partial class HospitalWindow : Window {
         };
         _simulationService.OnEventLog += LogEvent;
         _simulationService.OnPersonnelChanged += RefreshPersonnel;
+        _simulationService.OnPatientsChanged += () => {
+            Dispatcher.Invoke(() => {
+                RefreshPatients();
+                RefreshDashboard();
+                RefreshFinances();
+            });
+        };
         Closing += (_, _) => _simulationService.Dispose();
     }
 
@@ -45,7 +52,66 @@ public partial class HospitalWindow : Window {
             _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesTravaillees INT DEFAULT 0");
             _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesEnPause INT DEFAULT 0");
             _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesHorsPoste INT DEFAULT 0");
-        } catch { /* Ignore if columns already exist */ }
+        } catch { }
+
+        try {
+            _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TempsTraitementHeures FLOAT NOT NULL");
+            _db.ExecuteCommand("ALTER TABLE Patients_Actifs MODIFY COLUMN TempsTraitementRestant FLOAT DEFAULT 0");
+            _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN TauxRemission FLOAT DEFAULT 50.0");
+            _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN SpecialisteTraitement VARCHAR(100)");
+        } catch { }
+
+        try {
+            _db.ExecuteCommand("ALTER TABLE Facture ADD COLUMN CodeFacture VARCHAR(10)");
+        } catch { }
+
+        try {
+            var invoices = _db.GetFactures();
+            foreach (var inv in invoices) {
+                if (string.IsNullOrEmpty(inv.CodeFacture) || inv.CodeFacture.Length < 6) {
+                    string newCode = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+                    _db.ExecuteCommand(
+                        "UPDATE Facture SET CodeFacture = @code WHERE IdFacture = @id",
+                        cmd => {
+                            cmd.Parameters.AddWithValue("@code", newCode);
+                            cmd.Parameters.AddWithValue("@id", inv.IdFacture);
+                        }
+                    );
+                }
+            }
+        } catch { }
+
+        try {
+            _db.ExecuteCommand("ALTER TABLE Facture ADD UNIQUE INDEX idx_code_facture (CodeFacture)");
+        } catch { }
+
+        try {
+            _db.ExecuteCommand("CREATE TABLE IF NOT EXISTS Specialite (IdSpecialite INT AUTO_INCREMENT PRIMARY KEY, Nom VARCHAR(100) NOT NULL UNIQUE)");
+            int specCount = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM Specialite");
+            if (specCount == 0) {
+                string[] specs = { "Urgences", "Chirurgie", "Pathologie", "Cardiologie", "Oncologie", "Gériatrie", "Médecine Interne", "Neuroimagerie", "Traumatologie", "Médecine Nucléaire", "Prélèvements", "Chimiothérapie", "Logistique", "Général" };
+                foreach (var s in specs) {
+                    try {
+                        _db.ExecuteCommand("INSERT INTO Specialite (Nom) VALUES (@nom)", cmd => cmd.Parameters.AddWithValue("@nom", s));
+                    } catch { }
+                }
+            }
+        } catch { }
+
+        try {
+            _db.ExecuteCommand("ALTER TABLE LigneFacture MODIFY COLUMN TypePrestation ENUM('Chambre', 'Soin', 'Médicament') NOT NULL");
+        } catch { }
+
+        try {
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Urgences' WHERE Specialite = 'Diagnostic'");
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Neuroimagerie' WHERE Specialite = 'Neurochirurgie'");
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Chirurgie' WHERE Specialite = 'Chirurgie Plastique'");
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Pathologie' WHERE Specialite = 'Pédiatrie'");
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Médecine Générale'");
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Obstétrique'");
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Gynécologie'");
+            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Urgences' WHERE Specialite = 'Soins Intensifs'");
+        } catch { }
 
         RootGrid.Width = ActualWidth;
         RootGrid.Height = ActualHeight;
@@ -158,8 +224,13 @@ public partial class HospitalWindow : Window {
         KpiPersonnel.Text = stats.TotalPersonnel.ToString();
         KpiLitsLibres.Text = stats.LitsLibres.ToString();
         KpiLitsOccupes.Text = $"{stats.LitsOccupes} occupés";
-        KpiRevenu.Text = $"${stats.RevenuJour:N0}";
-        KpiDepenses.Text = $"${stats.DepensesJour:N0} dépenses";
+        KpiRevenu.Text = $"+ {stats.RevenuJour:N0} $";
+        KpiDepenses.Text = $"- {stats.DepensesJour:N0} $";
+        
+        if (stats.RevenuJour > stats.DepensesJour) KpiTotal.Text = $"+ {stats.RevenuJour - stats.DepensesJour:N0} $";
+        else if (stats.RevenuJour < stats.DepensesJour) KpiTotal.Text = $"- {Math.Abs(stats.RevenuJour - stats.DepensesJour):N0} $";
+        else KpiTotal.Text = "0 $";
+        
         KpiGueris.Text = stats.PatientsGueris.ToString();
         KpiDeces.Text = stats.PatientsDeces.ToString();
         KpiBudget.Text = $"${_hospital.Budget:N0}";
@@ -174,6 +245,7 @@ public partial class HospitalWindow : Window {
 
     private void RefreshPersonnel() {
         LvPersonnel.ItemsSource = _db.GetPersonnel();
+        LvCandidats.ItemsSource = _db.GetCandidats();
     }
 
     private void RefreshChambres() {
@@ -321,6 +393,36 @@ public partial class HospitalWindow : Window {
         DimOverlay.Visibility = Visibility.Visible;
         doctorForm.ShowDialog();
         DimOverlay.Visibility = Visibility.Collapsed;
+    }
+
+    private void BtnRecruterCandidat_Click(object sender, RoutedEventArgs e) {
+        if (_hospital == null) return;
+        if (sender is Button btn && btn.Tag is Candidat candidat) {
+            if (_hospital.Budget < candidat.PrimeEmbauche) {
+                PopupFactory.ShowAlert(this, $"Budget insuffisant pour embaucher {candidat.NomComplet}. Prime requise: ${candidat.PrimeEmbauche:N0}");
+                return;
+            }
+
+            var confirm = PopupFactory.CreateConfirmationPopup(
+                $"Recruter {candidat.NomComplet} (Prime: ${candidat.PrimeEmbauche:N0}, Salaire: ${candidat.SalaireJour}/j) ?",
+                "#00d4aa",
+                () => {
+                    bool success = _db.HireCandidat(candidat.IdCandidat, _hospital);
+                    if (success) {
+                        LogEvent($"🤝 {candidat.NomComplet} embauché(e).");
+                        RefreshPersonnel();
+                        RefreshDashboard();
+                        SetStatus($"✔️ {candidat.NomComplet} embauché avec succès", Color.FromRgb(0, 212, 170));
+                    } else {
+                        PopupFactory.ShowAlert(this, "Erreur lors de l'embauche.");
+                    }
+                }
+            );
+            confirm.Owner = this;
+            DimOverlay.Visibility = Visibility.Visible;
+            confirm.ShowDialog();
+            DimOverlay.Visibility = Visibility.Collapsed;
+        }
     }
 
     private void RefreshPatients_Click(object sender, RoutedEventArgs e) {

@@ -9,10 +9,12 @@ public class SimulationService : IDisposable {
     private DispatcherTimer? _clockTimer;
     private DateTime _gameTime;
     private DateTime _lastDoctorUpdate = DateTime.MinValue;
+    private DateTime _lastPatientUpdate = DateTime.MinValue;
 
     public event Action<DateTime>? OnTick;
     public event Action<string>? OnEventLog;
     public event Action? OnPersonnelChanged;
+    public event Action? OnPatientsChanged;
 
     public SimulationService(DatabaseManager db) {
         _db = db;
@@ -27,11 +29,13 @@ public class SimulationService : IDisposable {
             _gameTime = _gameTime.AddSeconds(HospitalSettings.Current.GameTickIntervalSeconds * HospitalSettings.Current.TimeScaleMultiplier);
             OnTick?.Invoke(_gameTime);
             UpdateDoctorsShifts();
+            UpdatePatientsTreatment();
         };
         _clockTimer.Start();
         
         OnTick?.Invoke(_gameTime);
         UpdateDoctorsShifts();
+        UpdatePatientsTreatment();
     }
 
     public void Stop() {
@@ -85,6 +89,41 @@ public class SimulationService : IDisposable {
 
         if (changed) {
             OnPersonnelChanged?.Invoke();
+        }
+    }
+
+    private void UpdatePatientsTreatment() {
+        if ((_gameTime - _lastPatientUpdate).TotalMinutes < 1) return;
+        
+        int minutesPassed = (int)(_gameTime - _lastPatientUpdate).TotalMinutes;
+        if (_lastPatientUpdate == DateTime.MinValue) minutesPassed = 1;
+        _lastPatientUpdate = _gameTime;
+
+        float hoursPassed = minutesPassed / 60.0f;
+        var activePatients = _db.GetPatientsRaw().Where(p => p.Statut == "En Diagnostic" || p.Statut == "En Traitement").ToList();
+        bool changed = false;
+
+        foreach (var patient in activePatients) {
+            float newTime = patient.TempsTraitementRestant - hoursPassed;
+            if (newTime <= 0f) {
+                string outcome = _db.EvaluateTreatmentOutcome(patient.IdPatient);
+                var fullPatient = _db.GetPatients().FirstOrDefault(p => p.IdPatient == patient.IdPatient);
+                if (fullPatient != null) {
+                    PatientHelper.HandlePatientStatusChange(_db, fullPatient, outcome);
+                    changed = true;
+                    if (outcome == "Guéri") {
+                        OnEventLog?.Invoke($"✨ Patient {fullPatient.Nom} est guéri après son traitement.");
+                    } else {
+                        OnEventLog?.Invoke($"☠ Patient {fullPatient.Nom} est décédé.");
+                    }
+                }
+            } else {
+                _db.UpdatePatientTreatmentTime(patient.IdPatient, newTime);
+            }
+        }
+
+        if (changed) {
+            OnPatientsChanged?.Invoke();
         }
     }
 

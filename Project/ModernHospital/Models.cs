@@ -78,7 +78,7 @@ public class PatientActif {
     public int SanteActuelle { get; set; }
     public int Satisfaction { get; set; }
     public string? NumeroLit { get; set; }
-    public int TempsTraitementRestant { get; set; }
+    public float TempsTraitementRestant { get; set; }
     public int IdMaladie { get; set; }
     public int? IdLit { get; set; }
     public int? IdMedecinAssigne { get; set; }
@@ -121,6 +121,7 @@ public class Prescription {
 
 public class Facture {
     public int IdFacture { get; set; }
+    public string CodeFacture { get; set; } = "";
     public int IdPatient { get; set; }
     public int JourEmission { get; set; }
     public decimal MontantChambre { get; set; }
@@ -134,8 +135,32 @@ public class Facture {
         get {
             var baseDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Factures");
             if (System.IO.Directory.Exists(baseDir)) {
-                var files = System.IO.Directory.GetFiles(baseDir, $"facture-{IdFacture}-*.html", System.IO.SearchOption.AllDirectories);
-                if (files.Length > 0) return files[0];
+                var nomComplet = PatientNom ?? "";
+                var parts = nomComplet.Split(' ', 2, System.StringSplitOptions.RemoveEmptyEntries);
+                var nom = parts.Length > 0 ? parts[0] : "inconnu";
+                var prenom = parts.Length > 1 ? parts[1] : "inconnu";
+
+                var safeNom = nom.ToLowerInvariant();
+                safeNom = System.Text.RegularExpressions.Regex.Replace(safeNom, @"[^\w]", "");
+                var safePrenom = prenom.ToLowerInvariant();
+                safePrenom = System.Text.RegularExpressions.Regex.Replace(safePrenom, @"[^\w]", "");
+
+                var patientDir = System.IO.Path.Combine(baseDir, $"{safeNom}_{safePrenom}");
+                if (System.IO.Directory.Exists(patientDir)) {
+                    if (!string.IsNullOrEmpty(CodeFacture)) {
+                        var files = System.IO.Directory.GetFiles(patientDir, $"facture-{CodeFacture}-*.html");
+                        if (files.Length > 0) return files[0];
+                    }
+                    var idFiles = System.IO.Directory.GetFiles(patientDir, $"facture-{IdFacture}-*.html");
+                    if (idFiles.Length > 0) return idFiles[0];
+                }
+
+                if (!string.IsNullOrEmpty(CodeFacture)) {
+                    var fbFiles = System.IO.Directory.GetFiles(baseDir, $"facture-{CodeFacture}-*.html", System.IO.SearchOption.AllDirectories);
+                    if (fbFiles.Length > 0) return fbFiles[0];
+                }
+                var fbIdFiles = System.IO.Directory.GetFiles(baseDir, $"facture-{IdFacture}-*.html", System.IO.SearchOption.AllDirectories);
+                if (fbIdFiles.Length > 0) return fbIdFiles[0];
             }
             return null;
         }
@@ -176,21 +201,28 @@ public class HitParadeEntry {
 
 public static class PatientHelper {
     public static bool HandlePatientStatusChange(DatabaseManager db, PatientActif p, string s) {
-        if (p == null) return false;
-        db.UpdatePatientStatut(p.IdPatient, s);
-        
-        if (s == "Guéri" || s == "Décédé") {
-            int idFacture = db.GenerateFacture(p.IdPatient);
-            var facture = db.GetFactures().FirstOrDefault(f => f.IdFacture == idFacture);
-            var lignes = db.GetLignesFacture(idFacture);
-            var hosp = db.GetHospital();
-            if (facture != null && hosp != null) {
-                Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes, p.MedecinEnCharge ?? "Docteur Inconnu");
+        try {
+            if (p == null) return false;
+            db.UpdatePatientStatut(p.IdPatient, s);
+            
+            if (s == "Guéri" || s == "Décédé") {
+                int idFacture = db.GenerateFacture(p.IdPatient);
+                var facture = db.GetFactures().FirstOrDefault(f => f.IdFacture == idFacture);
+                var lignes = db.GetLignesFacture(idFacture);
+                var hosp = db.GetHospital();
+                if (facture != null && hosp != null) {
+                    Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes, p.MedecinEnCharge ?? "Docteur Inconnu");
+                }
+                db.CloseReservation(p.IdPatient);
+                db.ReleaseBed(p.IdPatient);
             }
-            db.CloseReservation(p.IdPatient);
-            db.ReleaseBed(p.IdPatient);
+            return true;
+        } catch (System.Exception ex) {
+            try {
+                System.Windows.MessageBox.Show($"Erreur dans HandlePatientStatusChange: {ex.Message}\n{ex.StackTrace}", "Erreur critique", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            } catch {}
+            return false;
         }
-        return true;
     }
 }
 
@@ -206,9 +238,11 @@ public class CasClinique {
     public int IdCas { get; set; }
     public string Maladie { get; set; } = "";
     public string Symptomes { get; set; } = "";
-    public int TempsTraitementHeures { get; set; }
+    public float TempsTraitementHeures { get; set; }
     public decimal RevenuPatient { get; set; }
     public int RisqueErreurMedicale { get; set; }
+    public float TauxRemission { get; set; }
+    public string SpecialisteTraitement { get; set; } = "";
 }
 
 public class LitDisponible {
