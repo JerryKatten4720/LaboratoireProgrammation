@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace LaboratoireProgrammation.Project.ModernHospital.Helpers;
 
@@ -7,8 +7,20 @@ public static class ChambrePricingHelper {
     public const decimal MultiplicateurCoutLit = 5.5m;
     public const decimal FacteurCapacite = 20m;
 
-    public static decimal CalculerCoutTotal(decimal coutEntretien, int capaciteLits) {
-        return FraisFixesCreation + coutEntretien + CalculerCoutLitsTotal(coutEntretien, capaciteLits);
+    public static decimal GetFraisFixesCreation(string? uniteNom) {
+        if (uniteNom != null && HospitalSettings.Current?.CoutCreationBaseUnites != null) {
+            foreach (var kvp in HospitalSettings.Current.CoutCreationBaseUnites) {
+                if (string.Equals(kvp.Key, uniteNom, System.StringComparison.OrdinalIgnoreCase)) {
+                    return kvp.Value;
+                }
+            }
+        }
+        return FraisFixesCreation;
+    }
+
+    public static decimal CalculerCoutTotal(decimal coutEntretien, int capaciteLits, decimal? customBaseCost = null) {
+        decimal baseCost = customBaseCost ?? FraisFixesCreation;
+        return baseCost + coutEntretien + CalculerCoutLitsTotal(coutEntretien, capaciteLits);
     }
 
     public static decimal CalculerCoutLitsTotal(decimal coutEntretien, int capaciteLits) {

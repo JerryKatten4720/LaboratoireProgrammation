@@ -1,4 +1,4 @@
-<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.AddLitForm"
+﻿<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.AddLitForm"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Installer un nouveau lit" Height="300" Width="380"

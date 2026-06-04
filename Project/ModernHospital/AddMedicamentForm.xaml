@@ -1,10 +1,10 @@
-<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.AddMedicamentForm"
+﻿<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.AddMedicamentForm"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Ajouter un Médicament" Height="380" Width="400"
         WindowStartupLocation="CenterOwner" Background="#2b2d31">
     <Window.Resources>
-        <!-- implicit styles -->
+        
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>

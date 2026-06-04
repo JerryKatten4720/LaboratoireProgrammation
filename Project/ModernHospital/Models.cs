@@ -133,6 +133,10 @@ public class Medicament {
     public int StockMinimum { get; set; }
     public decimal PrixUnitaire { get; set; }
     public int IdUnite { get; set; }
+    public string? MaladiesCibles { get; set; }
+    public string? MaladiesIncompatibles { get; set; }
+    public int TempsLivraisonBase { get; set; } = 120;
+    public int QuantitePrescriptionDefaut { get; set; } = 1;
 }
 
 public class Prescription {
@@ -281,6 +285,7 @@ public class Transaction {
     public string TypeTransaction { get; set; } = "";
     public decimal Montant { get; set; }
     public string Description { get; set; } = "";
+    public bool IsGain => Montant > 0;
 }
 
 public class CasClinique {
@@ -292,6 +297,8 @@ public class CasClinique {
     public int RisqueErreurMedicale { get; set; }
     public float TauxRemission { get; set; }
     public string SpecialisteTraitement { get; set; } = "";
+    public string? UniteRequise { get; set; }
+    public decimal CoutLogistique { get; set; }
 }
 
 public class LitDisponible {
@@ -300,6 +307,26 @@ public class LitDisponible {
     public string NumeroChambre { get; set; } = "";
     public string TypeChambre { get; set; } = "";
     public string NumeroLit { get; set; } = "";
+}
+
+public class WaitingRoomPatient {
+    public int IdPatientAttente { get; set; }
+    public string Nom { get; set; } = "";
+    public string Prenom { get; set; } = "";
+    public int IdMaladie { get; set; }
+    public int TempsAttenteMinutes { get; set; }
+    public string Symptomes { get; set; } = "";
+    public string NomComplet => $"{Prenom} {Nom}";
+    public string TempsAttenteAffichage => $"{TempsAttenteMinutes / 60}h {TempsAttenteMinutes % 60:D2}m";
+}
+
+public class VirtualQueuePatient {
+    public int IdVirtual { get; set; }
+    public string Nom { get; set; } = "";
+    public int IdMaladie { get; set; }
+    public int? IdMedecin { get; set; }
+    public string Classe { get; set; } = "";
+    public int DateEntree { get; set; }
 }
 
 public class Unite {
@@ -324,4 +351,24 @@ public class DashboardStats {
 public class EventEntry {
     public string Message { get; set; } = "";
     public string Category { get; set; } = "Logistique";
+}
+
+public class CartItem {
+    public Medicament Medicament { get; set; } = null!;
+    public int Quantite { get; set; }
+    public string Nom => Medicament.Nom;
+    public string DCI => Medicament.DCI;
+    public decimal PrixAchatUnitaire => Medicament.PrixUnitaire * 0.80m;
+    public decimal PrixAchatTotal => PrixAchatUnitaire * Quantite;
+    
+    public string PrixAchatUnitaireAffichage => $"$ {PrixAchatUnitaire:N2}";
+    public string PrixAchatTotalAffichage => $"$ {PrixAchatTotal:N2}";
+}
+
+public class MedicamentCommande {
+    public int IdCommande { get; set; }
+    public int IdMedicament { get; set; }
+    public int Quantite { get; set; }
+    public int TempsLivraisonRestant { get; set; }
+    public decimal PrixAchat { get; set; }
 }

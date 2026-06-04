@@ -1,0 +1,58 @@
+﻿<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.OrderMedicamentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Commander un Médicament" Height="260" Width="360"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="#121218" ResizeMode="NoResize">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="Commander" Foreground="#f0f0f5" FontSize="16" FontWeight="Bold"/>
+            <TextBlock x:Name="TbDrugInfo" Text="Médicament: Aspirine" Foreground="#8888aa" FontSize="12" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" VerticalAlignment="Center">
+            <TextBlock Text="Quantité à commander" Foreground="#8888aa" FontSize="11" Margin="0,0,0,6"/>
+            <TextBox x:Name="TbQuantity" Background="#1c1c22" Foreground="White" BorderBrush="#2a2a38" Height="36" Padding="8,0" Text="10" TextChanged="TbQuantity_TextChanged" VerticalContentAlignment="Center"/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <TextBlock Text="Estimation Prix Achat (80%): " Foreground="#8888aa" FontSize="11"/>
+                <TextBlock x:Name="TbEstimatedPrice" Text="$ 0.00" Foreground="#00d4aa" FontSize="12" FontWeight="SemiBold" Margin="5,0,0,0"/>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                <TextBlock Text="Délai estimé : " Foreground="#8888aa" FontSize="11"/>
+                <TextBlock x:Name="TbEstimatedDelay" Text="0 min (in-game)" Foreground="#FFB347" FontSize="12" FontWeight="SemiBold" Margin="5,0,0,0"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Annuler" Click="BtnCancel_Click" Margin="0,0,8,0" Height="34" Background="Transparent" Foreground="#8888aa" BorderBrush="#2a2a38" BorderThickness="1" FontWeight="SemiBold">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button Grid.Column="1" Content="Ajouter au panier" Click="BtnConfirm_Click" Margin="8,0,0,0" Height="34" Background="#00d4aa" Foreground="#0d0d0f" BorderThickness="0" FontWeight="SemiBold">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

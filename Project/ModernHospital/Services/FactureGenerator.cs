@@ -148,6 +148,14 @@ public static class FactureGenerator {
         sb.AppendLine("<div class='invoice-wrapper'>");
         sb.AppendLine(GenerateInvoiceHeader(billCode, facture.JourEmission, facture.Statut, hospital));
         sb.AppendLine(GeneratePatientSection(patient, nomComplet));
+
+        var stayLine = lignes.FirstOrDefault(l => l.TypePrestation == "Chambre" && l.Description == "Frais de séjour");
+        int stayDays = stayLine?.Quantite ?? 1;
+
+        var treatmentLine = lignes.FirstOrDefault(l => l.TypePrestation == "Chambre" && l.Description == "Supplément de frais de séjour");
+        int treatmentHours = treatmentLine?.Quantite ?? 0;
+
+        sb.AppendLine(GenerateHospitalisationSection(stayDays, treatmentHours));
         sb.AppendLine(GenerateInvoiceTable(lignes, facture));
         sb.AppendLine(GenerateFooter(doctorName, random));
         sb.AppendLine("</div>");
@@ -341,6 +349,22 @@ public static class FactureGenerator {
                 <div class='data-group'>
                     <label>Classe</label>
                     <span>{patient.Classe}</span>
+                </div>
+            </div>
+        </div>";
+    }
+
+    private static string GenerateHospitalisationSection(int stayDays, int treatmentHours) {
+        return $@"
+        <div class='section' style='padding-top: 0;'>
+            <div class='patient-grid' style='background: #f0fdf4; border-color: #bbf7d0;'>
+                <div class='data-group'>
+                    <label style='color: #15803d; font-size: 12px; font-weight: 600; text-transform: uppercase;'>Temps d'hospitalisation (séjour)</label>
+                    <span style='color: #166534; font-size: 15px; font-weight: bold;'>{stayDays} jour(s)</span>
+                </div>
+                <div class='data-group'>
+                    <label style='color: #15803d; font-size: 12px; font-weight: 600; text-transform: uppercase;'>Durée de traitement requis</label>
+                    <span style='color: #166534; font-size: 15px; font-weight: bold;'>{treatmentHours} heure(s)</span>
                 </div>
             </div>
         </div>";

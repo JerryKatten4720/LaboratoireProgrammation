@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,31 +15,49 @@ public partial class HospitalWindow : Window {
 
     private readonly DatabaseManager _db = new();
     private readonly ObservableCollection<EventEntry> _eventLog = new();
+    private readonly ObservableCollection<CartItem> _cart = new();
+    private readonly ObservableCollection<ToastNotification> _notifications = new();
     
     private Button? _activeNavBtn;
     private ObservableCollection<ChambreGroup> _chambresGroupes = new();
     private HospitalInfo? _hospital;
     private SimulationService _simulationService;
+    private MySqlConnector.MySqlDataAdapter? _currentAdapter;
+    private MySqlConnector.MySqlCommandBuilder? _currentCommandBuilder;
+    private System.Data.DataTable? _currentTable;
+    private string _selectedTableName = "";
 
     public HospitalWindow() {
         InitializeComponent();
         Loaded += OnLoaded;
         SizeChanged += OnSizeChanged;
 
+        LvCart.ItemsSource = _cart;
+        IcToasts.ItemsSource = _notifications;
+
         HospitalSettings.Load();
         
         _simulationService = new SimulationService(_db);
         _simulationService.OnTick += t => {
-            TbDate.Text = t.ToString("dd/MM/yyyy");
-            TbHeure.Text = t.ToString("HH:mm:ss");
+            Dispatcher.Invoke(() => {
+                TbDate.Text = t.ToString("dd/MM/yyyy");
+                TbHeure.Text = t.ToString("HH:mm:ss");
+                if (PanelSalleAttente != null && PanelSalleAttente.Visibility == Visibility.Visible) {
+                    RefreshSalleAttente();
+                }
+            });
         };
         _simulationService.OnEventLog += LogEvent;
+        _simulationService.OnNotification += (msg, col) => ShowToast(msg, col);
         _simulationService.OnPersonnelChanged += RefreshPersonnel;
         _simulationService.OnPatientsChanged += () => {
             Dispatcher.Invoke(() => {
                 RefreshPatients();
                 RefreshDashboard();
                 RefreshFinances();
+                if (PanelSalleAttente != null && PanelSalleAttente.Visibility == Visibility.Visible) {
+                    RefreshSalleAttente();
+                }
             });
         };
         Closing += (_, _) => {
@@ -48,125 +69,207 @@ public partial class HospitalWindow : Window {
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e) {
-        try { _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard', 'Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL"); } catch { }
-        try { _db.ExecuteCommand("UPDATE Chambre SET TypeChambre = 'Standard - Commune' WHERE TypeChambre = 'Standard'"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL"); } catch { }
+        _ = InitializeDatabaseAsync();
+    }
 
-        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif MODIFY COLUMN Statut ENUM('En poste', 'En pause', 'Absent', 'Épuisé', 'Hors poste') DEFAULT 'En poste'"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesTravaillees INT DEFAULT 0"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesEnPause INT DEFAULT 0"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesHorsPoste INT DEFAULT 0"); } catch { }
-
-        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TempsTraitementHeures FLOAT NOT NULL"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Patients_Actifs MODIFY COLUMN TempsTraitementRestant FLOAT DEFAULT 0"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN TauxRemission FLOAT(5,2) DEFAULT 50.0"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TauxRemission FLOAT(5,2) DEFAULT 50.0"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN SpecialisteTraitement VARCHAR(100)"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN DerniereFermetureVraieVie DATETIME NULL"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN ProchainePauseMinutes INT DEFAULT 120"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Chambre ADD COLUMN CapaciteLits INT DEFAULT 2"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN UniteRequise VARCHAR(100) NULL"); } catch { }
-        try { _db.ExecuteCommand("UPDATE Cas_Cliniques SET UniteRequise = 'Soins Intensifs Urgences' WHERE Maladie IN ('Infarctus du Myocarde', 'AVC Ischémique', 'Sepsis')"); } catch { }
-        try { _db.ExecuteCommand("UPDATE Cas_Cliniques SET UniteRequise = 'Bloc Opératoire A' WHERE Maladie = 'Appendicite Aiguë'"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN FraisFuneraireCumule DECIMAL(10,2) DEFAULT 0.00"); } catch { }
-        try { _db.ExecuteCommand("ALTER TABLE LigneFacture MODIFY COLUMN TypePrestation ENUM('Chambre', 'Soin', 'Médicament', 'Autre') NOT NULL"); } catch { }
-        try {
-            _db.ExecuteCommand(@"
-                CREATE TABLE IF NOT EXISTS Facture_Hopital (
-                    IdFactureHopital INT AUTO_INCREMENT PRIMARY KEY,
-                    CodeFacture VARCHAR(10) NOT NULL UNIQUE,
-                    JourEmission INT NOT NULL,
-                    TypeFacture VARCHAR(100) NOT NULL,
-                    MontantTotal DECIMAL(10, 2) NOT NULL,
-                    Description TEXT,
-                    Statut VARCHAR(50) DEFAULT 'Payée'
-                )");
-        } catch { }
-        try {
-            _db.ExecuteCommand(@"
-                CREATE TABLE IF NOT EXISTS Frais_Supplementaires (
-                    IdFrais INT AUTO_INCREMENT PRIMARY KEY,
-                    IdPatient INT NOT NULL,
-                    NomFrais VARCHAR(150) NOT NULL,
-                    Montant DECIMAL(10, 2) NOT NULL,
-                    FOREIGN KEY (IdPatient) REFERENCES Patients_Actifs(IdPatient) ON DELETE CASCADE
-                )");
-        } catch { }
-
-        try {
-            _db.ExecuteCommand("ALTER TABLE Facture ADD COLUMN CodeFacture VARCHAR(10)");
-        } catch { }
-
-        try {
-            var invoices = _db.GetFactures();
-            foreach (var inv in invoices) {
-                if (string.IsNullOrEmpty(inv.CodeFacture) || inv.CodeFacture.Length < 6) {
-                    string newCode = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
-                    _db.ExecuteCommand(
-                        "UPDATE Facture SET CodeFacture = @code WHERE IdFacture = @id",
-                        cmd => {
-                            cmd.Parameters.AddWithValue("@code", newCode);
-                            cmd.Parameters.AddWithValue("@id", inv.IdFacture);
-                        }
-                    );
-                }
-            }
-        } catch { }
-
-        try {
-            _db.ExecuteCommand("ALTER TABLE Facture ADD UNIQUE INDEX idx_code_facture (CodeFacture)");
-        } catch { }
-
-        try {
-            _db.ExecuteCommand("CREATE TABLE IF NOT EXISTS Specialite (IdSpecialite INT AUTO_INCREMENT PRIMARY KEY, Nom VARCHAR(100) NOT NULL UNIQUE)");
-            int specCount = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM Specialite");
-            if (specCount == 0) {
-                string[] specs = { "Urgences", "Chirurgie", "Pathologie", "Cardiologie", "Oncologie", "Gériatrie", "Médecine Interne", "Neuroimagerie", "Traumatologie", "Médecine Nucléaire", "Prélèvements", "Chimiothérapie", "Logistique", "Général" };
-                foreach (var s in specs) {
-                    try {
-                        _db.ExecuteCommand("INSERT INTO Specialite (Nom) VALUES (@nom)", cmd => cmd.Parameters.AddWithValue("@nom", s));
-                    } catch { }
-                }
-            }
-        } catch { }
-
-        try {
-            _db.ExecuteCommand("ALTER TABLE LigneFacture MODIFY COLUMN TypePrestation ENUM('Chambre', 'Soin', 'Médicament', 'Autre') NOT NULL");
-        } catch { }
-
-        try {
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Urgences' WHERE Specialite = 'Diagnostic'");
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Neuroimagerie' WHERE Specialite = 'Neurochirurgie'");
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Chirurgie' WHERE Specialite = 'Chirurgie Plastique'");
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Pathologie' WHERE Specialite = 'Pédiatrie'");
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Médecine Générale'");
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Obstétrique'");
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Gynécologie'");
-            _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Urgences' WHERE Specialite = 'Soins Intensifs'");
-        } catch { }
-
-        RootGrid.Width = ActualWidth;
-        RootGrid.Height = ActualHeight;
-
-        IcEventLog.ItemsSource = _eventLog;
-
+    private async Task InitializeDatabaseAsync() {
         if (!_db.TestConnection()) {
-            MainPanel.Visibility = Visibility.Hidden;
-            DbErrorPanel.Visibility = Visibility.Visible;
-            
-            SetStatus("❌ Connexion DB échouée : vérifiez vos identifiants", Colors.OrangeRed);
-            
+            Dispatcher.Invoke(() => {
+                LoadingPanel.Visibility = Visibility.Collapsed;
+                MainPanel.Visibility = Visibility.Hidden;
+                DbErrorPanel.Visibility = Visibility.Visible;
+                SetStatus("❌ Connexion DB échouée : vérifiez vos identifiants", System.Windows.Media.Colors.OrangeRed);
+            });
             return;
         }
 
-        SetStatus("✔️ Connexion établie", Color.FromRgb(0, 212, 170));
+        var steps = new List<(string Name, Action Action)> {
+            ("Vérification des transactions...", () => _db.ExecuteCommand("ALTER TABLE Transactions_Financieres MODIFY COLUMN TypeTransaction ENUM('Revenu Patient', 'Paiement Salaire', 'Achat Équipement', 'Embauche', 'Frais Entretien', 'Remboursement Prêt', 'Facturation Patient', 'Dépense Construction', 'Frais Funéraires', 'Achat Médicaments', 'Frais Logistiques') NOT NULL")),
+            ("Vérification de la structure des chambres (1/3)...", () => _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard', 'Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL")),
+            ("Vérification de la structure des chambres (2/3)...", () => _db.ExecuteCommand("UPDATE Chambre SET TypeChambre = 'Standard - Commune' WHERE TypeChambre = 'Standard'")),
+            ("Vérification de la structure des chambres (3/3)...", () => _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL")),
+            ("Mise à jour du personnel (1/4)...", () => _db.ExecuteCommand("ALTER TABLE Personnel_Actif MODIFY COLUMN Statut ENUM('En poste', 'En pause', 'Absent', 'Épuisé', 'Hors poste') DEFAULT 'En poste'")),
+            ("Mise à jour du personnel (2/4)...", () => _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesTravaillees INT DEFAULT 0")),
+            ("Mise à jour du personnel (3/4)...", () => _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesEnPause INT DEFAULT 0")),
+            ("Mise à jour du personnel (4/4)...", () => _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN MinutesHorsPoste INT DEFAULT 0")),
+            ("Mise à jour des cas cliniques (1/4)...", () => _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TempsTraitementHeures FLOAT NOT NULL")),
+            ("Mise à jour des patients actifs...", () => _db.ExecuteCommand("ALTER TABLE Patients_Actifs MODIFY COLUMN TempsTraitementRestant FLOAT DEFAULT 0")),
+            ("Suivi du temps sans médecin...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Patients_Actifs ADD COLUMN TempsSansMedecin FLOAT DEFAULT 0"); } catch {}
+            }),
+            ("Mise à jour des cas cliniques (2/4)...", () => _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN TauxRemission FLOAT(5,2) DEFAULT 50.0")),
+            ("Mise à jour des cas cliniques (3/4)...", () => _db.ExecuteCommand("ALTER TABLE Cas_Cliniques MODIFY COLUMN TauxRemission FLOAT(5,2) DEFAULT 50.0")),
+            ("Mise à jour des cas cliniques (4/4)...", () => _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN SpecialisteTraitement VARCHAR(100)")),
+            ("Initialisation de la persistance temporelle...", () => _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN DerniereFermetureVraieVie DATETIME NULL")),
+            ("Mise à jour du personnel (planning)...", () => _db.ExecuteCommand("ALTER TABLE Personnel_Actif ADD COLUMN ProchainePauseMinutes INT DEFAULT 120")),
+            ("Mise à jour de la capacité des chambres...", () => _db.ExecuteCommand("ALTER TABLE Chambre ADD COLUMN CapaciteLits INT DEFAULT 2")),
+            ("Configuration des unités requises...", () => _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN UniteRequise VARCHAR(100) NULL")),
+            ("Mise à jour des cas cardiaques/urgences...", () => _db.ExecuteCommand("UPDATE Cas_Cliniques SET UniteRequise = 'Soins Intensifs Urgences' WHERE Maladie IN ('Infarctus du Myocarde', 'AVC Ischémique', 'Sepsis')")),
+            ("Mise à jour des chirurgies...", () => _db.ExecuteCommand("UPDATE Cas_Cliniques SET UniteRequise = 'Bloc Opératoire A' WHERE Maladie = 'Appendicite Aiguë'")),
+            ("Mise à jour des frais funéraires...", () => _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN FraisFuneraireCumule DECIMAL(10,2) DEFAULT 0.00")),
+            ("Configuration des prestations facturables...", () => _db.ExecuteCommand("ALTER TABLE LigneFacture MODIFY COLUMN TypePrestation ENUM('Chambre', 'Soin', 'Médicament', 'Autre') NOT NULL")),
+            ("Configuration des coûts logistiques cliniques (1/2)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Cas_Cliniques ADD COLUMN CoutLogistique DECIMAL(10,2) DEFAULT 0.00"); } catch {}
+            }),
+            ("Configuration des coûts logistiques cliniques (2/2)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN CoutLogistiqueCumule DECIMAL(10,2) DEFAULT 0.00"); } catch {}
+            }),
+            ("Création de la table Facture_Hopital...", () => {
+                _db.ExecuteCommand(@"
+                    CREATE TABLE IF NOT EXISTS Facture_Hopital (
+                        IdFactureHopital INT AUTO_INCREMENT PRIMARY KEY,
+                        CodeFacture VARCHAR(10) NOT NULL UNIQUE,
+                        JourEmission INT NOT NULL,
+                        TypeFacture VARCHAR(100) NOT NULL,
+                        MontantTotal DECIMAL(10, 2) NOT NULL,
+                        Description TEXT,
+                        Statut VARCHAR(50) DEFAULT 'Payée'
+                    )");
+            }),
+            ("Création de la table Frais_Supplementaires...", () => {
+                _db.ExecuteCommand(@"
+                    CREATE TABLE IF NOT EXISTS Frais_Supplementaires (
+                        IdFrais INT AUTO_INCREMENT PRIMARY KEY,
+                        IdPatient INT NOT NULL,
+                        NomFrais VARCHAR(150) NOT NULL,
+                        Montant DECIMAL(10, 2) NOT NULL,
+                        FOREIGN KEY (IdPatient) REFERENCES Patients_Actifs(IdPatient) ON DELETE CASCADE
+                    )");
+            }),
+            ("Création de la table Salle_Attente_Patients...", () => {
+                _db.ExecuteCommand(@"
+                    CREATE TABLE IF NOT EXISTS Salle_Attente_Patients (
+                        IdPatientAttente INT AUTO_INCREMENT PRIMARY KEY,
+                        Nom VARCHAR(50) NOT NULL,
+                        Prenom VARCHAR(50) NOT NULL,
+                        IdMaladie INT NOT NULL,
+                        TempsAttenteMinutes INT DEFAULT 0,
+                        FOREIGN KEY (IdMaladie) REFERENCES Cas_Cliniques(IdCas) ON DELETE CASCADE
+                    )");
+            }),
+            ("Mise à jour de la pharmacie (1/4)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Medicament ADD COLUMN Maladies_Cibles TEXT"); } catch {}
+            }),
+            ("Mise à jour de la pharmacie (2/4)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Medicament ADD COLUMN Maladies_Incompatibles TEXT"); } catch {}
+            }),
+            ("Mise à jour de la pharmacie (3/4)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Medicament ADD COLUMN Temps_Livraison_Base INT DEFAULT 120"); } catch {}
+            }),
+            ("Mise à jour de la pharmacie (4/4)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Medicament ADD COLUMN Quantite_Prescription_Defaut INT DEFAULT 1"); } catch {}
+            }),
+            ("Création de la table Commandes_Medicaments...", () => {
+                _db.ExecuteCommand(@"
+                    CREATE TABLE IF NOT EXISTS Commandes_Medicaments (
+                        IdCommande INT AUTO_INCREMENT PRIMARY KEY,
+                        IdMedicament INT NOT NULL,
+                        Quantite INT NOT NULL,
+                        TempsLivraisonRestant INT NOT NULL,
+                        PrixAchat DECIMAL(10,2) NOT NULL,
+                        FOREIGN KEY (IdMedicament) REFERENCES Medicament(IdMedicament) ON DELETE CASCADE
+                    )");
+            }),
+            ("Création de la table Virtual_Queue...", () => {
+                _db.ExecuteCommand(@"
+                    CREATE TABLE IF NOT EXISTS Virtual_Queue (
+                        IdVirtual INT AUTO_INCREMENT PRIMARY KEY,
+                        Nom VARCHAR(100) NOT NULL,
+                        IdMaladie INT NOT NULL,
+                        IdMedecin INT,
+                        Classe VARCHAR(50) NOT NULL,
+                        DateEntree INT NOT NULL,
+                        FOREIGN KEY (IdMaladie) REFERENCES Cas_Cliniques(IdCas) ON DELETE CASCADE,
+                        FOREIGN KEY (IdMedecin) REFERENCES Personnel_Actif(IdEmploye) ON DELETE SET NULL
+                    )");
+            }),
+            ("Mise à jour des statistiques de la salle d'attente (1/2)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN PatientsGeneres INT DEFAULT 0"); } catch {}
+            }),
+            ("Mise à jour des statistiques de la salle d'attente (2/2)...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Hopital ADD COLUMN PatientsAdmis INT DEFAULT 0"); } catch {}
+            }),
+            ("Mise à jour des codes factures...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Facture ADD COLUMN CodeFacture VARCHAR(10)"); } catch {}
+            }),
+            ("Génération des codes factures uniques...", () => {
+                try {
+                    var invoices = _db.GetFactures();
+                    foreach (var inv in invoices) {
+                        if (string.IsNullOrEmpty(inv.CodeFacture) || inv.CodeFacture.Length < 6) {
+                            string newCode = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+                            _db.ExecuteCommand(
+                                "UPDATE Facture SET CodeFacture = @code WHERE IdFacture = @id",
+                                cmd => {
+                                    cmd.Parameters.AddWithValue("@code", newCode);
+                                    cmd.Parameters.AddWithValue("@id", inv.IdFacture);
+                                }
+                            );
+                        }
+                    }
+                } catch {}
+            }),
+            ("Indexation des factures...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Facture ADD UNIQUE INDEX idx_code_facture (CodeFacture)"); } catch {}
+            }),
+            ("Initialisation des spécialités...", () => {
+                _db.ExecuteCommand("CREATE TABLE IF NOT EXISTS Specialite (IdSpecialite INT AUTO_INCREMENT PRIMARY KEY, Nom VARCHAR(100) NOT NULL UNIQUE)");
+                int specCount = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM Specialite");
+                if (specCount == 0) {
+                    string[] specs = { "Urgences", "Chirurgie", "Pathologie", "Cardiologie", "Oncologie", "Gériatrie", "Médecine Interne", "Neuroimagerie", "Traumatologie", "Médecine Nucléaire", "Prélèvements", "Chimiothérapie", "Logistique", "Général" };
+                    foreach (var s in specs) {
+                        try {
+                            _db.ExecuteCommand("INSERT INTO Specialite (Nom) VALUES (@nom)", cmd => cmd.Parameters.AddWithValue("@nom", s));
+                        } catch { }
+                    }
+                }
+            }),
+            ("Alignement des spécialités...", () => {
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Urgences' WHERE Specialite = 'Diagnostic'");
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Neuroimagerie' WHERE Specialite = 'Neurochirurgie'");
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Chirurgie' WHERE Specialite = 'Chirurgie Plastique'");
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Pathologie' WHERE Specialite = 'Pédiatrie'");
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Médecine Générale'");
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Obstétrique'");
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Gynécologie'");
+                _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Urgences' WHERE Specialite = 'Soins Intensifs'");
+            })
+        };
 
-        Nav_Click(BtnDashboard, null!);
+        await Task.Run(() => {
+            for (int i = 0; i < steps.Count; i++) {
+                var step = steps[i];
+                int percentage = (int)(((double)(i + 1) / steps.Count) * 100);
 
-        LoadAdmitForm();
+                Dispatcher.Invoke(() => {
+                    TbLoadingStep.Text = step.Name;
+                    PbLoading.Value = percentage;
+                });
 
-        RefreshAll();
-        _simulationService.Start();
+                try {
+                    step.Action();
+                } catch { }
+
+                System.Threading.Thread.Sleep(50);
+            }
+        });
+
+        Dispatcher.Invoke(() => {
+            LoadingPanel.Visibility = Visibility.Collapsed;
+            RootGrid.Width = ActualWidth;
+            RootGrid.Height = ActualHeight;
+
+            IcEventLog.ItemsSource = _eventLog;
+
+            SetStatus("✔️ Connexion établie", System.Windows.Media.Color.FromRgb(0, 212, 170));
+
+            Nav_Click(BtnDashboard, null!);
+
+            LoadAdmitForm();
+
+            RefreshAll();
+            _simulationService.Start();
+        });
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e) {
@@ -177,6 +280,14 @@ public partial class HospitalWindow : Window {
     private void Nav_Click(object sender, RoutedEventArgs e) {
         if (sender is not Button btn) return;
         var tag = btn.Tag?.ToString() ?? "";
+
+        if (tag == "admin") {
+            var pwdWindow = new AdminPasswordWindow();
+            pwdWindow.Owner = this;
+            if (pwdWindow.ShowDialog() != true) {
+                return;
+            }
+        }
 
         if (_activeNavBtn != null) _activeNavBtn.Style = (Style)FindResource("NavBtn");
         btn.Style = (Style)FindResource("NavBtnActive");
@@ -191,6 +302,8 @@ public partial class HospitalWindow : Window {
         PanelFacturation.Visibility = Visibility.Collapsed;
         PanelHitParade.Visibility = Visibility.Collapsed;
         PanelReservations.Visibility = Visibility.Collapsed;
+        PanelSalleAttente.Visibility = Visibility.Collapsed;
+        PanelAdmin.Visibility = Visibility.Collapsed;
 
         switch (tag) {
             case "dashboard":
@@ -229,6 +342,19 @@ public partial class HospitalWindow : Window {
             case "reservations":
                 PanelReservations.Visibility = Visibility.Visible;
                 RefreshReservations();
+                break;
+            case "salleattente":
+                PanelSalleAttente.Visibility = Visibility.Visible;
+                RefreshSalleAttente();
+                break;
+            case "admin":
+                PanelAdmin.Visibility = Visibility.Visible;
+                if (CbAdminTables.SelectedIndex == -1) {
+                    CbAdminTables.SelectedIndex = 0;
+                } else {
+                    var selectedItem = (ComboBoxItem)CbAdminTables.SelectedItem;
+                    LoadTableData(selectedItem.Content.ToString() ?? "");
+                }
                 break;
         }
     }
@@ -967,5 +1093,208 @@ public partial class HospitalWindow : Window {
 
         fe.ContextMenu.Items.Add(editItem);
         fe.ContextMenu.Items.Add(delItem);
+    }
+
+    private void RefreshSalleAttente() {
+        var patients = _db.GetWaitingRoomPatients();
+        IcSalleAttente.ItemsSource = patients;
+        _db.GetWaitingRoomStats(out int gen, out int adm, out double ratio);
+        TbRatioAdmission.Text = gen > 0 ? $"{ratio:F1} %" : "0 %";
+    }
+
+    private void BtnAdmettrePatientAttente_Click(object sender, RoutedEventArgs e) {
+        if (sender is not Button btn || btn.Tag == null) return;
+        
+        int idPatientAttente = 0;
+        if (btn.Tag is int tagInt) {
+            idPatientAttente = tagInt;
+        } else if (!int.TryParse(btn.Tag.ToString(), out idPatientAttente)) {
+            return;
+        }
+
+        var patient = _db.GetWaitingRoomPatient(idPatientAttente);
+        if (patient == null) return;
+
+        var dlg = new AdmitWaitingRoomPatientWindow(_db, patient);
+        dlg.Owner = this;
+        if (dlg.ShowDialog() == true) {
+            RefreshSalleAttente();
+            RefreshPatients();
+            RefreshDashboard();
+            SetStatus($"✅ Patient {patient.NomComplet} admis avec succès !", Color.FromRgb(0, 212, 170));
+        }
+    }
+
+    private void LoadTableData(string tableName) {
+        _selectedTableName = tableName;
+        try {
+            using (var conn = new MySqlConnector.MySqlConnection(_db.ConnectionString)) {
+                conn.Open();
+                string query = $"SELECT * FROM `{tableName}`";
+                _currentAdapter = new MySqlConnector.MySqlDataAdapter(query, conn);
+                _currentCommandBuilder = new MySqlConnector.MySqlCommandBuilder(_currentAdapter);
+                
+                _currentTable = new System.Data.DataTable();
+                _currentAdapter.Fill(_currentTable);
+                
+                DgAdminCRUD.ItemsSource = _currentTable.DefaultView;
+                SetStatus($"Table `{tableName}` chargée ({_currentTable.Rows.Count} lignes).", Color.FromRgb(0, 212, 170));
+            }
+        } catch (Exception ex) {
+            MessageBox.Show($"Erreur lors du chargement de la table `{tableName}` : {ex.Message}", "Erreur SQL", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void CbAdminTables_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+        if (CbAdminTables == null || CbAdminTables.SelectedItem is not ComboBoxItem item) return;
+        LoadTableData(item.Content.ToString() ?? "");
+    }
+
+    private void BtnAdminRefresh_Click(object sender, RoutedEventArgs e) {
+        if (!string.IsNullOrEmpty(_selectedTableName)) {
+            LoadTableData(_selectedTableName);
+        }
+    }
+
+    private void BtnAdminSave_Click(object sender, RoutedEventArgs e) {
+        if (_currentAdapter == null || _currentTable == null) return;
+        try {
+            using (var conn = new MySqlConnector.MySqlConnection(_db.ConnectionString)) {
+                conn.Open();
+                if (_currentAdapter.SelectCommand != null) {
+                    _currentAdapter.SelectCommand.Connection = conn;
+                }
+                _currentAdapter.Update(_currentTable);
+                SetStatus("Modifications enregistrées avec succès.", Color.FromRgb(0, 212, 170));
+                MessageBox.Show("Modifications enregistrées dans la base de données !", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                RefreshAllData();
+            }
+        } catch (Exception ex) {
+            MessageBox.Show($"Erreur lors de la sauvegarde : {ex.Message}", "Erreur SQL", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UpdateCartTotals() {
+        if (_cart.Count == 0) {
+            TbCartSubtotal.Text = "$ 0.00";
+            TbCartTax.Text = "$ 0.00";
+            TbCartTotal.Text = "$ 0.00";
+            return;
+        }
+
+        decimal subtotal = _cart.Sum(item => item.PrixAchatTotal);
+        int uniqueIds = _cart.Select(item => item.Medicament.IdMedicament).Distinct().Count();
+        decimal tax = 1000.0m / uniqueIds;
+        decimal total = subtotal + tax;
+
+        TbCartSubtotal.Text = $"$ {subtotal:N2}";
+        TbCartTax.Text = $"$ {tax:N2}";
+        TbCartTotal.Text = $"$ {total:N2}";
+    }
+
+    private void BtnCommanderMedicament_Click(object sender, RoutedEventArgs e) {
+        if (sender is not Button btn || btn.Tag is not Medicament med) return;
+
+        var orderWindow = new OrderMedicamentWindow(med);
+        orderWindow.Owner = this;
+        if (orderWindow.ShowDialog() == true) {
+            int qty = orderWindow.Quantity;
+            
+            var existing = _cart.FirstOrDefault(item => item.Medicament.IdMedicament == med.IdMedicament);
+            if (existing != null) {
+                existing.Quantite += qty;
+                int idx = _cart.IndexOf(existing);
+                _cart[idx] = new CartItem { Medicament = med, Quantite = existing.Quantite };
+            } else {
+                _cart.Add(new CartItem { Medicament = med, Quantite = qty });
+            }
+
+            UpdateCartTotals();
+            SetStatus($"🛒 {qty}x {med.Nom} ajoutés au panier.", Color.FromRgb(0, 212, 170));
+        }
+    }
+
+    private void BtnRemoveFromCart_Click(object sender, RoutedEventArgs e) {
+        if (sender is not Button btn || btn.Tag is not CartItem item) return;
+        _cart.Remove(item);
+        UpdateCartTotals();
+        SetStatus($"🗑️ {item.Nom} retiré du panier.", Colors.OrangeRed);
+    }
+
+    private void BtnCheckout_Click(object sender, RoutedEventArgs e) {
+        if (_cart.Count == 0) {
+            PopupFactory.ShowAlert(this, "Le panier est vide !");
+            return;
+        }
+
+        decimal subtotal = _cart.Sum(item => item.PrixAchatTotal);
+        int uniqueIds = _cart.Select(item => item.Medicament.IdMedicament).Distinct().Count();
+        decimal tax = 1000.0m / uniqueIds;
+        decimal totalCost = subtotal + tax;
+
+        _hospital = _db.GetHospital();
+        if (_hospital == null) return;
+
+        if (_hospital.Budget < totalCost) {
+            PopupFactory.ShowAlert(this, $"Fonds insuffisants ! Budget: $ {_hospital.Budget:N2} | Requis: $ {totalCost:N2}", "#FF4D6A");
+            return;
+        }
+
+        try {
+            int currentDay = (_simulationService.GameTime - new DateTime(2026, 1, 1)).Days + 1;
+            _db.AddBudget(-totalCost, "Commande de médicaments (Panier global)", currentDay, "Achat Médicaments");
+
+            var random = new Random();
+            foreach (var item in _cart) {
+                int baseDelay = item.Medicament.TempsLivraisonBase;
+                double factor = random.NextDouble() * 1.0 + 0.5; 
+                int actualDelay = (int)Math.Max(1.0, baseDelay * factor);
+
+                _db.AddDelivery(item.Medicament.IdMedicament, item.Quantite, actualDelay, item.PrixAchatTotal);
+                LogEvent($"📦 Commande passée: {item.Quantite}x {item.Nom} (Délai estimé: {actualDelay} min).");
+            }
+
+            _db.CreateFactureHopital("Achat Médicaments", totalCost, $"Commande globale de médicaments : {string.Join(", ", _cart.Select(c => $"{c.Quantite}x {c.Nom}"))}. Inclut la taxe d'importation dégressive.");
+
+            _cart.Clear();
+            UpdateCartTotals();
+            RefreshAll();
+            RefreshMedicaments();
+
+            MessageBox.Show("Commande passée avec succès ! Les livraisons arriveront prochainement.", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+            SetStatus("✅ Commande globale validée !", Color.FromRgb(0, 212, 170));
+        } catch (Exception ex) {
+            PopupFactory.ShowAlert(this, "Erreur lors de la validation de la commande: " + ex.Message);
+        }
+    }
+
+    public void ShowToast(string message, string colorName) {
+        Dispatcher.Invoke(() => {
+            var toast = new ToastNotification { Message = message, ColorName = colorName };
+            _notifications.Add(toast);
+            
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            timer.Tick += (s, e) => {
+                _notifications.Remove(toast);
+                timer.Stop();
+            };
+            timer.Start();
+        });
+    }
+}
+
+public class ToastNotification {
+    public string Message { get; set; } = "";
+    public string ColorName { get; set; } = "Ambre"; 
+    public Brush BackgroundBrush {
+        get {
+            return ColorName switch {
+                "Ambre" => new SolidColorBrush(Color.FromRgb(255, 179, 71)), 
+                "Vert" => new SolidColorBrush(Color.FromRgb(0, 212, 170)),  
+                "Rouge" => new SolidColorBrush(Color.FromRgb(255, 77, 106)), 
+                "Bleu" => new SolidColorBrush(Color.FromRgb(59, 130, 246)),  
+                _ => new SolidColorBrush(Color.FromRgb(42, 42, 56))          
+            };
+        }
     }
 }

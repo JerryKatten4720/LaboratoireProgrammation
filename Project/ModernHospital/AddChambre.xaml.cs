@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using LaboratoireProgrammation.Project.ModernHospital.Helpers;
@@ -46,8 +46,9 @@ public partial class AddChambreForm : Window {
         }
 
         var coutEntretien = GetCoutEntretienForUnite(unite.IdUnite);
+        var baseCost = ChambrePricingHelper.GetFraisFixesCreation(unite.Nom);
         
-        return ChambrePricingHelper.CalculerCoutTotal(coutEntretien, capaciteLits);
+        return ChambrePricingHelper.CalculerCoutTotal(coutEntretien, capaciteLits, baseCost);
     }
 
     private bool TryGetSelectedUnite(out DatabaseManager.UniteBase unite) {
