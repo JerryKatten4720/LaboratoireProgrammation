@@ -80,9 +80,12 @@ public partial class HospitalWindow : Window {
         PanelDashboard.Visibility = Visibility.Collapsed;
         PanelPatients.Visibility = Visibility.Collapsed;
         PanelPersonnel.Visibility = Visibility.Collapsed;
-        PanelRecruter.Visibility = Visibility.Collapsed;
         PanelFinances.Visibility = Visibility.Collapsed;
         PanelChambres.Visibility = Visibility.Collapsed;
+        PanelMedicaments.Visibility = Visibility.Collapsed;
+        PanelFacturation.Visibility = Visibility.Collapsed;
+        PanelHitParade.Visibility = Visibility.Collapsed;
+        PanelReservations.Visibility = Visibility.Collapsed;
 
         switch (tag) {
             case "dashboard":
@@ -98,7 +101,6 @@ public partial class HospitalWindow : Window {
                 PanelPersonnel.Visibility = Visibility.Visible;
                 RefreshPersonnel();
                 break;
-            case "recruter": PanelRecruter.Visibility = Visibility.Visible; break;
             case "finances":
                 PanelFinances.Visibility = Visibility.Visible;
                 RefreshFinances();
@@ -106,6 +108,22 @@ public partial class HospitalWindow : Window {
             case "chambres":
                 PanelChambres.Visibility = Visibility.Visible;
                 RefreshChambres();
+                break;
+            case "medicaments":
+                PanelMedicaments.Visibility = Visibility.Visible;
+                RefreshMedicaments();
+                break;
+            case "facturation":
+                PanelFacturation.Visibility = Visibility.Visible;
+                RefreshFactures();
+                break;
+            case "hitparade":
+                PanelHitParade.Visibility = Visibility.Visible;
+                RefreshHitParade();
+                break;
+            case "reservations":
+                PanelReservations.Visibility = Visibility.Visible;
+                RefreshReservations();
                 break;
         }
     }
@@ -272,14 +290,6 @@ public partial class HospitalWindow : Window {
             message, "#FFB347", () => { }, () => { }
         );
 
-        alertPopup.Loaded += (s, e) => {
-            var left = (MainPanel.ActualWidth - alertPopup.ActualWidth) / 2;
-            var top = (MainPanel.ActualHeight - alertPopup.ActualHeight) / 2;
-
-            Canvas.SetLeft(alertPopup, left);
-            Canvas.SetTop(alertPopup, top);
-        };
-
         MainPanel.Children.Add(alertPopup);
     }
 
@@ -307,6 +317,20 @@ public partial class HospitalWindow : Window {
                 _db.ReleaseBed(patient.IdPatient);
                 _db.ExecuteNonQuery($"DELETE FROM Patients_Actifs WHERE IdPatient = {patient.IdPatient}");
                 LogEvent($"🗑 Patient supprimé: {patient.Nom}");
+                break;
+            case "Prescrire":
+                if (patient.IdMedecinAssigne == null) {
+                    ShowAlert("Médecin assigné requis pour prescrire.");
+                    return;
+                }
+                var presForm = new AddPrescriptionForm(_db, patient.IdPatient, patient.IdMedecinAssigne.Value) { Owner = this };
+                if (presForm.ShowDialog() == true) {
+                    LogEvent($"📋 Prescription ajoutée pour {patient.Nom}");
+                    RefreshMedicaments();
+                }
+                break;
+            case "Facture":
+                Nav_Click(BtnFacturation, null!);
                 break;
             default:
                 PatientHelper.HandlePatientStatusChange(_db, patient, action);
@@ -445,6 +469,59 @@ public partial class HospitalWindow : Window {
             };
 
             fe.ContextMenu.Items.Add(deleteItem);
+        }
+    }
+
+    private void RefreshMedicaments() {
+        var list = _db.GetMedicaments();
+        LvMedicaments.ItemsSource = list;
+        foreach (var m in list) {
+            if (m.StockActuel < m.StockMinimum) {
+                // optional: add logic for alert if needed
+            }
+        }
+    }
+
+    private void RefreshFactures() {
+        LvFactures.ItemsSource = _db.GetFactures();
+    }
+
+    private void BtnOuvrirFactureHtml_Click(object sender, RoutedEventArgs e) {
+        if (sender is Button btn && btn.Tag is Facture facture) {
+            string path = facture.CheminFichier;
+            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path)) {
+                var p = _db.GetPatients().FirstOrDefault(pat => pat.IdPatient == facture.IdPatient);
+                if (p == null) {
+                    p = new PatientActif { Nom = facture.PatientNom, Classe = "Inconnue" };
+                }
+                var hosp = _db.GetHospital();
+                var lignes = _db.GetLignesFacture(facture.IdFacture);
+                if (hosp != null) {
+                    path = Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(path) && System.IO.File.Exists(path)) {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+            } else {
+                MessageBox.Show("Le fichier HTML de la facture est introuvable.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+    }
+
+    private void RefreshHitParade() {
+        LvHitParade.ItemsSource = _db.GetHitParade();
+    }
+
+    private void RefreshReservations() {
+        LvReservations.ItemsSource = _db.GetReservations();
+    }
+
+    private void BtnAddMedicament_Click(object sender, RoutedEventArgs e) {
+        var form = new AddMedicamentForm(_db) { Owner = this };
+        if (form.ShowDialog() == true) {
+            LogEvent("🧪 Nouveau médicament ajouté.");
+            RefreshMedicaments();
         }
     }
 }

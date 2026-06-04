@@ -49,6 +49,24 @@
 
             <Separator Background="#2a2a38" Margin="8,4" />
 
+            <TextBlock Text="SOINS &amp; FINANCES" Foreground="#8888aa" FontSize="10" FontWeight="Bold" Margin="12,4,12,4" />
+
+            <Button Style="{StaticResource MenuBtn}" Click="Prescrire_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📋 " Margin="0,0,10,0" />
+                    <TextBlock Text="Prescrire un médicament" Foreground="#bbaaff" />
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MenuBtn}" Click="Facture_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🧾 " Margin="0,0,10,0" />
+                    <TextBlock Text="Voir/Générer facture" Foreground="#bbaaff" />
+                </StackPanel>
+            </Button>
+
+            <Separator Background="#2a2a38" Margin="8,4" />
+
             <TextBlock Text="CHANGER STATUT" Foreground="#8888aa" FontSize="10" FontWeight="Bold" Margin="12,4,12,4" />
 
             <Button Style="{StaticResource MenuBtn}" Click="Status_Click" Tag="En Diagnostic">

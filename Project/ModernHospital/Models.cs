@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -42,11 +44,8 @@ public class Employe {
     public string Categorie { get; set; } = "";
     public string RoleExact { get; set; } = "";
     public string? Specialite { get; set; }
-    public int NiveauCompetence { get; set; }
     public int Experience { get; set; }
-    public int Energie { get; set; }
-    public int Faim { get; set; }
-    public int Stress { get; set; }
+
     public decimal SalaireJour { get; set; }
     public string Shift { get; set; } = "Jour";
     public string Statut { get; set; } = "En poste";
@@ -60,7 +59,6 @@ public class Candidat {
     public string Categorie { get; set; } = "";
     public string RoleExact { get; set; } = "";
     public string? Specialite { get; set; }
-    public int NiveauCompetence { get; set; }
     public decimal SalaireJour { get; set; }
     public decimal PrimeEmbauche { get; set; }
     public string NomComplet => $"{Prenom} {Nom}";
@@ -83,6 +81,8 @@ public class PatientActif {
     public int? IdLit { get; set; }
     public int? IdMedecinAssigne { get; set; }
     public string WarningIcon => string.IsNullOrEmpty(NumeroChambre) || string.IsNullOrEmpty(MedecinEnCharge) ? "⚠️" : "";
+    public int? DateEntree { get; set; }
+    public int? IdFacture { get; set; }
 }
 
 public class LitInventaire {
@@ -95,18 +95,97 @@ public class LitInventaire {
     public string Statut { get; set; } = "";
 }
 
+public class Medicament {
+    public int IdMedicament { get; set; }
+    public string Nom { get; set; } = "";
+    public string DCI { get; set; } = "";
+    public string Forme { get; set; } = "";
+    public int StockActuel { get; set; }
+    public int StockMinimum { get; set; }
+    public decimal PrixUnitaire { get; set; }
+    public int IdUnite { get; set; }
+}
+
+public class Prescription {
+    public int IdPrescription { get; set; }
+    public int IdPatient { get; set; }
+    public int IdMedecin { get; set; }
+    public int IdMedicament { get; set; }
+    public int Quantite { get; set; }
+    public string Posologie { get; set; } = "";
+    public int DatePrescription { get; set; }
+    public string Statut { get; set; } = "En cours";
+}
+
+public class Facture {
+    public int IdFacture { get; set; }
+    public int IdPatient { get; set; }
+    public int JourEmission { get; set; }
+    public decimal MontantChambre { get; set; }
+    public decimal MontantSoins { get; set; }
+    public decimal MontantMedicaments { get; set; }
+    public decimal MontantTotal { get; set; }
+    public string Statut { get; set; } = "Générée";
+    public string PatientNom { get; set; } = "";
+    
+    public string? CheminFichier {
+        get {
+            var baseDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Factures");
+            if (System.IO.Directory.Exists(baseDir)) {
+                var files = System.IO.Directory.GetFiles(baseDir, $"facture-{IdFacture}-*.html", System.IO.SearchOption.AllDirectories);
+                if (files.Length > 0) return files[0];
+            }
+            return null;
+        }
+    }
+}
+
+public class LigneFacture {
+    public int IdLigne { get; set; }
+    public int IdFacture { get; set; }
+    public string TypePrestation { get; set; } = "";
+    public string Description { get; set; } = "";
+    public int Quantite { get; set; }
+    public decimal PrixUnitaire { get; set; }
+    public decimal SousTotal { get; set; }
+}
+
+public class Reservation {
+    public int IdReservation { get; set; }
+    public string Chambre { get; set; } = "";
+    public string Lit { get; set; } = "";
+    public string Patient { get; set; } = "";
+    public string Medecin { get; set; } = "";
+    public int DateEntree { get; set; }
+    public int? DateSortie { get; set; }
+    public string Statut { get; set; } = "";
+    public int DureeSejour => DateSortie.HasValue ? DateSortie.Value - DateEntree : 0;
+}
+
+public class HitParadeEntry {
+    public int Rang { get; set; }
+    public int IdEmploye { get; set; }
+    public string Nom { get; set; } = "";
+    public string Specialite { get; set; } = "";
+    public int PatientsTraites { get; set; }
+    public decimal TauxGuerison { get; set; }
+    public decimal RevenuGenere { get; set; }
+}
+
 public static class PatientHelper {
     public static bool HandlePatientStatusChange(DatabaseManager db, PatientActif p, string s) {
         if (p == null) return false;
         db.ExecuteNonQuery($"UPDATE Patients_Actifs SET Statut = '{s}' WHERE IdPatient = {p.IdPatient}");
         
-        if (s == "Guéri") {
-            var r = db.ExecuteScalar<decimal>($"SELECT c.RevenuPatient FROM Patients_Actifs p JOIN Cas_Cliniques c ON p.IdMaladie = c.IdCas WHERE p.IdPatient = {p.IdPatient}");
-            db.ExecuteNonQuery($"UPDATE Hopital SET Budget = Budget + {r.ToString(CultureInfo.InvariantCulture)}");
-            db.RecordTransaction("Revenu Patient", r, $"Patient {p.Nom} guéri.");
-            db.ReleaseBed(p.IdPatient);
-        }
-        else if (s == "Décédé") {
+        if (s == "Guéri" || s == "Décédé") {
+            int idFacture = db.GenerateFacture(p.IdPatient);
+            var facture = db.GetFactures().FirstOrDefault(f => f.IdFacture == idFacture);
+            var lignes = db.GetLignesFacture(idFacture);
+            var hosp = db.GetHospital();
+            if (facture != null && hosp != null) {
+                Services.FactureGenerator.ExporterFactureHtml(facture, p, hosp, lignes);
+            }
+            db.CloseReservation(p.IdPatient);
             db.ReleaseBed(p.IdPatient);
         }
         return true;

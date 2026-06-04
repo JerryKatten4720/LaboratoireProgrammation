@@ -66,7 +66,7 @@ public partial class MainWindow : Window {
         TerminalDisplay.SeparationLine();
         
 
-        bool doshow = true;
+        bool doshow = false;
 
         if (!doshow) {
             Window hospital = new HospitalWindow();

@@ -327,7 +327,7 @@ public partial class ControlCard : UserControl {
 
     public void OpenContextMenu() {
         if (BoundDweller == null) return;
-        var win = Window.GetWindow(this) as OverseerWarsWindow;
+        var win = Window.GetWindow(this) as OverseerWarsWindow ?? System.Windows.Application.Current.Windows.OfType<OverseerWarsWindow>().FirstOrDefault();
         if (win == null) return;
 
         Color fgColor = win.GetThemeColor();

@@ -61,11 +61,6 @@ public partial class DoctorCreationForm : UserControl {
             return;
         }
 
-        if (!int.TryParse(TbNiveau.Text, out var niveau) || niveau < 1 || niveau > 100) {
-            ShowValidationError("Le niveau de compétence doit être entre 1 et 100.");
-            return;
-        }
-
         if (!decimal.TryParse(TbSalaire.Text, out var salaire) || salaire < 0) {
             ShowValidationError("Le salaire doit être un montant positif.");
             return;
@@ -80,7 +75,7 @@ public partial class DoctorCreationForm : UserControl {
 
         try {
             var db = new DatabaseManager();
-            db.CreateEmploye(nom, prenom, categorie, role, specialite, niveau, salaire, shift);
+            db.CreateEmploye(nom, prenom, categorie, role, specialite, salaire, shift);
 
             var successPopup = PopupFactory.CreateConfirmationPopup(
                 $"{prenom} {nom} a été créé avec succès!\\n\\nPoste: {role}\\nSalaire: ${salaire:N0}/jour",

@@ -21,7 +21,7 @@ public partial class Wastelands : UserControl {
     private const double MinZoom = 0.1;
     private const double CardAspectRatio = 400.0 / 600.0;
     private const double CardHeightRatio = 0.40;
-    private const int HoverDelayMs = 1000;
+    private const int HoverDelayMs = 0;
     private const int MaxDwellersPerTile = 12;
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

@@ -1,7 +1,9 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeInspection/WebPathMapping/IgnoredPaths/=PUBLIC_005CASSETS_005CIMAGES_005CFALLOUT_0020_002D_00204_002EPNG/@EntryIndexedValue">Public\Assets\images\Fallout - 4.png</s:String>
 	<s:String x:Key="/Default/CodeInspection/WebPathMapping/IgnoredPaths/=PUBLIC_005CMODEL_005CMISC_005CASSETS/@EntryIndexedValue">Public\Model\Misc\Assets</s:String>
+	<s:String x:Key="/Default/CodeInspection/WebPathMapping/MappedPaths/=PROJECT_005CASSETS_005CIMAGES_005COVERSEERWARS_005CCARDS_005CCARD_005FCIRCLE_002EPNG/@EntryIndexedValue"></s:String>
 	<s:String x:Key="/Default/CodeInspection/WebPathMapping/MappedPaths/=PUBLIC_005CASSETS_005CIMAGES/@EntryIndexedValue"></s:String>
+	<s:String x:Key="/Default/CodeInspection/WebPathMapping/PathsInCorrectCasing/=PROJECT_005CASSETS_005CIMAGES_005COVERSEERWARS_005CCARDS_005CCARD_005FCIRCLE_002EPNG/@EntryIndexedValue">Project\Assets\images\overseerWars\cards\card_circle.png</s:String>
 	<s:String x:Key="/Default/CodeInspection/WebPathMapping/PathsInCorrectCasing/=PUBLIC_005CASSETS_005CIMAGES/@EntryIndexedValue">Public\Assets\images</s:String>
 	<s:String x:Key="/Default/CodeInspection/WebPathMapping/PathsInCorrectCasing/=PUBLIC_005CASSETS_005CIMAGES_005CFALLOUT_0020_002D_00204_002EPNG/@EntryIndexedValue">Public\Assets\images\Fallout - 4.png</s:String>
 	<s:String x:Key="/Default/CodeInspection/WebPathMapping/PathsInCorrectCasing/=PUBLIC_005CMODEL_005CMISC_005CASSETS/@EntryIndexedValue">Public\Model\Misc\Assets</s:String></wpf:ResourceDictionary>

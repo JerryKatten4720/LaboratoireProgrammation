@@ -110,7 +110,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#99000000">
+    <Grid Background="#B3000000">
         <Border Width="600"
                 Height="650"
                 Background="#121212"
@@ -196,23 +196,10 @@
 
                         <TextBlock Text="COMPÉTENCES // RÉMUNÉRATION" Foreground="{StaticResource TextDim}"
                                    FontSize="10" FontWeight="Bold" Margin="0,0,0,12" />
-                        <Grid Margin="0,0,0,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Niveau de compétence (1-100)"
-                                           Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
-                                <TextBox x:Name="TbNiveau" Text="50" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Salaire journalier ($)" Foreground="{StaticResource TextSecondary}"
-                                           FontSize="11" Margin="0,0,0,4" />
-                                <TextBox x:Name="TbSalaire" Text="0" />
-                            </StackPanel>
-                        </Grid>
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Salaire journalier ($)" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,4" />
+                            <TextBox x:Name="TbSalaire" Text="0" />
+                        </StackPanel>
 
                         <StackPanel Margin="0,0,0,0">
                             <TextBlock Text="Shift" Foreground="{StaticResource TextSecondary}" FontSize="11"

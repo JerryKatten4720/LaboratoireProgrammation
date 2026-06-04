@@ -34,7 +34,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#C9000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid Background="#B3000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Border Width="488"
                 Height="315"
                 Background="#121212"

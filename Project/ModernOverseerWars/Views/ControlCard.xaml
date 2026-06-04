@@ -147,15 +147,15 @@
                 <DropShadowEffect x:Name="CardGlow" BlurRadius="0" ShadowDepth="0" Color="Transparent" Opacity="0"/>
             </Grid.Effect>
 
-            <Image Source="../../Assets/images/overseerWars/cards/card_circle.png" Stretch="Fill"/>
-            <Image x:Name="ImgDweller" Source="../../Assets/images/overseerWars/dwellers/dweller.png"
+            <Image Source="/Assets/images/overseerWars/cards/card_circle.png" Stretch="Fill"/>
+            <Image x:Name="ImgDweller" Source="/Assets/images/overseerWars/dwellers/dweller.png"
                    Stretch="Uniform" Width="160" Height="160"
                    HorizontalAlignment="Center" VerticalAlignment="Top"
                    Margin="10,70,0,0" RenderTransformOrigin="0.5,0.5"/>
-            <Image Source="../../Assets/images/overseerWars/cards/card_circleborder.png" Stretch="Fill"/>
-            <Image x:Name="ImgTop" Source="../../Assets/images/overseerWars/cards/card_top_common.png" Stretch="Fill"/>
-            <Image x:Name="ImgColor" Source="../../Assets/images/overseerWars/cards/card_color_common.png" Stretch="Fill"/>
-            <Image x:Name="ImgBorder" Source="../../Assets/images/overseerWars/cards/card_border_common.png" Stretch="Fill"/>
+            <Image Source="/Assets/images/overseerWars/cards/card_circleborder.png" Stretch="Fill"/>
+            <Image x:Name="ImgTop" Source="/Assets/images/overseerWars/cards/card_top_common.png" Stretch="Fill"/>
+            <Image x:Name="ImgColor" Source="/Assets/images/overseerWars/cards/card_color_common.png" Stretch="Fill"/>
+            <Image x:Name="ImgBorder" Source="/Assets/images/overseerWars/cards/card_border_common.png" Stretch="Fill"/>
 
             <!-- Holofoil Sweep Overlay -->
             <Border x:Name="HolofoilOverlay" CornerRadius="8" IsHitTestVisible="False" Visibility="Collapsed" Opacity="0.9">

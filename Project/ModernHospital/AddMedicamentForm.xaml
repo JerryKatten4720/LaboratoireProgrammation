@@ -1,0 +1,62 @@
+<Window x:Class="LaboratoireProgrammation.Project.ModernHospital.AddMedicamentForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ajouter un Médicament" Height="380" Width="400"
+        WindowStartupLocation="CenterOwner" Background="#2b2d31">
+    <Window.Resources>
+        <!-- implicit styles -->
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#313338"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#1e1f22"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="0,5,0,10"/>
+        </Style>
+    </Window.Resources>
+    <StackPanel Margin="20">
+        <TextBlock Text="Nom du médicament"/>
+        <TextBox x:Name="TbNom"/>
+
+        <TextBlock Text="DCI"/>
+        <TextBox x:Name="TbDci"/>
+
+        <TextBlock Text="Forme (ex: Comprimé, IV)"/>
+        <TextBox x:Name="TbForme"/>
+
+        <Grid Margin="0,0,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                <TextBlock Text="Stock Actuel"/>
+                <TextBox x:Name="TbStockActuel"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                <TextBlock Text="Stock Minimum"/>
+                <TextBox x:Name="TbStockMinimum"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                <TextBlock Text="Prix Unitaire"/>
+                <TextBox x:Name="TbPrix"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                <TextBlock Text="Unité"/>
+                <ComboBox x:Name="CbUnite" DisplayMemberPath="Nom" SelectedValuePath="IdUnite" Margin="0,5,0,0" Padding="5"/>
+            </StackPanel>
+        </Grid>
+
+        <Button Content="Ajouter le Médicament" Click="BtnSave_Click" Height="35" Margin="0,10,0,0" Background="#5865F2" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+    </StackPanel>
+</Window>

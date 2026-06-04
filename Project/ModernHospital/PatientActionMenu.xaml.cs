@@ -26,4 +26,12 @@ public partial class PatientActionMenu : UserControl {
     private void Status_Click(object sender, RoutedEventArgs e) {
         if (sender is Button btn) ActionTriggered?.Invoke(btn.Tag.ToString()!);
     }
+
+    private void Prescrire_Click(object sender, RoutedEventArgs e) {
+        ActionTriggered?.Invoke("Prescrire");
+    }
+
+    private void Facture_Click(object sender, RoutedEventArgs e) {
+        ActionTriggered?.Invoke("Facture");
+    }
 }

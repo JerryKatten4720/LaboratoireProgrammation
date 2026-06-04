@@ -863,10 +863,3 @@ Année : 2026
 **[⬆ Retour en haut](#-laboratoire-de-programmation)**
 
 </div>
-
-
-C'est vraiment super, cela étant, j'ai quelques remarques :
-
-- La gestion de temps est trop rapide, impossible de gérer le truc.
-- Il faudra pouvoir décider de dans quel département
-- 

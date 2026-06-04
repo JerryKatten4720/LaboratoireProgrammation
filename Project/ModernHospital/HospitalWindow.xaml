@@ -223,7 +223,7 @@
     
     <Grid>
         
-        <Canvas x:Name="MainPanel" Background="#08080A" Margin="0,-16,0,16">
+        <Grid x:Name="MainPanel" Background="#08080A" Margin="0,-16,0,16">
             <Grid x:Name="RootGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220" />
@@ -256,9 +256,12 @@
                             <Button x:Name="BtnDashboard" Content="📊  Tableau de Bord" Style="{StaticResource NavBtnActive}" Click="Nav_Click" Tag="dashboard" />
                             <Button x:Name="BtnPatients" Content="🏥  Patients" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="patients" />
                             <Button x:Name="BtnPersonnel" Content="👤  Personnel" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="personnel" />
-                            <Button x:Name="BtnRecruter" Content="🔍  Recrutement" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="recruter" />
                             <Button x:Name="BtnFinances" Content="💹  Finances" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="finances" />
                             <Button x:Name="BtnChambres" Content="🛏  Chambres &amp; Lits" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="chambres" />
+                            <Button x:Name="BtnMedicaments" Content="🧪  Médicaments" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="medicaments" />
+                            <Button x:Name="BtnFacturation" Content="🧾  Facturation" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="facturation" />
+                            <Button x:Name="BtnHitParade" Content="🏆  Hit-Parade" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="hitparade" />
+                            <Button x:Name="BtnReservations" Content="📋  Réservations" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="reservations" />
                         </StackPanel>
 
                         <Border DockPanel.Dock="Bottom" Margin="12,0,12,20">
@@ -469,7 +472,10 @@
                             <DockPanel>
                                 <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
                                     <TextBlock Text="Effectif actuel" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
-                                    <Button DockPanel.Dock="Right" Content="🗑 Licencier" Style="{StaticResource DangerBtn}" Width="110" Click="BtnFire_Click" />
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="➕ Embaucher" Style="{StaticResource ActionBtn}" Width="110" Click="BtnHire_Click" Margin="0,0,10,0"/>
+                                        <Button Content="🚪 Licencier" Style="{StaticResource DangerBtn}" Width="110" Click="BtnFire_Click" />
+                                    </StackPanel>
                                 </DockPanel>
                                 <ListView x:Name="LvPersonnel" MouseRightButtonUp="LvPersonnel_MouseRightButtonUp">
                                     <ListView.View>
@@ -481,40 +487,6 @@
                                             <GridViewColumn Header="Spécialité" Width="140" DisplayMemberBinding="{Binding Specialite}" />
                                             <GridViewColumn Header="Statut" Width="100" DisplayMemberBinding="{Binding Statut}" />
                                             <GridViewColumn Header="Salaire/J" Width="90" DisplayMemberBinding="{Binding SalaireJour}" />
-                                        </GridView>
-                                    </ListView.View>
-                                </ListView>
-                            </DockPanel>
-                        </Border>
-                    </Grid>
-
-                    <Grid x:Name="PanelRecruter" Visibility="Collapsed" Margin="28,24,28,24">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                            <TextBlock Text="Recrutement" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
-                            <TextBlock Text="Candidats disponibles sur le marché" Foreground="{StaticResource TextSecondary}" FontSize="13" />
-                        </StackPanel>
-
-                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" Padding="20">
-                            <DockPanel>
-                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                    <TextBlock Text="Candidats disponibles" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Semibold" FontSize="15" />
-                                    <Button DockPanel.Dock="Right" Content="✚ Embaucher" Style="{StaticResource ActionBtn}" Width="120" Click="BtnHire_Click" />
-                                </DockPanel>
-                                <ListView x:Name="LvCandidats">
-                                    <ListView.View>
-                                        <GridView>
-                                            <GridViewColumn Header="Nom" Width="150" DisplayMemberBinding="{Binding NomComplet}" />
-                                            <GridViewColumn Header="Catégorie" Width="140" DisplayMemberBinding="{Binding Categorie}" />
-                                            <GridViewColumn Header="Rôle" Width="160" DisplayMemberBinding="{Binding RoleExact}" />
-                                            <GridViewColumn Header="Spécialité" Width="140" DisplayMemberBinding="{Binding Specialite}" />
-                                            <GridViewColumn Header="Niveau" Width="60" DisplayMemberBinding="{Binding NiveauCompetence}" />
-                                            <GridViewColumn Header="Salaire/J" Width="90" DisplayMemberBinding="{Binding SalaireJour}" />
-                                            <GridViewColumn Header="Prime" Width="90" DisplayMemberBinding="{Binding PrimeEmbauche}" />
                                         </GridView>
                                     </ListView.View>
                                 </ListView>
@@ -612,6 +584,114 @@
                         </ScrollViewer>
                     </Grid>
 
+                    <Grid x:Name="PanelMedicaments" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Médicaments" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Gestion du stock de la pharmacie" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                            <Button Content="+ Ajouter un médicament" Click="BtnAddMedicament_Click" Style="{StaticResource ActionBtn}" Margin="0,10,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                            <ListView x:Name="LvMedicaments" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding IdMedicament}" Width="50" />
+                                        <GridViewColumn Header="Nom" DisplayMemberBinding="{Binding Nom}" Width="150" />
+                                        <GridViewColumn Header="DCI" DisplayMemberBinding="{Binding DCI}" Width="150" />
+                                        <GridViewColumn Header="Forme" DisplayMemberBinding="{Binding Forme}" Width="100" />
+                                        <GridViewColumn Header="Stock" DisplayMemberBinding="{Binding StockActuel}" Width="100" />
+                                        <GridViewColumn Header="Seuil" DisplayMemberBinding="{Binding StockMinimum}" Width="100" />
+                                        <GridViewColumn Header="Prix" DisplayMemberBinding="{Binding PrixUnitaire}" Width="80" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelFacturation" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Facturation" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Gestion des factures" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                            <ListView x:Name="LvFactures" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="N°" DisplayMemberBinding="{Binding IdFacture}" Width="50" />
+                                        <GridViewColumn Header="Patient" DisplayMemberBinding="{Binding PatientNom}" Width="150" />
+                                        <GridViewColumn Header="Date" DisplayMemberBinding="{Binding JourEmission}" Width="100" />
+                                        <GridViewColumn Header="Total" DisplayMemberBinding="{Binding MontantTotal}" Width="100" />
+                                        <GridViewColumn Header="Statut" DisplayMemberBinding="{Binding Statut}" Width="100" />
+                                        <GridViewColumn Header="Action" Width="100">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Ouvrir HTML" Click="BtnOuvrirFactureHtml_Click" Tag="{Binding}" Background="#3b82f6" Foreground="White" BorderThickness="0" Padding="5,2" Cursor="Hand" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelHitParade" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Hit-Parade" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Classement des médecins" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                            <ListView x:Name="LvHitParade" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Rang" DisplayMemberBinding="{Binding Rang}" Width="50" />
+                                        <GridViewColumn Header="Médecin" DisplayMemberBinding="{Binding Nom}" Width="150" />
+                                        <GridViewColumn Header="Patients" DisplayMemberBinding="{Binding PatientsTraites}" Width="150" />
+                                        <GridViewColumn Header="Guérison" DisplayMemberBinding="{Binding TauxGuerison}" Width="150" />
+                                        <GridViewColumn Header="Revenus" DisplayMemberBinding="{Binding RevenusGeneres}" Width="150" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelReservations" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Réservations" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="État des réservations des lits" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+                        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                            <ListView x:Name="LvReservations" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Chambre" DisplayMemberBinding="{Binding NumeroChambre}" Width="80" />
+                                        <GridViewColumn Header="Lit" DisplayMemberBinding="{Binding NumeroLit}" Width="80" />
+                                        <GridViewColumn Header="Patient" DisplayMemberBinding="{Binding PatientNom}" Width="150" />
+                                        <GridViewColumn Header="Médecin" DisplayMemberBinding="{Binding MedecinNom}" Width="150" />
+                                        <GridViewColumn Header="Entrée" DisplayMemberBinding="{Binding DateEntree}" Width="100" />
+                                        <GridViewColumn Header="Durée" DisplayMemberBinding="{Binding DureeSejour}" Width="100" />
+                                        <GridViewColumn Header="Statut" DisplayMemberBinding="{Binding Statut}" Width="100" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+                    </Grid>
+
                     <Popup x:Name="PatientPopup" StaysOpen="False" AllowsTransparency="True" Placement="MousePoint">
                         <local:PatientActionMenu x:Name="PatientMenu" ActionTriggered="PatientMenu_ActionTriggered" />
                     </Popup>
@@ -628,7 +708,7 @@
                     </Border>
                 </Grid>
             </Grid>
-        </Canvas>
+        </Grid>
         
         <local:DatabaseError x:Name="DbErrorPanel" 
                              Visibility="Collapsed" 
