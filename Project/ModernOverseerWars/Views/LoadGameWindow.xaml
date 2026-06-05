@@ -1,0 +1,107 @@
+<Window x:Class="LaboratoireProgrammation.Project.ModernOverseerWars.Views.LoadGameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wrappers="clr-namespace:LaboratoireProgrammation.Assets.shaders.wrappers"
+        Title="ROBCO SAVED DATA RETRIEVAL SYSTEM"
+        Height="600" Width="800"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        Background="#141414"
+        FontFamily="Consolas">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="TerminalGreen" Color="#FFC346"/>
+        <DropShadowEffect x:Key="PhosphorGlow" Color="#47FFC346" BlurRadius="10" ShadowDepth="0" Opacity="0.5"/>
+        
+        <Style TargetType="TextBlock" x:Key="TerminalText">
+            <Setter Property="Foreground" Value="{StaticResource TerminalGreen}"/>
+            <Setter Property="Effect" Value="{StaticResource PhosphorGlow}"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="TerminalButton">
+            <Setter Property="Background" Value="#00141414"/>
+            <Setter Property="Foreground" Value="{StaticResource TerminalGreen}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TerminalGreen}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Effect" Value="{StaticResource PhosphorGlow}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource TerminalGreen}"/>
+                                <Setter Property="Foreground" Value="#020A04"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="[ ROBCO INDUSTRIES SAVED SIMULATIONS SYSTEM ]" 
+                       Style="{StaticResource TerminalText}" FontSize="18" HorizontalAlignment="Center" Opacity="0.7"/>
+            <Rectangle Height="2" Fill="{StaticResource TerminalGreen}" Margin="0,12,0,0" Effect="{StaticResource PhosphorGlow}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="SavesList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="{StaticResource TerminalGreen}" BorderThickness="1" Margin="0,0,0,12" Padding="12" CornerRadius="4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding FileName}" Style="{StaticResource TerminalText}" FontSize="16" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="LOAD" Style="{StaticResource TerminalButton}" Click="OnLoadClick" Tag="{Binding FullPath}" Width="100"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Content="> BACK TO MENU" Style="{StaticResource TerminalButton}" Click="OnBack" HorizontalAlignment="Center" Margin="0,24,0,0"/>
+    </Grid>
+
+    <Window.Effect>
+        <wrappers:CRT x:Name="VaultShader"
+                      DistortionStrength="0.2"
+                      CurveRadius="0.06"
+                      VignetteStrength="0.6"
+                      ScanlineIntensity="0.55"
+                      ScanlineCount="100.0"
+                      ScanlineSpeed="0.03"
+                      PixelGridIntensity="0.15"
+                      BloomStrength="0.4"
+                      ChromaticAberration="0.08"
+                      TintColor="#0FFF7F00"
+                      Brightness="2.0"
+                      Contrast="1.15"
+                      NoiseIntensity="0.0125"
+                      NoiseScale="0.8"
+                      FlickerIntensity="0.06"
+                      FlickerSpeed="0.6"
+                      PhosphorDecay="0.5"
+                      ScreenResolution="1080,720" />
+    </Window.Effect>
+</Window>

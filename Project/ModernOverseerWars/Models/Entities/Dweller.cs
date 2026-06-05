@@ -7,6 +7,7 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Enums;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Data;
 
 public class Dweller : IDweller {
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string FirstName { get; set; } = "Dweller";
     public string LastName { get; set; } = "";
     

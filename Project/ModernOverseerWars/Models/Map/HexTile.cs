@@ -15,8 +15,8 @@ public class HexTile {
     public string LocationName { get; set; } = "";
     public bool IsNavigable { get; set; } = true;
     
-    public List<Dweller> Player1Dwellers { get; } = new();
-    public List<Dweller> Player2Dwellers { get; } = new();
+    public List<Dweller> Player1Dwellers { get; set; } = new();
+    public List<Dweller> Player2Dwellers { get; set; } = new();
 
     public bool HasConflict => Player1Dwellers.Any(d => d.IsAlive) && Player2Dwellers.Any(d => d.IsAlive);
 

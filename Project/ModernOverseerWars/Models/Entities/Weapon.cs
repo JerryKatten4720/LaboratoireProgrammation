@@ -1,9 +1,11 @@
-namespace LaboratoireProgrammation.Project.ModernOverseerWars.Models.Entities;
-
+using System;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Interfaces;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Enums;
 
+namespace LaboratoireProgrammation.Project.ModernOverseerWars.Models.Entities;
+
 public class Weapon : IWeapon {
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = "Pipe Pistol";
     public string Texture { get; set; } = "placeholder.png";
     public int Damages { get; set; }

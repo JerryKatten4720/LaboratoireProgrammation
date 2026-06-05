@@ -15,6 +15,7 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Enums;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Interfaces;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Map;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Controllers;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Helpers;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Data;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Data.Json;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Views.Controls;
@@ -85,6 +86,16 @@ public partial class OverseerWarsWindow : Window {
         Loaded += (s, e) => StartNewGame(p1, p2);
     }
 
+    public OverseerWarsWindow(GameState state) {
+        InitializeComponent();
+        _p1Color = (Color)ColorConverter.ConvertFromString(state.Player1.Theme.Color);
+        _p2Color = (Color)ColorConverter.ConvertFromString(state.Player2.Theme.Color);
+        _p1Bg    = (Color)ColorConverter.ConvertFromString(state.Player1.Theme.BgColor);
+        _p2Bg    = (Color)ColorConverter.ConvertFromString(state.Player2.Theme.BgColor);
+
+        Loaded += (s, e) => StartLoadedGame(state);
+    }
+
     private void StartNewGame(PlayerProfile p1, PlayerProfile p2) {
         GameController.LoadConfig();
         var state = new GameState { Player1 = p1, Player2 = p2 };
@@ -122,10 +133,74 @@ public partial class OverseerWarsWindow : Window {
         _turns.StartTurn(isPlayer1: true);
         ApplyTheme(isP1: true);
         RefreshAll();
+        StartAutosaveTimer();
         double cW = GameConfigRepository.Config.MapCols * 100;
         double cH = GameConfigRepository.Config.MapRows * 100;
         MapView.ScrollToVerticalOffset(Math.Max(0, (cH - 480) / 2));
         MapView.ScrollToHorizontalOffset(Math.Max(0, (cW - 850) / 2));
+    }
+
+    private void StartLoadedGame(GameState state) {
+        GameController.LoadConfig();
+        _game = new GameController(state);
+
+        _turns.TurnTick    += () => Dispatcher.InvokeAsync(OnTick);
+        _turns.TurnExpired += () => Dispatcher.InvokeAsync(OnEndTurn_Internal);
+        _combat.CombatEvent += msg => Dispatcher.InvokeAsync(() => AppendLog(msg));
+        _combat.DamagePopup += (text, tile, isP1Dweller) =>
+            Dispatcher.InvokeAsync(() => SpawnDamagePopup(text, tile, isP1Dweller));
+
+        BuildMapUI();
+        BuildVaultUI();
+        
+        DeckPickerControl.LoadDeck(GetIdleDwellers(), _state.ActiveVault.UnusedWeapons, _state.ActiveVault.UnusedOutfits, _state.ActiveVault.Scraps);
+        DeckPickerControl.CardSelected += card => { 
+            heldCard = card; 
+            UpdateInfoPanel(); 
+            if (MapView.Visibility == Visibility.Visible && card.BoundDweller != null) {
+                var startTile = _state.Map.Tiles.Cast<HexTile>().FirstOrDefault(t => t.Player1Dwellers.Contains(card.BoundDweller) || t.Player2Dwellers.Contains(card.BoundDweller));
+                if (startTile == null) {
+                    startTile = _state.IsPlayer1Turn ? _state.Map.Get(0, _state.Map.Rows / 2) : _state.Map.Get(_state.Map.Cols - 1, _state.Map.Rows / 2);
+                }
+                var vaultCtrl = MapCanvas.Children.OfType<HexTileControl>().FirstOrDefault(c => c.BoundTile == startTile);
+                if (vaultCtrl != null) {
+                    if (_selectedTile != null && _selectedTile != vaultCtrl) _selectedTile.SetSelected(false);
+                    _selectedTile = vaultCtrl;
+                    vaultCtrl.SetSelected(true);
+                }
+            }
+        };
+        GameOverOverlay.Visibility = Visibility.Collapsed;
+        _turns.ResumeTurn();
+        ApplyTheme(_state.IsPlayer1Turn);
+        RefreshAll();
+        StartAutosaveTimer();
+        double cW = GameConfigRepository.Config.MapCols * 100;
+        double cH = GameConfigRepository.Config.MapRows * 100;
+        MapView.ScrollToVerticalOffset(Math.Max(0, (cH - 480) / 2));
+        MapView.ScrollToHorizontalOffset(Math.Max(0, (cW - 850) / 2));
+    }
+
+    private System.Windows.Threading.DispatcherTimer? _autosaveTimer;
+
+    private void StartAutosaveTimer() {
+        _autosaveTimer = new System.Windows.Threading.DispatcherTimer {
+            Interval = TimeSpan.FromMinutes(10)
+        };
+        _autosaveTimer.Tick += (s, e) => SaveGame();
+        _autosaveTimer.Start();
+    }
+
+    private void SaveGame() {
+        try {
+            SaveLoadManager.Save(State);
+        } catch {
+        }
+    }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e) {
+        base.OnClosing(e);
+        SaveGame();
     }
 
 

@@ -57,6 +57,11 @@ public class TurnService : IDisposable {
         TurnTick?.Invoke();
     }
 
+    public void ResumeTurn() {
+        SecondsRemaining = TurnDurationSeconds;
+        _timer.Start();
+    }
+
     public void Dispose() {
         _timer.Stop();
     }

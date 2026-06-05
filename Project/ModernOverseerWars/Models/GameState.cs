@@ -9,13 +9,13 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Map;
 public class GameState {
     public PlayerProfile Player1 { get; set; } = new() { Index = 0 };
     public PlayerProfile Player2 { get; set; } = new() { Index = 1, Theme = PlayerThemes.All[1] };
-    public Vault Vault1 { get; private set; } = null!;
-    public Vault Vault2 { get; private set; } = null!;
-    public HexMap Map { get; } = new HexMap();
+    public Vault Vault1 { get; set; } = null!;
+    public Vault Vault2 { get; set; } = null!;
+    public HexMap Map { get; set; } = new HexMap();
     public GamePhase Phase { get; set; } = GamePhase.Setup;
     public int TurnNumber { get; set; } = 1;
     public string? WinnerName { get; set; }
-    public List<string> Log { get; } = new();
+    public List<string> Log { get; set; } = new();
 
     public void InitVaults() {
         Vault1 = new Vault(Player1.Pseudo);

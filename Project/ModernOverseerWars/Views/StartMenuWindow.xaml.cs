@@ -89,6 +89,8 @@ public partial class StartMenuWindow : Window {
         }
     }
 
+    public GameState? LoadedState { get; private set; }
+
     private void OnStart(object sender, RoutedEventArgs e) {
         Profile1.Pseudo = string.IsNullOrWhiteSpace(P1Name.Text) ? "Wanderer" : P1Name.Text;
         Profile1.Theme = PlayerThemes.All[_p1ThemeIdx];
@@ -97,6 +99,15 @@ public partial class StartMenuWindow : Window {
         Profile2.Theme = PlayerThemes.All[_p2ThemeIdx];
         
         DialogResult = true;
+    }
+
+    private void OnLoadGame(object sender, RoutedEventArgs e) {
+        var loadWin = new LoadGameWindow();
+        loadWin.Owner = this;
+        if (loadWin.ShowDialog() == true && loadWin.LoadedState != null) {
+            LoadedState = loadWin.LoadedState;
+            DialogResult = true;
+        }
     }
 }
 

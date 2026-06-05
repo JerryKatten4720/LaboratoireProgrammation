@@ -19,7 +19,7 @@ public class Room {
         _ => "Room"
     };
     
-    public List<Dweller> AssignedDwellers { get; } = new();
+    public List<Dweller> AssignedDwellers { get; set; } = new();
     public int Level { get; set; } = 1;
     public int BuildCost { get; set; } = GameConfigRepository.Config.RoomBuildCost;
     public int ProduceValue => AssignedDwellers.Count(d => d.IsAlive) * Level;

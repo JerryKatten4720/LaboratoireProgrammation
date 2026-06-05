@@ -475,6 +475,5 @@ public class MenuLoaders {
 
     public static async Task RunOverseerWars(MainWindow win) {
         OverseerWarInit.Introduce(win);
-        win.Close();
     }
 }

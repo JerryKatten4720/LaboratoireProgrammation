@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
+
 namespace LaboratoireProgrammation.Project.ModernOverseerWars.Models.Map;
 
 using System.Linq;
@@ -8,7 +11,31 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Helpers;
 public class HexMap {
     public int Cols => GameConfigRepository.Config.MapCols;
     public int Rows => GameConfigRepository.Config.MapRows;
-    public HexTile[,] Tiles { get; private set; }
+
+    [JsonIgnore]
+    public HexTile[,] Tiles { get; private set; } = null!;
+
+    public List<HexTile> SerializedTiles {
+        get {
+            var list = new List<HexTile>();
+            if (Tiles != null) {
+                for (int c = 0; c < Cols; c++) {
+                    for (int r = 0; r < Rows; r++) {
+                        list.Add(Tiles[c, r]);
+                    }
+                }
+            }
+            return list;
+        }
+        set {
+            Tiles = new HexTile[Cols, Rows];
+            foreach (var tile in value) {
+                if (tile.Col >= 0 && tile.Col < Cols && tile.Row >= 0 && tile.Row < Rows) {
+                    Tiles[tile.Col, tile.Row] = tile;
+                }
+            }
+        }
+    }
 
     private static readonly string[] LocationNames = {
         "Super Duper Mart", "Red Rocket", "Sanctuary Hills",

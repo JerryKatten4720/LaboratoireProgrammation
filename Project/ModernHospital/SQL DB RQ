@@ -74,7 +74,7 @@ CREATE TABLE Lit (
                      FOREIGN KEY (IdChambre) REFERENCES Chambre(IdChambre) ON DELETE CASCADE
 );
 
-INSERT INTO Hopital (Nom, DirecteurGeneral, DirecteurMedical) VALUES ('Washington Memorial Safezone', 'Dr. Webber', 'Dr. Bailey');
+INSERT INTO Hopital (Nom, DirecteurGeneral, DirecteurMedical) VALUES (' Memorial Safezone', 'Dr. Webber', 'Dr. Bailey');
 
 INSERT INTO Aile (IdHopital, Nom, FonctionPrincipale) VALUES
                                                           (1, 'Aile Est', 'Urgences et Traumatologie'),

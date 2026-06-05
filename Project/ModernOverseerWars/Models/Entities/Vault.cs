@@ -9,11 +9,11 @@ using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Data;
 
 public class Vault {
     public string OwnerName { get; set; } = "Player";
-    public List<Room> Rooms { get; } = new();
-    public List<Dweller> Dwellers { get; } = new();
-    public List<IWeapon> Weapons { get; } = new();
-    public List<IOutfit> Outfits { get; } = new();
-    public List<Scrap> Scraps { get; } = new();
+    public List<Room> Rooms { get; set; } = new();
+    public List<Dweller> Dwellers { get; set; } = new();
+    public List<IWeapon> Weapons { get; set; } = new();
+    public List<IOutfit> Outfits { get; set; } = new();
+    public List<Scrap> Scraps { get; set; } = new();
     
     public IEnumerable<IWeapon> UnusedWeapons => Weapons.Where(w => !Dwellers.Any(d => d.EquippedWeapon == w));
     public IEnumerable<IOutfit> UnusedOutfits => Outfits.Where(o => !Dwellers.Any(d => d.EquippedOutfit == o));
@@ -30,6 +30,8 @@ public class Vault {
     
     public bool HasReliableAim { get; set; } = false;
     public bool HasFrankTheTank { get; set; } = false;
+
+    public Vault() {}
 
     public Vault(string owner) {
         OwnerName = owner;
