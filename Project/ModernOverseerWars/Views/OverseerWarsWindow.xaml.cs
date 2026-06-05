@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Entities;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models.Enums;
@@ -148,44 +149,39 @@ public partial class OverseerWarsWindow : Window {
         Color accent = isP1 ? _p1Color : _p2Color;
         Color bg     = isP1 ? _p1Bg   : _p2Bg;
         
-        Color darkAccent = Color.FromRgb((byte)(accent.R * 0.15), (byte)(accent.G * 0.15), (byte)(accent.B * 0.15));
+        this.Resources["PlayerAccentBrush"] = new SolidColorBrush(accent);
+        this.Resources["PlayerAccentDimBrush"] = new SolidColorBrush(Color.FromArgb(80, accent.R, accent.G, accent.B));
+        this.Resources["PlayerBgBrush"] = new SolidColorBrush(bg);
         
-        RootGrid.Background = new SolidColorBrush(darkAccent);
-        MapBorder.Background = new SolidColorBrush(Color.FromArgb((byte)(255 * GameConfigRepository.Config.MapTransparency), darkAccent.R, darkAccent.G, darkAccent.B));
-        VaultView.Opacity = GameConfigRepository.Config.VaultUITransparency;
+        var glow = new DropShadowEffect {
+            Color = accent,
+            BlurRadius = 15,
+            ShadowDepth = 0,
+            Opacity = 0.6
+        };
+        this.Resources["PlayerAccentGlow"] = glow;
 
-        TopBar.Background   = new SolidColorBrush(
-            Color.FromRgb((byte)(bg.R / 2), (byte)(bg.G / 2), (byte)(bg.B / 2)));
-        TimerBar.Fill = new SolidColorBrush(accent);
-        ActivePlayerLabel.Foreground = new SolidColorBrush(accent);
         ActivePlayerLabel.Text = isP1
-            ? $"{_state.Player1.Pseudo}'s Turn"
-            : $"{_state.Player2.Pseudo}'s Turn";
+            ? $"[ SYSTEM AUTHORIZED: {_state.Player1.Pseudo} ]"
+            : $"[ SYSTEM AUTHORIZED: {_state.Player2.Pseudo} ]";
+            
         HexTileControl.ActivePlayerColor = accent;
 
         Color bgLight = LightenColor(bg, 0.10);
         Color bgDark = LightenColor(bg, -0.10);
 
         DeckPickerControl.ApplyTheme(bgDark, accent);
-        CombatLogBorder.Background = new SolidColorBrush(bgDark);
-        EquipBorder.Background = new SolidColorBrush(bgDark);
-        ReturnBorder.Background = new SolidColorBrush(bgDark);
-        InfoPanel.Background = new SolidColorBrush(bgDark);
-
-        foreach (VaultCardHolder h in RoomsPanel.Children.OfType<VaultCardHolder>())
-            h.ApplyTheme(bgDark, accent);
-        EndTurnButton.BorderBrush = new SolidColorBrush(accent);
-        EndTurnButton.Foreground  = new SolidColorBrush(accent);
+        
+        foreach (VaultCardHolder h in RoomsPanel.Children.OfType<VaultCardHolder>()) h.ApplyTheme(bgDark, accent);
 
         string pseudo = isP1 ? _state.Player1.Pseudo : _state.Player2.Pseudo;
         BgUsernameText.Text = pseudo;
         BgUsernameText.Fill = new SolidColorBrush(accent);
-        BgUsernameText.Opacity = 0.1;
+        BgUsernameText.Opacity = 0.03;
 
         _dwellerInAssignmentSlot = null;
         UpdateAssignmentSlotUI();
     }
-
     public Color GetThemeColor() {
         return _state.IsPlayer1Turn ? _p1Color : _p2Color;
     }
@@ -520,7 +516,7 @@ public partial class OverseerWarsWindow : Window {
                 BuildVaultUI();
             }
         }
-
+        
         RefreshAll();
     }
 
@@ -626,7 +622,7 @@ public partial class OverseerWarsWindow : Window {
         bool p1Won = _state.WinnerName == _state.Player1.Pseudo;
         GameOverTitle.Text    = p1Won ? "🏆 VICTORY!" : "💀 DEFEAT";
         GameOverWinner.Text   = $"{_state.WinnerName} eliminated the enemy Overseer!";
-        GameOverTitle.Foreground = new SolidColorBrush(p1Won ? _p1Color : _p2Color);
+        GameOverTitle.Foreground = new SolidColorBrush(Colors.White);
     }
 
     private void OnRoomsPreviewMouseWheel(object sender, MouseWheelEventArgs e) {
@@ -724,7 +720,7 @@ public partial class OverseerWarsWindow : Window {
             for (int r = 0; r < _state.Map.Rows; r++) {
                 var t = _state.Map.Get(c, r);
                 if (t.Player1Dwellers.Contains(d) || t.Player2Dwellers.Contains(d))
-                    return $"At ({c},{r}) {(t.LocationName != "" ? t.LocationName : "Wasteland")}";
+                    return $"At ({c},{r}) {(t.LocationName != "" ? t.LocationName : " ")}";
             }
         return "Idle in Deck";
     }

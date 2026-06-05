@@ -3,6 +3,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using LaboratoireProgrammation.Project.Helpers;
 using LaboratoireProgrammation.Project.Models.Menu;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Views;
 using LaboratoireProgrammation.Project.Services;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 
@@ -188,7 +189,11 @@ public class OverseerWarInit {
     }
 
     public static void ToggleVisibility(MainWindow win) {
-        OverseerWarsUi.DisablePreviousUi(win);
-        win.OverseerWarsMenu.Visibility = Visibility.Visible;
+        var menu = new StartMenuWindow();
+        if (menu.ShowDialog() == true) {
+            var game = new OverseerWarsWindow(menu.Profile1, menu.Profile2);
+            game.Show();
+            win.Close();
+        }
     }
 }

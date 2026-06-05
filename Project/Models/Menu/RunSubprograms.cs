@@ -70,6 +70,7 @@ public class RunSubprograms {
                 break;
 
             case Subprograms.OverseerWars:
+                _ = MenuLoaders.RunOverseerWars(win);
                 break;
 
             case Subprograms.LabHospital:

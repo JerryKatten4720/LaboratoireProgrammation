@@ -404,6 +404,105 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Style x:Key="TerminalCard5" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{x:Static colorhelper:ColorHelper.HospiBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="GlowBorder"
+                                    Margin="-4"
+                                    Background="Transparent"
+                                    Opacity="0"
+                                    CornerRadius="2">
+                                <Border.Effect>
+                                    <DropShadowEffect x:Name="GlowEffect"
+                                                      Color="{x:Static colorhelper:ColorHelper.Hospi}"
+                                                      ShadowDepth="0"
+                                                      BlurRadius="18"
+                                                      Opacity="0.85" />
+                                </Border.Effect>
+                            </Border>
+
+                            <Border x:Name="CardBody"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Border x:Name="FillLayer"
+                                            HorizontalAlignment="Left"
+                                            Width="0"
+                                            Background="{x:Static colorhelper:ColorHelper.HospiBrush}"
+                                            Opacity="0.15" />
+                                    <ContentPresenter />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="1200" Duration="0:0:0.25"
+                                                EasingFunction="{x:Null}" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.18" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1" Duration="0:0:0.2" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="White" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Width"
+                                                To="0" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="FillLayer"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0.12" Duration="0:0:0.2" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="GlowBorder"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0" Duration="0:0:0.25" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="CardBody"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                To="{x:Static colorhelper:ColorHelper.Hospi}"
+                                                Duration="0:0:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FillLayer" Property="Opacity" Value="0.35" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
     </UserControl.Resources>
 
@@ -968,9 +1067,9 @@
             <StackPanel Margin="0,32,0,10">
                 <TextBlock Text=":// DÉPARTEMENT DE LA SANTÉ"
                            FontFamily="pack://application:,,,/Assets/fonts/#ubuntu mono" FontSize="20"
-                           Foreground="{x:Static colorhelper:ColorHelper.InformationBrush}"
+                           Foreground="{x:Static colorhelper:ColorHelper.HospiBrush}"
                            Opacity="0.35" HorizontalAlignment="Left" />
-                <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.InformationBrush}" Opacity="0.12"
+                <Rectangle Height="1" Fill="{x:Static colorhelper:ColorHelper.HospiBrush}" Opacity="0.12"
                            Margin="0,4,0,0" />
             </StackPanel>
 
@@ -981,7 +1080,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource TerminalCard}" Click="LabHospital"
+                <Button Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource TerminalCard5}" Click="LabHospital"
                         MinHeight="120">
                     <Grid Margin="20,14">
                         <Grid.RowDefinitions>
@@ -993,17 +1092,17 @@
                         <TextBlock Grid.Row="0" Text="[DB] L'HÔPITAL DES TERRES DÉSOLÉES"
                                    FontFamily="pack://application:,,,/Assets/fonts/#Doto"
                                    FontSize="38" FontWeight="Bold"
-                                   Foreground="{x:Static colorhelper:ColorHelper.InformationBrush}" />
-                        <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.InformationBrush}"
+                                   Foreground="{x:Static colorhelper:ColorHelper.HospiBrush}" />
+                        <Rectangle Grid.Row="1" Height="1" Fill="{x:Static colorhelper:ColorHelper.HospiBrush}"
                                    Opacity="0.25" Margin="0,6,0,8" />
                         <TextBlock Grid.Row="2"
                                    Text="La guerre... La guerre ne meurt jamais..."
                                    FontFamily="Consolas" FontSize="13"
-                                   Foreground="{x:Static colorhelper:ColorHelper.InformationBrush}"
+                                   Foreground="{x:Static colorhelper:ColorHelper.HospiBrush}"
                                    Opacity="0.55" TextWrapping="Wrap" />
                         <TextBlock Grid.Row="3" Text="[ LANCER ]"
                                    FontFamily="Consolas" FontSize="16.5" FontWeight="Bold"
-                                   Foreground="{x:Static colorhelper:ColorHelper.InformationBrush}"
+                                   Foreground="{x:Static colorhelper:ColorHelper.HospiBrush}"
                                    Opacity="0.4" HorizontalAlignment="Right"
                                    Margin="0,6,0,0" />
                     </Grid>

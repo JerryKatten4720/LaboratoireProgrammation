@@ -26,7 +26,7 @@
             
             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                 <TextBlock Text="Délai estimé : " Foreground="#8888aa" FontSize="11"/>
-                <TextBlock x:Name="TbEstimatedDelay" Text="0 min (in-game)" Foreground="#FFB347" FontSize="12" FontWeight="SemiBold" Margin="5,0,0,0"/>
+                <TextBlock x:Name="TbEstimatedDelay" Text="0 min (in-game)" Foreground="#8223c2" FontSize="12" FontWeight="SemiBold" Margin="5,0,0,0"/>
             </StackPanel>
         </StackPanel>
 

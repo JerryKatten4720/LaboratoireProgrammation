@@ -7,6 +7,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using LaboratoireProgrammation.Project.Helpers;
+using LaboratoireProgrammation.Project.ModernHospital;
+using LaboratoireProgrammation.Project.ViewModels.Laboratoires.OverseerWars;
 using LaboratoireProgrammation.Project.ViewModels.Menu;
 
 namespace LaboratoireProgrammation.Project.Models.Menu;
@@ -452,7 +454,12 @@ public class MenuLoaders {
         win.BabyMode.Visibility = ConsoleBehavior.Babymode ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public static async Task RunHospital(MainWindow win) { }
+    public static async Task RunHospital(MainWindow win) {
+        Window hospital = new HospitalWindow();
+        hospital.Show();
+        win.Close();
+        
+    }
 
     public static async Task RunFlashMaster(MainWindow win) {
         await RunIntro(win, _title_flashZ, _title_flashZ, _author2, _lab1_title, _lab1_sub, _main_author,
@@ -464,5 +471,10 @@ public class MenuLoaders {
         await RunIntro(win, _title_uplink, _title_uplink, _author2, _lab1_title, _lab1_sub, _main_author,
             IntroStyle.FadeOnly);
         win.Uplink.Visibility = Visibility.Visible;
+    }
+
+    public static async Task RunOverseerWars(MainWindow win) {
+        OverseerWarInit.Introduce(win);
+        win.Close();
     }
 }

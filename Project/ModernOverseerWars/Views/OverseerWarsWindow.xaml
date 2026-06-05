@@ -3,79 +3,111 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:LaboratoireProgrammation.Project.ModernOverseerWars.Views"
         xmlns:wrappers="clr-namespace:LaboratoireProgrammation.Assets.shaders.wrappers"
-        Title="OVERSEER WARS"
-        Height="820" Width="1280"
+        Title="ROBCO INDUSTRIES - OVERSEER WARS"
+        Height="900" Width="1440"
         WindowStartupLocation="CenterScreen"
-        WindowState="Maximized" WindowStyle="None">
+        WindowState="Maximized" WindowStyle="None"
+        Background="#08080C"
+        FontFamily="Consolas">
 
     <Window.Resources>
+        <SolidColorBrush x:Key="PlayerAccentBrush" Color="#FFC346"/>
+        <SolidColorBrush x:Key="PlayerAccentDimBrush" Color="#44FFC346"/>
+        <SolidColorBrush x:Key="PlayerBgBrush" Color="#141414"/>
+        <DropShadowEffect x:Key="PlayerAccentGlow" Color="#FFC346" BlurRadius="120" ShadowDepth="0" Opacity="0.2"/>
+        
+        <Style TargetType="TextBlock" x:Key="TerminalText">
+            <Setter Property="Foreground" Value="{DynamicResource PlayerAccentBrush}"/>
+            <Setter Property="Effect" Value="{DynamicResource PlayerAccentGlow}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        </Style>
+
         <Style TargetType="Button" x:Key="GameButton">
-            <Setter Property="Background"   Value="#1A1A30"/>
-            <Setter Property="Foreground"   Value="#9999CC"/>
-            <Setter Property="BorderBrush"  Value="#334"/>
+            <Setter Property="Background" Value="#0A0A0F"/>
+            <Setter Property="Foreground" Value="{DynamicResource PlayerAccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PlayerAccentBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding"      Value="10,4"/>
-            <Setter Property="FontSize"     Value="11"/>
-            <Setter Property="Cursor"       Value="Hand"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Effect" Value="{DynamicResource PlayerAccentGlow}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource PlayerAccentBrush}"/>
+                                <Setter Property="Foreground" Value="#08080C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Border" x:Key="PanelBorder">
+            <Setter Property="Background" Value="#0A0A12"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PlayerAccentDimBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="2"/>
         </Style>
     </Window.Resources>
 
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="8"/>
-            <RowDefinition Height="44"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="250"/>
+            <RowDefinition Height="260"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <Rectangle Fill="#111" Height="8"/>
-            <Rectangle x:Name="TimerBar" HorizontalAlignment="Left" Height="8"
-                       Width="1280" Fill="#41521F"/>
+            <Rectangle Fill="#111" Height="6"/>
+            <Rectangle x:Name="TimerBar" HorizontalAlignment="Left" Height="6" Width="1440" 
+                       Fill="{DynamicResource PlayerAccentBrush}" Effect="{DynamicResource PlayerAccentGlow}"/>
         </Grid>
 
-        <Border Grid.Row="1" x:Name="TopBar" Background="#0D0D20" BorderBrush="#223" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" x:Name="TopBar" Background="#0A0A12" BorderBrush="{DynamicResource PlayerAccentDimBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="OVERSEER WARS"
-                           Foreground="#BBBBDD" FontSize="14" FontWeight="Bold"
-                           VerticalAlignment="Center" Margin="12,0"/>
+                
+                <TextBlock Grid.Column="0" Text="[ Overseer.Wars ]" Style="{StaticResource TerminalText}" FontFamily="#overseer" FontSize="16" VerticalAlignment="Center" Margin="16,0" Opacity="0.8"/>
+                
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock x:Name="ActivePlayerLabel" Text="Player 1's Turn"
-                               FontSize="13" FontWeight="Bold" Margin="0,0,16,0"/>
-                    <TextBlock x:Name="ElecText"  Text="20"  Foreground="#AAAACC" FontSize="12" Margin="8,0"/>
-                    <TextBlock x:Name="WaterText" Text="20"  Foreground="#AAAACC" FontSize="12" Margin="8,0"/>
-                    <TextBlock x:Name="FoodText"  Text="20"  Foreground="#AAAACC" FontSize="12" Margin="8,0"/>
-                    <TextBlock x:Name="ApText"    Text="PA: 5/5" Foreground="#CCAA44" FontSize="12" Margin="8,0"/>
-                    <TextBlock x:Name="TurnText"  Text="Turn 1" Foreground="#888" FontSize="12" Margin="8,0"/>
+                    <TextBlock x:Name="ActivePlayerLabel" Text="Player 1's Turn" Style="{StaticResource TerminalText}" FontSize="18" FontWeight="Bold" Margin="0,0,32,0"/>
+                    <TextBlock x:Name="ElecText" Text="⚡ 20" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0"/>
+                    <TextBlock x:Name="WaterText" Text="💧 20" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0"/>
+                    <TextBlock x:Name="FoodText" Text="🍔 20" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0"/>
+                    <TextBlock x:Name="ApText" Text="PA: 5/5" Style="{StaticResource TerminalText}" FontSize="16" FontWeight="Bold" Margin="32,0,12,0"/>
+                    <TextBlock x:Name="TurnText" Text="TURN 1" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0" Opacity="0.7"/>
                 </StackPanel>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
-                    <Button x:Name="EndTurnButton" Content="End Turn ▶"
-                            Style="{StaticResource GameButton}"
-                            Background="#1A2A1A" Foreground="#66BB66" BorderBrush="#446644"
-                            Click="OnEndTurn" Margin="0,0,8,0"/>
-                    <Button x:Name="PhaseIndicator" Content="🏠 VAULT"
-                            Style="{StaticResource GameButton}" Click="OnToggleView"/>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <Button x:Name="PhaseIndicator" Content=" VIEW: VAULT " Style="{StaticResource GameButton}" Click="OnToggleView" Margin="0,0,12,0"/>
+                    <Button x:Name="EndTurnButton" Content=" END CYCLE ▶ " Style="{StaticResource GameButton}" Click="OnEndTurn"/>
                 </StackPanel>
             </Grid>
         </Border>
 
         <Grid Grid.Row="2">
-            <Viewbox Stretch="Uniform" Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Opacity="0.2">
+            <Viewbox Stretch="Uniform" Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Opacity="0.05">
                 <local:OutlinedTextBlock x:Name="BgUsernameText" Text="OVERSEER"/>
             </Viewbox>
 
-            <Border x:Name="MapBorder" Margin="20" BorderBrush="#41000000" BorderThickness="2" CornerRadius="8" Background="#0C0C1E" ClipToBounds="True">
+            <Border x:Name="MapBorder" Margin="16" BorderBrush="{DynamicResource PlayerAccentDimBrush}" BorderThickness="1" Background="#06060A" ClipToBounds="True">
                 <ScrollViewer x:Name="MapView" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" ClipToBounds="True" MouseWheel="MapView_MouseWheel">
                     <Canvas x:Name="MapCanvas" Width="900" Height="540" ClipToBounds="True" Background="Transparent"
-                            MouseLeftButtonDown="MapCanvas_MouseLeftButtonDown"
-                            MouseMove="MapCanvas_MouseMove"
-                            MouseLeftButtonUp="MapCanvas_MouseLeftButtonUp">
+                            MouseLeftButtonDown="MapCanvas_MouseLeftButtonDown" MouseMove="MapCanvas_MouseMove" MouseLeftButtonUp="MapCanvas_MouseLeftButtonUp">
                         <Canvas.LayoutTransform>
                             <ScaleTransform x:Name="MapScale" ScaleX="1" ScaleY="1" />
                         </Canvas.LayoutTransform>
@@ -83,190 +115,153 @@
                 </ScrollViewer>
             </Border>
 
-            <Grid x:Name="VaultView" Visibility="Collapsed">
+            <Grid x:Name="VaultView" Visibility="Collapsed" Margin="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="12,8">
-                    <TextBlock Text="🏠 YOUR VAULT — ROOMS" Foreground="#8888BB"
-                               FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <Button x:Name="BuildRoomButton" Content="+ Build Room"
-                             Style="{StaticResource GameButton}" Margin="16,0,0,0"
-                             Click="OnBuildRoom"/>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                    <TextBlock Text="[ VAULT INFRASTRUCTURE ]" Style="{StaticResource TerminalText}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button x:Name="BuildRoomButton" Content="+ CONSTRUCT ROOM" Style="{StaticResource GameButton}" Margin="24,0,0,0" Click="OnBuildRoom"/>
                 </StackPanel>
                 <ScrollViewer x:Name="RoomsScrollViewer" Grid.Row="1" HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="OnRoomsPreviewMouseWheel">
-                    <StackPanel x:Name="RoomsPanel" Orientation="Horizontal" Margin="12,0,12,8"/>
+                    <StackPanel x:Name="RoomsPanel" Orientation="Horizontal"/>
                 </ScrollViewer>
             </Grid>
 
-            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Width="220" Margin="0,8,8,0">
-                <Border x:Name="InfoPanel"
-                        Background="#0D0D20" BorderBrush="#223" BorderThickness="1" CornerRadius="6" Padding="10">
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Width="260" Margin="0,32,32,0" Opacity="0.4">
+                <Border x:Name="InfoPanel" Style="{StaticResource PanelBorder}" Padding="12">
                     <StackPanel>
-                        <Grid Margin="0,0,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock x:Name="InfoTitle" Text="Select a tile or dweller"
-                                       Foreground="#9999BB" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
-                            <Button x:Name="CollapseInfoButton" Grid.Column="1" Content=" - " Click="OnToggleInfoPanel"
-                                    Background="Transparent" BorderThickness="0" Foreground="#AABBCC" FontWeight="Bold" FontSize="12" Cursor="Hand" Padding="4,0"/>
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock x:Name="InfoTitle" Text="AWAITING TARGET" Style="{StaticResource TerminalText}" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <Button x:Name="CollapseInfoButton" Content="X" Height="20" Width="20" HorizontalAlignment="Right" Style="{StaticResource GameButton}" Padding="6,2" FontSize="10" Click="OnToggleInfoPanel"/>
                         </Grid>
+                        <Rectangle Height="1" Fill="{DynamicResource PlayerAccentDimBrush}" Margin="0,0,0,8"/>
                         <StackPanel x:Name="InfoContentPanel">
-                            <TextBlock x:Name="InfoBody"  Text="" Foreground="#7777AA" FontSize="10" TextWrapping="Wrap"/>
-                            <Button x:Name="DeployButton"  Content="🚀 Deploy here"  Margin="0,8,0,0"
-                                    Style="{StaticResource GameButton}" Click="OnDeployDweller"/>
+                            <TextBlock x:Name="InfoBody" Text="..." Foreground="#A0A0B0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                            <Button x:Name="DeployButton" Content="> DEPLOY UNIT" Style="{StaticResource GameButton}" Click="OnDeployDweller" Visibility="Collapsed"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <Border x:Name="WarningPanel" Margin="0,8,0,0"
-                        Background="#CC3333" BorderBrush="#FF5555" BorderThickness="1.5" CornerRadius="6" Padding="10"
-                        Visibility="Collapsed">
-                    <TextBlock x:Name="WarningText" Text="Warning" 
-                               Foreground="White" FontSize="11" FontWeight="Bold" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                <Border x:Name="WarningPanel" Margin="0,12,0,0" Background="#2A0505" BorderBrush="#FF3333" BorderThickness="1" CornerRadius="2" Padding="12" Visibility="Collapsed">
+                    <TextBlock x:Name="WarningText" Text="WARNING" Foreground="#FF5555" FontSize="12" FontWeight="Bold" TextWrapping="Wrap" HorizontalAlignment="Center"/>
                 </Border>
             </StackPanel>
 
             <Canvas x:Name="PopupCanvas" IsHitTestVisible="False"/>
         </Grid>
 
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="3" Margin="16,0,16,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="160"/>
-                <ColumnDefinition Width="160"/>
-                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="280"/>
             </Grid.ColumnDefinitions>
-            <local:DeckPicker x:Name="DeckPickerControl" Grid.Column="0"/>
             
-            <Border Grid.Column="1" x:Name="EquipBorder" Background="#0F0F25" BorderBrush="#223" BorderThickness="1,1,1,1" Padding="8"
-                    AllowDrop="True" Drop="OnAssignmentSlotDrop" DragOver="OnAssignmentSlotDragOver">
+            <local:DeckPicker x:Name="DeckPickerControl" Grid.Column="0" Margin="0,0,12,0"/>
+            
+            <Border Grid.Column="1" x:Name="EquipBorder" Style="{StaticResource PanelBorder}" Padding="8" Margin="0,0,12,0" AllowDrop="True" Drop="OnAssignmentSlotDrop" DragOver="OnAssignmentSlotDragOver">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="🛠 EQUIP DWELLER" Foreground="#8888BB" FontSize="10" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center"/>
-                    
+                    <TextBlock Text="[ ASSIGNMENT SLOT ]" Style="{StaticResource TerminalText}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8"/>
                     <Grid Grid.Row="1" x:Name="AssignmentSlotContainer" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Border x:Name="EquipInnerBorder" BorderBrush="#0A0A0A" BorderThickness="2" CornerRadius="8" Width="140" Height="200" Background="#191919">
-                            <TextBlock Text="Drag dweller card here" Foreground="#C8C8C8" FontSize="11" FontStyle="Italic" FontFamily="#doto"
-                                       VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <Border x:Name="EquipInnerBorder" BorderBrush="{DynamicResource PlayerAccentDimBrush}" BorderThickness="1" Width="140" Height="200" Background="#05050A">
+                            <TextBlock Text="DRAG DWELLER HERE" Foreground="#555566" FontSize="10" FontStyle="Italic" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
                         </Border>
                     </Grid>
                 </Grid>
             </Border>
 
-            <Border Grid.Column="2" x:Name="ReturnBorder" Background="#110A0A" BorderBrush="#223" BorderThickness="0,1,1,1" Padding="8"
-                    AllowDrop="True" Drop="OnReturnCardDrop" DragOver="OnAssignmentSlotDragOver">
+            <Border Grid.Column="2" x:Name="ReturnBorder" Style="{StaticResource PanelBorder}" Padding="8" Margin="0,0,12,0" AllowDrop="True" Drop="OnReturnCardDrop" DragOver="OnAssignmentSlotDragOver">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="♻ RETURN CARD" Foreground="#BB8888" FontSize="10" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center"/>
+                    <TextBlock Text="[ UNEQUIP ZONE ]" Foreground="#DD5555" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8"/>
                     <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Border BorderBrush="#0A0A0A" BorderThickness="2" CornerRadius="8" Width="140" Height="200" Background="#191919">
-                            <TextBlock Text="Drop item here to unequip" Foreground="#C8C8C8" FontSize="11" FontStyle="Italic" FontFamily="#doto"
-                                       VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <Border BorderBrush="#552222" BorderThickness="1" Width="140" Height="200" Background="#110505">
+                            <TextBlock Text="DROP ITEM TO UNEQUIP" Foreground="#884444" FontSize="10" FontStyle="Italic" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
                         </Border>
                     </Grid>
                 </Grid>
             </Border>
 
-            <Border Grid.Column="3" x:Name="CombatLogBorder" Background="#0A0A18" BorderBrush="#223" BorderThickness="1,0,0,0" Padding="8">
+            <Border Grid.Column="3" x:Name="CombatLogBorder" Style="{StaticResource PanelBorder}" Padding="12">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="📜 COMBAT LOG" Foreground="#666688" FontSize="10" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="[ TACTICAL LOG ]" Style="{StaticResource TerminalText}" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
                     <ScrollViewer Grid.Row="1" x:Name="LogScroller" VerticalScrollBarVisibility="Auto">
-                        <TextBlock x:Name="LogText" Foreground="#556677" FontSize="10" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="LogText" Foreground="#888899" FontSize="11" TextWrapping="Wrap"/>
                     </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>
 
-        <Grid x:Name="GameOverOverlay" Grid.RowSpan="4" Visibility="Collapsed" Background="#CC000015">
-            <Border Background="#0D0D20" BorderBrush="#666" BorderThickness="2" CornerRadius="12"
-                    Width="400" Height="240" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30">
+        <Grid x:Name="GameOverOverlay" Grid.RowSpan="4" Visibility="Collapsed" Background="#CC05050A">
+            <Border Style="{StaticResource PanelBorder}" Width="450" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="32">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock x:Name="GameOverTitle"  Text="GAME OVER" Foreground="#DDDDFF"
-                               FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock x:Name="GameOverWinner" Text=""          Foreground="#AAAACC"
-                               FontSize="16" HorizontalAlignment="Center" Margin="0,12"/>
-                    <Button Content="Play Again" Style="{StaticResource GameButton}"
-                            FontSize="13" Padding="20,6" HorizontalAlignment="Center" Margin="0,12,0,0"
-                            Click="OnPlayAgain"/>
+                    <TextBlock x:Name="GameOverTitle" Text="[ SIMULATION CONCLUDED ]" Style="{StaticResource TerminalText}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="GameOverWinner" Text="" Foreground="#DDDDFF" FontSize="14" HorizontalAlignment="Center" Margin="0,16,0,24"/>
+                    <Button Content="> REBOOT SIMULATION" Style="{StaticResource GameButton}" Width="200" Padding="24,10" Click="OnPlayAgain"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <Grid x:Name="DwellerSelectionOverlay" Grid.RowSpan="4" Visibility="Collapsed" Background="#CC000015">
-            <Border Background="#0D0D20" BorderBrush="#334" BorderThickness="2" CornerRadius="12"
-                    Width="600" Height="450" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20">
+        <Grid x:Name="DwellerSelectionOverlay" Grid.RowSpan="4" Visibility="Collapsed" Background="#CC05050A">
+            <Border Style="{StaticResource PanelBorder}" Width="650" Height="480" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    
-                    <TextBlock Text="SELECT A DWELLER" Foreground="#BBBBDD" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                    
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+                    <TextBlock Text="[ SELECT PERSONNEL ]" Style="{StaticResource TerminalText}" FontSize="16" FontWeight="Bold" Margin="0,0,0,16" HorizontalAlignment="Center"/>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16">
                         <StackPanel x:Name="DwellerSelectionList"/>
                     </ScrollViewer>
-                    
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button x:Name="ConfirmDwellerSelectionBtn" Content="CONFIRM SELECTION" Style="{StaticResource GameButton}" Width="200" Height="36" FontWeight="Bold" Margin="0,0,10,0" Click="OnConfirmDwellerSelection"/>
-                        <Button Content="CANCEL" Style="{StaticResource GameButton}" Width="100" Height="36" Click="OnCancelDwellerSelection"/>
+                        <Button x:Name="ConfirmDwellerSelectionBtn" Content="> CONFIRM" Style="{StaticResource GameButton}" Width="200" Margin="0,0,16,0" Click="OnConfirmDwellerSelection"/>
+                        <Button Content="> CANCEL" Style="{StaticResource GameButton}" Width="120" Click="OnCancelDwellerSelection"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
 
-        <Grid x:Name="EquipmentSelectionOverlay" Grid.RowSpan="4" Visibility="Collapsed" Background="#CC000015">
-            <Border Background="#0D0D20" BorderBrush="#334" BorderThickness="2" CornerRadius="12"
-                    Width="500" Height="400" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20">
+        <Grid x:Name="EquipmentSelectionOverlay" Grid.RowSpan="4" Visibility="Collapsed" Background="#CC05050A">
+            <Border Style="{StaticResource PanelBorder}" Width="550" Height="420" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    
-                    <TextBlock x:Name="EquipmentSelectionTitle" Text="SELECT EQUIPMENT" Foreground="#BBBBDD" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                    
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+                    <TextBlock x:Name="EquipmentSelectionTitle" Text="[ SELECT EQUIPMENT ]" Style="{StaticResource TerminalText}" FontSize="16" FontWeight="Bold" Margin="0,0,0,16" HorizontalAlignment="Center"/>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16">
                         <StackPanel x:Name="EquipmentSelectionList"/>
                     </ScrollViewer>
-                    
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button x:Name="ConfirmEquipmentSelectionBtn" Content="CONFIRM" Style="{StaticResource GameButton}" Width="150" Height="36" FontWeight="Bold" Margin="0,0,10,0" Click="OnConfirmEquipmentSelection"/>
-                        <Button Content="CANCEL" Style="{StaticResource GameButton}" Width="100" Height="36" Click="OnCancelEquipmentSelection"/>
+                        <Button x:Name="ConfirmEquipmentSelectionBtn" Content="> CONFIRM" Style="{StaticResource GameButton}" Width="150" Margin="0,0,16,0" Click="OnConfirmEquipmentSelection"/>
+                        <Button Content="> CANCEL" Style="{StaticResource GameButton}" Width="120" Click="OnCancelEquipmentSelection"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid x:Name="DwellerSheetOverlay" Grid.Row="1" Grid.RowSpan="2" Visibility="Collapsed">
-            <Border x:Name="DwellerSheetBorder" Background="#0D0D20" BorderBrush="#334" BorderThickness="2" CornerRadius="12"
-                    Width="820" Height="420" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20">
+            <Border x:Name="DwellerSheetBorder" Style="{StaticResource PanelBorder}" Width="860" Height="460" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
                 <Grid>
-                    <Button Content="✕" Click="OnCloseDwellerSheet"
-                            HorizontalAlignment="Right" VerticalAlignment="Top"
-                            Width="36" Height="36" Margin="0"
-                            Style="{StaticResource GameButton}" FontSize="16" FontWeight="Bold"/>
-
+                    <Button Content="X" Click="OnCloseDwellerSheet" HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" Style="{StaticResource GameButton}" Padding="0"/>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock x:Name="SheetStatusText" Text="Idle:Vault"
-                                   Foreground="#0AFF7D0F" FontSize="20" FontWeight="Bold" FontFamily="Segoe UI"
-                                   HorizontalAlignment="Center" Margin="0,0,0,24" TextAlignment="Center"/>
-
+                        <TextBlock x:Name="SheetStatusText" Text="STATUS: UNKNOWN" Style="{StaticResource TerminalText}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,32"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="200"/>
@@ -275,35 +270,31 @@
                                 <ColumnDefinition Width="40"/>
                                 <ColumnDefinition Width="200"/>
                             </Grid.ColumnDefinitions>
-
+                            
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <TextBlock Text="WEAPON" Foreground="#8888BB" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                                <Grid x:Name="SheetWeaponGrid" Width="126" Height="180">
-                                    <Border x:Name="SheetWeaponPlaceholder" BorderBrush="#334" BorderThickness="1.5" CornerRadius="8" Background="#0C0C18">
-                                        <TextBlock Text="No weapon equipped" Foreground="#445" FontSize="11" FontWeight="SemiBold" FontStyle="Italic"
-                                                   TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Margin="10"/>
+                                <TextBlock Text="[ WEAPON ]" Style="{StaticResource TerminalText}" FontSize="12" FontWeight="Bold" Margin="0,0,0,12"/>
+                                <Grid x:Name="SheetWeaponGrid" Width="140" Height="200">
+                                    <Border x:Name="SheetWeaponPlaceholder" BorderBrush="{DynamicResource PlayerAccentDimBrush}" BorderThickness="1" Background="#08080C">
+                                        <TextBlock Text="NO DATA" Foreground="#555" FontSize="11" FontStyle="Italic" TextAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <Viewbox x:Name="SheetWeaponViewbox" Visibility="Collapsed">
-                                    </Viewbox>
+                                    <Viewbox x:Name="SheetWeaponViewbox" Visibility="Collapsed"/>
                                 </Grid>
                             </StackPanel>
-
+                            
                             <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <TextBlock Text="DWELLER" Foreground="#8888BB" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                                <Viewbox Width="210" Height="300">
+                                <TextBlock Text="[ PERSONNEL ]" Style="{StaticResource TerminalText}" FontSize="12" FontWeight="Bold" Margin="0,0,0,12"/>
+                                <Viewbox Width="220" Height="320">
                                     <local:ControlCard x:Name="SheetDwellerCard"/>
                                 </Viewbox>
                             </StackPanel>
-
+                            
                             <StackPanel Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <TextBlock Text="OUTFIT" Foreground="#8888BB" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                                <Grid x:Name="SheetOutfitGrid" Width="126" Height="180">
-                                    <Border x:Name="SheetOutfitPlaceholder" BorderBrush="#334" BorderThickness="1.5" CornerRadius="8" Background="#0C0C18">
-                                        <TextBlock Text="No outfit equipped" Foreground="#445" FontSize="11" FontWeight="SemiBold" FontStyle="Italic"
-                                                   TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Margin="10"/>
+                                <TextBlock Text="[ OUTFIT ]" Style="{StaticResource TerminalText}" FontSize="12" FontWeight="Bold" Margin="0,0,0,12"/>
+                                <Grid x:Name="SheetOutfitGrid" Width="140" Height="200">
+                                    <Border x:Name="SheetOutfitPlaceholder" BorderBrush="{DynamicResource PlayerAccentDimBrush}" BorderThickness="1" Background="#08080C">
+                                        <TextBlock Text="NO DATA" Foreground="#555" FontSize="11" FontStyle="Italic" TextAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <Viewbox x:Name="SheetOutfitViewbox" Visibility="Collapsed">
-                                    </Viewbox>
+                                    <Viewbox x:Name="SheetOutfitViewbox" Visibility="Collapsed"/>
                                 </Grid>
                             </StackPanel>
                         </Grid>
@@ -314,4 +305,27 @@
 
         <Canvas x:Name="DragOverlayCanvas" Grid.RowSpan="4" IsHitTestVisible="False"/>
     </Grid>
+    
+    <Window.Effect>
+        <wrappers:CRT x:Name="VaultShader"
+                      DistortionStrength="0.0"
+                      CurveRadius="0.00"
+                      VignetteStrength="0.6"
+                      ScanlineIntensity="0.55"
+                      ScanlineCount="100.0"
+                      ScanlineSpeed="0.03"
+                      PixelGridIntensity="0.05"
+                      BloomStrength="0.2"
+                      ChromaticAberration="0.04"
+                      TintColor="#0FFF7F00"
+                      Brightness="2.10"
+                      Contrast="1.05"
+                      NoiseIntensity="0.0125"
+                      NoiseScale="0.5"
+                      FlickerIntensity="0.06"
+                      FlickerSpeed="0.2"
+                      PhosphorDecay="0.5"
+                      ScreenResolution="1080,720" />
+    </Window.Effect>
+    
 </Window>

@@ -13,6 +13,7 @@ public class ColorHelper {
     public static Color Warning = HexToColor("#ff8f4a");
     public static Color Critical = HexToColor("#c7312c");
     public static Color Success = HexToColor("#29e62c");
+    public static Color Hospi = HexToColor("#00d4aa");
 
     public static Color FadeGreen = HexToColor("#4FF743");
     public static Color FadeRed = HexToColor("#F74343");
@@ -81,6 +82,11 @@ public class ColorHelper {
     public static SolidColorBrush SnowBrush {
         get => new(Snow);
         set => Snow = value.Color;
+    }
+    
+    public static SolidColorBrush HospiBrush {
+        get => new(Hospi);
+        set => Hospi = value.Color;
     }
 
 

@@ -136,16 +136,6 @@ public partial class ControlCard : UserControl {
         ImgDweller.Source = MakeImageSource($"../../Assets/images/overseerWars/scraps/{s.Texture}") ?? MakeImageSource("../../Assets/images/overseerWars/weapons/placeholder.png");
     }
 
-    public void RefreshHp() {
-        if (BoundDweller == null) return;
-        HpBar.Value = BoundDweller.CurrentHp;
-        HpText.Text = $"{BoundDweller.CurrentHp}/{BoundDweller.MaxHp}";
-        double ratio = (double)BoundDweller.CurrentHp / BoundDweller.MaxHp;
-        HpBar.Foreground = ratio > 0.5
-            ? new SolidColorBrush(Color.FromRgb(34, 187, 68))
-            : new SolidColorBrush(Color.FromRgb(200, 60, 60));
-    }
-
     private void ApplyRarity(CardRarity rarity) {
         string r = RarityNames[(int)rarity];
         string base_ = "../../Assets/images/overseerWars/cards/";
@@ -325,6 +315,19 @@ public partial class ControlCard : UserControl {
         OpenContextMenu();
     }
 
+    public void RefreshHp() {
+        if (BoundDweller == null) return;
+        HpBar.Value = BoundDweller.CurrentHp;
+        HpText.Text = $"{BoundDweller.CurrentHp}/{BoundDweller.MaxHp}";
+        
+        double ratio = (double)BoundDweller.CurrentHp / BoundDweller.MaxHp;
+        
+        // Use RobCo Terminal Colors for Health
+        HpBar.Foreground = ratio > 0.5
+            ? new SolidColorBrush(Color.FromRgb(27, 253, 2))  // Terminal Green
+            : new SolidColorBrush(Color.FromRgb(255, 51, 51)); // Terminal Red
+    }
+
     public void OpenContextMenu() {
         if (BoundDweller == null) return;
         var win = Window.GetWindow(this) as OverseerWarsWindow ?? System.Windows.Application.Current.Windows.OfType<OverseerWarsWindow>().FirstOrDefault();
@@ -334,17 +337,15 @@ public partial class ControlCard : UserControl {
         Color bgColor = win.GetThemeBgDark();
         var fgBrush = new SolidColorBrush(fgColor);
         var bgBrush = new SolidColorBrush(bgColor);
-        var hoverBrush = new SolidColorBrush(Color.FromArgb(60, fgColor.R, fgColor.G, fgColor.B));
 
         var cm = new ContextMenu {
             Style = (Style)FindResource("ThemedContextMenu")
         };
         cm.Resources["ThemeFgBrush"] = fgBrush;
         cm.Resources["ThemeBgBrush"] = bgBrush;
-        cm.Resources["ThemeHoverBrush"] = hoverBrush;
 
         var miSheet = new MenuItem {
-            Header = "Dweller Sheet",
+            Header = "> VIEW PERSONNEL DATA",
             Style = (Style)FindResource("ThemedMenuItem")
         };
         miSheet.Click += (s, ev) => win.OpenDwellerSheet(BoundDweller);
@@ -355,7 +356,7 @@ public partial class ControlCard : UserControl {
         var rc = new[] { "#969696", "#64C864", "#6496FA", "#B450DC", "#FFB400" };
 
         var miWeapon = new MenuItem {
-            Header = "Assign Weapon",
+            Header = "> ASSIGN WEAPON",
             Style = (Style)FindResource("ThemedMenuItem")
         };
 
@@ -366,11 +367,10 @@ public partial class ControlCard : UserControl {
             var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
             nameStack.Children.Add(new Border {
                 Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)equippedWeapon.Rarity])!,
-                Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
-                VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+                Width = 8, Height = 8, Margin = new Thickness(0, 0, 8, 0) // Squared off
             });
-            nameStack.Children.Add(new TextBlock { Text = $"{equippedWeapon.Name} (Equipped)", Foreground = Brushes.White, FontWeight = FontWeights.Bold });
-            nameStack.Children.Add(new TextBlock { Text = $"Dmg: {equippedWeapon.Damage}", Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+            nameStack.Children.Add(new TextBlock { Text = $"{equippedWeapon.Name} (EQUIPPED)", FontWeight = FontWeights.Bold });
+            nameStack.Children.Add(new TextBlock { Text = $"[DMG:{equippedWeapon.Damage}]", Opacity = 0.7, FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
 
             var miEquipped = new MenuItem {
                 Header = nameStack,
@@ -388,7 +388,7 @@ public partial class ControlCard : UserControl {
 
         if (unusedWeapons.Count == 0 && equippedWeapon == null) {
             var miNoWeapons = new MenuItem {
-                Header = "No weapons available",
+                Header = "NO INVENTORY AVAILABLE",
                 IsEnabled = false,
                 Style = (Style)FindResource("ThemedMenuItem")
             };
@@ -398,11 +398,10 @@ public partial class ControlCard : UserControl {
                 var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
                 nameStack.Children.Add(new Border {
                     Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)weapon.Rarity])!,
-                    Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
-                    VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+                    Width = 8, Height = 8, Margin = new Thickness(0, 0, 8, 0) // Squared off
                 });
-                nameStack.Children.Add(new TextBlock { Text = weapon.Name, Foreground = Brushes.White, FontWeight = FontWeights.Bold });
-                nameStack.Children.Add(new TextBlock { Text = $"Dmg: {weapon.Damage}", Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+                nameStack.Children.Add(new TextBlock { Text = weapon.Name.ToUpper(), FontWeight = FontWeights.Bold });
+                nameStack.Children.Add(new TextBlock { Text = $"[DMG:{weapon.Damage}]", Opacity=0.7, FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
 
                 var miW = new MenuItem {
                     Header = nameStack,
@@ -418,7 +417,7 @@ public partial class ControlCard : UserControl {
         }
 
         var miOutfit = new MenuItem {
-            Header = "Assign Outfit",
+            Header = "> ASSIGN OUTFIT",
             Style = (Style)FindResource("ThemedMenuItem")
         };
 
@@ -429,15 +428,14 @@ public partial class ControlCard : UserControl {
             var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
             nameStack.Children.Add(new Border {
                 Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)equippedOutfit.Rarity])!,
-                Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
-                VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+                Width = 8, Height = 8, Margin = new Thickness(0, 0, 8, 0)
             });
-            nameStack.Children.Add(new TextBlock { Text = $"{equippedOutfit.Name} (Equipped)", Foreground = Brushes.White, FontWeight = FontWeights.Bold });
-            string statsStr = $"Armor: {equippedOutfit.ArmorValue}";
-            if (equippedOutfit is Outfit op) {
-                statsStr += $" (S:{op.S} P:{op.P} E:{op.E} L:{op.L})";
-            }
-            nameStack.Children.Add(new TextBlock { Text = statsStr, Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+            nameStack.Children.Add(new TextBlock { Text = $"{equippedOutfit.Name} (EQUIPPED)", FontWeight = FontWeights.Bold });
+            
+            string statsStr = $"[ARM:{equippedOutfit.ArmorValue}]";
+            if (equippedOutfit is Outfit op) statsStr += $" (S:{op.S} P:{op.P} E:{op.E} L:{op.L})";
+            
+            nameStack.Children.Add(new TextBlock { Text = statsStr, Opacity = 0.7, FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
 
             var miEquipped = new MenuItem {
                 Header = nameStack,
@@ -455,7 +453,7 @@ public partial class ControlCard : UserControl {
 
         if (unusedOutfits.Count == 0 && equippedOutfit == null) {
             var miNoOutfits = new MenuItem {
-                Header = "No outfits available",
+                Header = "NO INVENTORY AVAILABLE",
                 IsEnabled = false,
                 Style = (Style)FindResource("ThemedMenuItem")
             };
@@ -465,15 +463,14 @@ public partial class ControlCard : UserControl {
                 var nameStack = new StackPanel { Orientation = Orientation.Horizontal };
                 nameStack.Children.Add(new Border {
                     Background = (Brush)new BrushConverter().ConvertFromString(rc[(int)outfit.Rarity])!,
-                    Width = 8, Height = 8, CornerRadius = new CornerRadius(4),
-                    VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0)
+                    Width = 8, Height = 8, Margin = new Thickness(0, 0, 8, 0)
                 });
-                nameStack.Children.Add(new TextBlock { Text = outfit.Name, Foreground = Brushes.White, FontWeight = FontWeights.Bold });
-                string statsStr = $"Armor: {outfit.ArmorValue}";
-                if (outfit is Outfit op) {
-                    statsStr += $" (S:{op.S} P:{op.P} E:{op.E} L:{op.L})";
-                }
-                nameStack.Children.Add(new TextBlock { Text = statsStr, Foreground = new SolidColorBrush(Color.FromRgb(0xAA, 0xAA, 0xDD)), FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+                nameStack.Children.Add(new TextBlock { Text = outfit.Name.ToUpper(), FontWeight = FontWeights.Bold });
+                
+                string statsStr = $"[ARM:{outfit.ArmorValue}]";
+                if (outfit is Outfit op) statsStr += $" (S:{op.S} P:{op.P} E:{op.E} L:{op.L})";
+                
+                nameStack.Children.Add(new TextBlock { Text = statsStr, Opacity = 0.7, FontSize = 10, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
 
                 var miO = new MenuItem {
                     Header = nameStack,

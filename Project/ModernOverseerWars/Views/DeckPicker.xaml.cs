@@ -24,13 +24,12 @@ public partial class DeckPicker : UserControl {
     private List<IWeapon> _weapons = new();
     private List<IOutfit> _outfits = new();
     private List<Scrap> _scraps = new();
-    private Color _bgColor = Color.FromRgb(0x0A, 0x0A, 0x1A);
 
-    public DeckPicker() { InitializeComponent(); }
+    public DeckPicker() {
+        InitializeComponent();
+    }
 
     public void ApplyTheme(Color bg, Color accent) {
-        _bgColor = bg;
-        if (Content is Border b) b.Background = new SolidColorBrush(bg);
         UpdateButtonHighlights();
     }
 
@@ -64,8 +63,7 @@ public partial class DeckPicker : UserControl {
                 };
                 CardRow.Children.Add(card);
             }
-        }
-        else if (CurrentTab == DeckTab.Weapons) {
+        } else if (CurrentTab == DeckTab.Weapons) {
             foreach (var w in _weapons) {
                 var card = new ControlCard { Margin = new Thickness(0, 0, 10, 0) };
                 card.BindWeapon(w);
@@ -77,8 +75,7 @@ public partial class DeckPicker : UserControl {
                 };
                 CardRow.Children.Add(card);
             }
-        }
-        else if (CurrentTab == DeckTab.Outfits) {
+        } else if (CurrentTab == DeckTab.Outfits) {
             foreach (var o in _outfits) {
                 var card = new ControlCard { Margin = new Thickness(0, 0, 10, 0) };
                 card.BindOutfit(o);
@@ -90,8 +87,7 @@ public partial class DeckPicker : UserControl {
                 };
                 CardRow.Children.Add(card);
             }
-        }
-        else if (CurrentTab == DeckTab.Scraps) {
+        } else if (CurrentTab == DeckTab.Scraps) {
             foreach (var s in _scraps) {
                 var card = new ControlCard { Margin = new Thickness(0, 0, 10, 0) };
                 card.BindScrap(s);
@@ -104,36 +100,34 @@ public partial class DeckPicker : UserControl {
                 CardRow.Children.Add(card);
             }
         }
-        DeckCountText.Text = $" — {CardRow.Children.Count} cards";
+        DeckCountText.Text = $"> {CardRow.Children.Count} UNITS DETECTED";
     }
 
     private void UpdateButtonHighlights() {
-        Color active = Lighten(_bgColor, 0.2);
-        Color inactive = Lighten(_bgColor, 0.1);
-        TabDwellersBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Dwellers ? active : inactive);
-        TabWeaponsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Weapons ? active : inactive);
-        TabOutfitsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Outfits ? active : inactive);
-        TabScrapsBtn.Background = new SolidColorBrush(CurrentTab == DeckTab.Scraps ? active : inactive);
+        SetTabStyle(TabDwellersBtn, CurrentTab == DeckTab.Dwellers);
+        SetTabStyle(TabWeaponsBtn, CurrentTab == DeckTab.Weapons);
+        SetTabStyle(TabOutfitsBtn, CurrentTab == DeckTab.Outfits);
+        SetTabStyle(TabScrapsBtn, CurrentTab == DeckTab.Scraps);
     }
 
-    private static Color Lighten(Color c, double amount) {
-        if (amount > 0) {
-            return Color.FromRgb(
-                (byte)Math.Max(0, Math.Min(255, c.R + (255 - c.R) * amount)),
-                (byte)Math.Max(0, Math.Min(255, c.G + (255 - c.G) * amount)),
-                (byte)Math.Max(0, Math.Min(255, c.B + (255 - c.B) * amount)));
+    private void SetTabStyle(Button btn, bool isActive) {
+        if (isActive) {
+            btn.SetResourceReference(Control.BackgroundProperty, "PlayerAccentBrush");
+            btn.SetResourceReference(Control.ForegroundProperty, "PlayerBgBrush");
+            btn.SetResourceReference(Control.BorderBrushProperty, "PlayerAccentBrush");
+            btn.SetResourceReference(UIElement.EffectProperty, "PlayerAccentGlow");
         } else {
-            double f = 1.0 + amount;
-            return Color.FromRgb(
-                (byte)Math.Max(0, Math.Min(255, c.R * f)),
-                (byte)Math.Max(0, Math.Min(255, c.G * f)),
-                (byte)Math.Max(0, Math.Min(255, c.B * f)));
+            btn.Background = Brushes.Transparent;
+            btn.SetResourceReference(Control.ForegroundProperty, "PlayerAccentDimBrush");
+            btn.SetResourceReference(Control.BorderBrushProperty, "PlayerAccentDimBrush");
+            btn.Effect = null;
         }
     }
 
     public void RefreshAll() {
-        foreach (ControlCard card in CardRow.Children)
+        foreach (ControlCard card in CardRow.Children) {
             card.RefreshHp();
+        }
     }
 
     private void OnTabDwellers(object s, RoutedEventArgs e) { CurrentTab = DeckTab.Dwellers; RefreshDeck(); }

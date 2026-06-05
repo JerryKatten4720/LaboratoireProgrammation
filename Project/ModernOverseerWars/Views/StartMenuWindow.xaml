@@ -1,6 +1,7 @@
 <Window x:Class="LaboratoireProgrammation.Project.ModernOverseerWars.Views.StartMenuWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wrappers="clr-namespace:LaboratoireProgrammation.Assets.shaders.wrappers"
         Title="ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM - OVERSEER WARS"
         Height="720" Width="1024"
         WindowStartupLocation="CenterScreen"
@@ -150,9 +151,32 @@
                 </Border>
             </StackPanel>
 
-            <Image Source="../../Assets/images/vaultTec.png" Grid.ColumnSpan="3" HorizontalAlignment="Center" Panel.ZIndex="-5" Opacity="0.05" Stretch="Uniform"/>
+            <Image Source="/Assets/images/vaultTec.png" Grid.ColumnSpan="3" HorizontalAlignment="Center" Panel.ZIndex="-5" Opacity="0.01" Stretch="Uniform"/>
         </Grid>
 
         <Button Grid.Row="2" x:Name="StartBtn" Content="> INITIALIZE SIMULATION" Style="{StaticResource TerminalButton}" Click="OnStart" Margin="0,64,0,0"/>
     </Grid>
+    
+    <Window.Effect>
+        <wrappers:CRT x:Name="VaultShader"
+                      DistortionStrength="0.2"
+                      CurveRadius="0.06"
+                      VignetteStrength="0.6"
+                      ScanlineIntensity="0.55"
+                      ScanlineCount="100.0"
+                      ScanlineSpeed="0.03"
+                      PixelGridIntensity="0.15"
+                      BloomStrength="0.4"
+                      ChromaticAberration="0.08"
+                      TintColor="#0FFF7F00"
+                      Brightness="2.0"
+                      Contrast="1.15"
+                      NoiseIntensity="0.0125"
+                      NoiseScale="0.8"
+                      FlickerIntensity="0.06"
+                      FlickerSpeed="0.6"
+                      PhosphorDecay="0.5"
+                      ScreenResolution="1080,720" />
+    </Window.Effect>
+    
 </Window>

@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:LaboratoireProgrammation.Project.ModernHospital"
+        xmlns:wrappers="clr-namespace:LaboratoireProgrammation.Assets.shaders.wrappers"
         mc:Ignorable="d" WindowStyle="None" WindowState="Maximized"
         Title="HospitalWindow" Height="900" Width="1600"
         Background="#0d0d0f">
@@ -13,7 +14,7 @@
         <SolidColorBrush x:Key="AccentTeal" Color="#00d4aa" />
         <SolidColorBrush x:Key="AccentTealDim" Color="#00a882" />
         <SolidColorBrush x:Key="AccentRed" Color="#ff4d6a" />
-        <SolidColorBrush x:Key="AccentAmber" Color="#ffb347" />
+        <SolidColorBrush x:Key="AccentAmber" Color="#8223c2" />
         <SolidColorBrush x:Key="AccentBlue" Color="#4d9fff" />
         <SolidColorBrush x:Key="AccentPurple" Color="#9b59ff" />
         <SolidColorBrush x:Key="TextPrimary" Color="#f0f0f5" />
@@ -1184,4 +1185,26 @@
             </StackPanel>
         </Grid>
     </Grid>
+    
+    <Window.Effect>
+        <wrappers:CRT x:Name="VaultShader"
+                      DistortionStrength="0.0"
+                      CurveRadius="0.00"
+                      VignetteStrength="0.2"
+                      ScanlineIntensity="0.25"
+                      ScanlineCount="100.0"
+                      ScanlineSpeed="0.00"
+                      PixelGridIntensity="0.05"
+                      BloomStrength="0.2"
+                      ChromaticAberration="0.04"
+                      TintColor="#0FFF7F00"
+                      Brightness="1.6"
+                      Contrast="1.2"
+                      NoiseIntensity="0.0125"
+                      NoiseScale="0.5"
+                      FlickerIntensity="0.06"
+                      FlickerSpeed="0.2"
+                      PhosphorDecay="0.5"
+                      ScreenResolution="1080,720" />
+    </Window.Effect>
 </Window>

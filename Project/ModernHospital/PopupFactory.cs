@@ -18,7 +18,7 @@ public static class PopupFactory {
         };
     }
 
-    public static void ShowAlert(Window owner, string message, string hexColor = "#FFB347") {
+    public static void ShowAlert(Window owner, string message, string hexColor = "#8223c2") {
         var alertPopup = CreateConfirmationPopup(message, hexColor, () => { });
         alertPopup.IsAlert = true;
         alertPopup.Owner = owner;

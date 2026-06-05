@@ -701,7 +701,7 @@ public partial class HospitalWindow : Window {
 
     private void ShowAlert(string message) {
         var alertPopup = PopupFactory.CreateConfirmationPopup(
-            message, "#FFB347", () => { }, () => { }
+            message, "#8223c2", () => { }, () => { }
         );
 
         alertPopup.Owner = this;

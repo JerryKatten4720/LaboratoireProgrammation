@@ -11,20 +11,24 @@
              PreviewMouseMove="OnPreviewMouseMove"
              PreviewMouseLeftButtonUp="OnPreviewMouseLeftButtonUp"
              MouseRightButtonDown="OnRightClick"
-             ClipToBounds="False">
+             ClipToBounds="False"
+             FontFamily="Consolas">
+             
     <UserControl.Resources>
+        <DropShadowEffect x:Key="TerminalGlow" Color="{Binding Foreground.Color, RelativeSource={RelativeSource Mode=Self}}" BlurRadius="8" ShadowDepth="0" Opacity="0.8"/>
+
         <Style x:Key="ThemedContextMenu" TargetType="ContextMenu">
             <Setter Property="Background" Value="{DynamicResource ThemeBgBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeFgBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="Padding" Value="4"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContextMenu">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
                                 Padding="{TemplateBinding Padding}">
                             <ScrollViewer CanContentScroll="True">
                                 <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
@@ -39,7 +43,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Separator">
-                        <Border Height="1" Background="{DynamicResource ThemeFgBrush}" Opacity="0.25" Margin="4,4,4,4"/>
+                        <Border Height="1" Background="{DynamicResource ThemeFgBrush}" Opacity="0.4" Margin="8,2"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -47,21 +51,18 @@
 
         <Style x:Key="ThemedMenuItem" TargetType="MenuItem">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeFgBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="MenuItem">
                         <Border x:Name="Border"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="Transparent"
-                                BorderThickness="1"
-                                CornerRadius="4"
+                                BorderThickness="0"
                                 SnapsToDevicePixels="True"
-                                Margin="2,1"
-                                Padding="8,5">
+                                Padding="12,8">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Icon"/>
@@ -71,7 +72,7 @@
 
                                 <Grid x:Name="IconGrid" Grid.Column="0" Margin="0,0,8,0" Width="14" Height="14">
                                     <ContentPresenter x:Name="Icon" ContentSource="Icon" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                    <TextBlock x:Name="CheckMark" Text="✓" Foreground="{DynamicResource ThemeFgBrush}" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
+                                    <TextBlock x:Name="CheckMark" Text="[X]" Foreground="{DynamicResource ThemeFgBrush}" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
                                 </Grid>
 
                                 <ContentPresenter x:Name="HeaderHost" Grid.Column="1"
@@ -81,27 +82,13 @@
 
                                 <Path x:Name="Arrow" Grid.Column="2"
                                       Data="M 0,0 L 4,4 L 0,8 Z"
-                                      Fill="White"
+                                      Fill="{DynamicResource ThemeFgBrush}"
                                       Margin="12,0,4,0"
                                       VerticalAlignment="Center"
                                       Visibility="Collapsed"/>
 
-                                <Popup x:Name="Popup"
-                                       Placement="Right"
-                                       HorizontalOffset="4"
-                                       VerticalOffset="-4"
-                                       AllowsTransparency="True"
-                                       Focusable="False"
-                                       IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="#151520"
-                                            BorderBrush="#556688"
-                                            BorderThickness="1.5"
-                                            CornerRadius="6"
-                                            Padding="4"
-                                            SnapsToDevicePixels="True">
-                                        <Border.Effect>
-                                            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Color="Black" Opacity="0.4"/>
-                                        </Border.Effect>
+                                <Popup x:Name="Popup" Placement="Right" HorizontalOffset="2" VerticalOffset="0" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border Background="{DynamicResource ThemeBgBrush}" BorderBrush="{DynamicResource ThemeFgBrush}" BorderThickness="2" Padding="0" SnapsToDevicePixels="True">
                                         <ScrollViewer CanContentScroll="True">
                                             <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
                                         </ScrollViewer>
@@ -117,10 +104,10 @@
                                 <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
                             </Trigger>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource ThemeFgBrush}"/>
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter TargetName="Arrow" Property="Fill" Value="{DynamicResource ThemeFgBrush}"/>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource ThemeFgBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemeBgBrush}"/>
+                                <Setter TargetName="Arrow" Property="Fill" Value="{DynamicResource ThemeBgBrush}"/>
+                                <Setter TargetName="CheckMark" Property="Foreground" Value="{DynamicResource ThemeBgBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.4"/>
@@ -130,10 +117,24 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style TargetType="ProgressBar" x:Key="TerminalHpBar">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
+                            <Grid>
+                                <Rectangle x:Name="PART_Track"/>
+                                <Rectangle x:Name="PART_Indicator" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Left"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid x:Name="RootGrid" ClipToBounds="False">
-
         <Grid x:Name="MainCardGrid" Background="Transparent" ClipToBounds="False" Panel.ZIndex="1" RenderTransformOrigin="0.5,0.5">
             <Grid.RenderTransform>
                 <TransformGroup>
@@ -157,7 +158,6 @@
             <Image x:Name="ImgColor" Source="/Assets/images/overseerWars/cards/card_color_common.png" Stretch="Fill"/>
             <Image x:Name="ImgBorder" Source="/Assets/images/overseerWars/cards/card_border_common.png" Stretch="Fill"/>
 
-            <!-- Holofoil Sweep Overlay -->
             <Border x:Name="HolofoilOverlay" CornerRadius="8" IsHitTestVisible="False" Visibility="Collapsed" Opacity="0.9">
                 <Border.Background>
                     <LinearGradientBrush x:Name="HolofoilBrush" StartPoint="0,0" EndPoint="1,1" MappingMode="RelativeToBoundingBox">
@@ -176,22 +176,21 @@
             <Grid VerticalAlignment="Bottom" Margin="6,0,6,6">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
-                        <Border x:Name="SupervisorBadge" Background="#CC8800" CornerRadius="3"
-                                Padding="3,1" Margin="0,0,4,0" Visibility="Collapsed" VerticalAlignment="Center">
-                            <TextBlock Text="★" FontSize="8" FontWeight="Bold" Foreground="Black"/>
+                        <Border x:Name="SupervisorBadge" Background="#FFD700" CornerRadius="0"
+                                Padding="4,2" Margin="0,0,4,0" Visibility="Collapsed" VerticalAlignment="Center">
+                            <TextBlock Text="★ SUP" FontSize="8" FontWeight="Bold" Foreground="Black"/>
                         </Border>
                         
                         <TextBlock Text="{Binding CardImage, ElementName=Root}"
                                    FontSize="12" FontWeight="Bold" Padding="0,0,0,122.5" Foreground="White"
-                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Opacity="0.7"/>
-                        
+                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Opacity="0.9"/>
                     </StackPanel>
                     
+                    <TextBlock x:Name="StatsLine" Text="S:3 P:3 E:3 C:3" FontSize="10" FontWeight="Bold" Foreground="#DDDDDD" HorizontalAlignment="Center"/>
                     
-                    <TextBlock x:Name="StatsLine" Text="S:3 P:3 E:3 C:3" FontSize="9" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                    <Grid Margin="0,3,0,0">
-                        <ProgressBar x:Name="HpBar" Margin="5,0,5,10" Height="15" Minimum="0" Maximum="100" Value="100" Background="#44333333" Foreground="#22BB44" BorderThickness="0" Opacity="0.8"/>
-                        <TextBlock x:Name="HpText" Text="HP" FontSize="10.8" Foreground="White" HorizontalAlignment="Center"/>
+                    <Grid Margin="0,4,0,0">
+                        <ProgressBar x:Name="HpBar" Style="{StaticResource TerminalHpBar}" Margin="8,0,8,12" Height="14" Minimum="0" Maximum="100" Value="100" Background="#33000000" Foreground="#1BFD02" Opacity="0.9"/>
+                        <TextBlock x:Name="HpText" Text="HP" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Effect="{StaticResource TerminalGlow}"/>
                     </Grid>
                 </StackPanel>
             </Grid>

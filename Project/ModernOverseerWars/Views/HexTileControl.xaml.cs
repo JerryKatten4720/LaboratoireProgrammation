@@ -62,7 +62,7 @@ public partial class HexTileControl : UserControl {
             TileType.Player1Vault => ("[V]", "Vault P1"),
             TileType.Player2Vault => ("[V]", "Vault P2"),
             TileType.Location     => ("[L]", BoundTile.LocationName),
-            _                     => ("",  "Wasteland"),
+            _                     => ("",  " "),
         };
 
         int p1 = BoundTile.Player1Dwellers.Count(d => d.IsAlive);
