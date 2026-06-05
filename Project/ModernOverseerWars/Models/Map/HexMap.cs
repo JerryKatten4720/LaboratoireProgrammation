@@ -12,7 +12,29 @@ public class HexMap {
 
     private static readonly string[] LocationNames = {
         "Super Duper Mart", "Red Rocket", "Sanctuary Hills",
-        "Diamond City", "Goodneighbor", "Corvega Factory"
+        "Diamond City", "Goodneighbor", "Corvega Factory",
+        "The Prydwen", "Railroad HQ", "The Institute", "Fort Hagen",
+        "Pickman Gallery", "Swan's Pond", "Combat Zone", "Vault 111",
+        "The Crater of Atom", "Nuka-World", "Far Harbor", "Acadia",
+        "The Nucleus", "Watoga", "The Whitespring Resort", "Foundation",
+        "The Crater", "Fort Defiance", "Cranberry Bog", "Harper's Ferry",
+
+        "Megaton", "Rivet City", "Tenpenny Tower", "Underworld",
+        "The Citadel", "Project Purity", "Little Lamplight", "Big Town",
+        "Paradise Falls", "Raven Rock", "Republic of Dave", "Girdershade",
+        "The Pitt", "Point Lookout", "Mothership Zeta", "Vault 101",
+
+        "New Vegas", "The Strip", "Goodsprings", "Hoover Dam",
+        "Freeside", "Primm", "Novac", "Helios One",
+        "Camp McCarran", "Camp Forlorn Hope", "The Fort", "Cottonwood Cove",
+        "Jacobstown", "Red Rock Canyon", "Nellis Air Force Base", "Hidden Valley",
+        "Sierra Madre Casino", "Big MT", "The Divide", "Zion Canyon",
+
+        "Shady Sands", "The Glow", "Necropolis", "The Hub",
+        "Junktown", "Boneyard", "Cathedral", "Mariposa Military Base",
+        "Arroyo", "Klamath", "Den", "Modoc",
+        "Vault City", "New Reno", "Redding", "Broken Hills",
+        "Gecko", "San Francisco", "Navarro", "Enclave Oil Rig"
     };
 
     public HexMap() {

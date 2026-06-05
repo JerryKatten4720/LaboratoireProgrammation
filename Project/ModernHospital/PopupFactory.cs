@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Media;
 
@@ -20,6 +20,7 @@ public static class PopupFactory {
 
     public static void ShowAlert(Window owner, string message, string hexColor = "#FFB347") {
         var alertPopup = CreateConfirmationPopup(message, hexColor, () => { });
+        alertPopup.IsAlert = true;
         alertPopup.Owner = owner;
         alertPopup.ShowDialog();
     }

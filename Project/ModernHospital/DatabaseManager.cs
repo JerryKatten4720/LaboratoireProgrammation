@@ -764,7 +764,46 @@ public class DatabaseManager {
 
     public void ReleaseBed(int idPatient) {
         var idLit = ExecuteScalar<int?>("SELECT IdLit FROM Patients_Actifs WHERE IdPatient=@id", cmd => cmd.Parameters.AddWithValue("@id", idPatient));
-        if (idLit.HasValue) FreeBed(idLit.Value);
+        if (idLit.HasValue) SetBedStatus(idLit.Value, "En Nettoyage");
+    }
+
+    public void SetBedStatus(int idLit, string statut) {
+        ExecuteCommand("UPDATE Lit SET Statut=@s WHERE IdLit=@id", cmd => {
+            cmd.Parameters.AddWithValue("@s", statut);
+            cmd.Parameters.AddWithValue("@id", idLit);
+        });
+    }
+
+    public List<int> GetLitsEnNettoyage() {
+        return GetList("SELECT IdLit FROM Lit WHERE Statut = 'En Nettoyage'", reader => reader.GetInt32(0));
+    }
+
+    public bool TryAutoAdmitFromWaitingRoom(Random rng) {
+        var waiting = GetWaitingRoomPatients();
+        if (waiting.Count == 0) return false;
+
+        var diseases = GetCasCliniques();
+        foreach (var p in waiting) {
+            var cas = diseases.FirstOrDefault(c => c.IdCas == p.IdMaladie);
+            if (cas == null) continue;
+
+            int? freeBed = GetFirstFreeBedForUnit(cas.UniteRequise);
+            if (!freeBed.HasValue) continue;
+
+            var docs = GetPersonnel()
+                .Where(d => d.Categorie == "Corps Médical" && d.Statut == "En poste" && GetDoctorActivePatientCount(d.IdEmploye) < 3)
+                .ToList();
+
+            int? docId = docs.Count > 0 ? (int?)docs[rng.Next(docs.Count)].IdEmploye : null;
+
+            try {
+                AdmitPatient(p.NomComplet, p.IdMaladie, freeBed.Value, docId, "Standard", cas.TempsTraitementHeures);
+                RemoveWaitingRoomPatient(p.IdPatientAttente);
+                IncrementPatientsAdmis();
+                return true;
+            } catch { }
+        }
+        return false;
     }
 
     public List<LitInventaire> GetLitsInventaire() {
@@ -1019,6 +1058,14 @@ public class DatabaseManager {
         string requiredSpecialty = diseaseInfo.SpecialisteTraitement;
         int? docId = diseaseInfo.IdMedecin;
 
+        int numJanitors = GetActivePersonnelCountByRole("Agent d'entretien");
+        int numBeds = Math.Max(1, GetBedsCount());
+        if (numJanitors > 0) {
+            baseRemission *= 1f + (0.10f * numJanitors / numBeds);
+        } else {
+            baseRemission *= 0.90f;
+        }
+
         float bonus = -15f;
         if (docId.HasValue) {
             var docSpecialty = ExecuteScalar<string>(
@@ -1107,15 +1154,30 @@ public class DatabaseManager {
     }
 
     public void CreateFactureHopital(string type, decimal montant, string description) {
+        CreateFactureHopital(type, montant, description, null);
+    }
+
+    public void CreateFactureHopital(string type, decimal montant, string description, List<LigneFacture>? lignes) {
         var day = ExecuteScalar<int>("SELECT JourSimulation FROM Hopital LIMIT 1");
         string code = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
-        ExecuteCommand("INSERT INTO Facture_Hopital (CodeFacture, JourEmission, TypeFacture, MontantTotal, Description, Statut) VALUES (@c, @j, @t, @m, @d, 'Payée')", cmd => {
+        string? lignesJson = lignes != null && lignes.Count > 0
+            ? Newtonsoft.Json.JsonConvert.SerializeObject(lignes)
+            : null;
+        ExecuteCommand("INSERT INTO Facture_Hopital (CodeFacture, JourEmission, TypeFacture, MontantTotal, Description, Statut, LignesJson) VALUES (@c, @j, @t, @m, @d, 'Payée', @lj)", cmd => {
             cmd.Parameters.AddWithValue("@c", code);
             cmd.Parameters.AddWithValue("@j", day);
             cmd.Parameters.AddWithValue("@t", type);
             cmd.Parameters.AddWithValue("@m", montant);
             cmd.Parameters.AddWithValue("@d", description);
+            cmd.Parameters.AddWithValue("@lj", (object?)lignesJson ?? DBNull.Value);
         });
+    }
+
+    public List<LigneFacture> GetLignesFactureHopital(int idFactureHopital) {
+        var json = ExecuteScalar<string?>("SELECT LignesJson FROM Facture_Hopital WHERE IdFactureHopital = @id",
+            cmd => cmd.Parameters.AddWithValue("@id", idFactureHopital));
+        if (string.IsNullOrEmpty(json)) return new List<LigneFacture>();
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<List<LigneFacture>>(json) ?? new List<LigneFacture>();
     }
 
     public List<FactureDisplayItem> GetFacturesHopital() {
@@ -1412,6 +1474,103 @@ public class DatabaseManager {
             return reader.IsDBNull(ordinal) ? null : reader.GetString(ordinal);
         } catch {
             return null;
+        }
+    }
+
+    public int GetActivePersonnelCountByRole(string roleExact) {
+        return ExecuteScalar<int>(
+            "SELECT COUNT(*) FROM Personnel_Actif WHERE RoleExact = @r",
+            cmd => cmd.Parameters.AddWithValue("@r", roleExact));
+    }
+
+    public int GetBedsCount() {
+        return ExecuteScalar<int>("SELECT COUNT(*) FROM Lit");
+    }
+
+    public int GetTotalEquipmentLevel() {
+        return ExecuteScalar<int>("SELECT COALESCE(SUM(NiveauEquipement), 1) FROM Chambre");
+    }
+
+    public int GetActivePatientCount() {
+        return ExecuteScalar<int>("SELECT COUNT(*) FROM Patients_Actifs WHERE Statut NOT IN ('Guéri','Décédé')");
+    }
+
+    public void TryOpenProces(PatientActif patient, int currentDay) {
+        var disease = GetSingle(
+            "SELECT TauxRemission, Maladie FROM Cas_Cliniques WHERE IdCas = @id",
+            reader => new { TauxRemission = reader.GetFloat(0), Maladie = reader.GetString(1) },
+            cmd => cmd.Parameters.AddWithValue("@id", patient.IdMaladie));
+
+        if (disease == null) return;
+
+        double roll = new Random().NextDouble() * 100.0;
+        if (roll > disease.TauxRemission) return;
+
+        ExecuteCommand(
+            "INSERT INTO Proces (NomPatient, NomMaladie, TauxRemission, JourOuverture, JourFermeture, Statut, MontantPenalite) VALUES (@np, @nm, @tr, @jo, @jf, 'En cours', 0)",
+            cmd => {
+                cmd.Parameters.AddWithValue("@np", patient.Nom);
+                cmd.Parameters.AddWithValue("@nm", disease.Maladie);
+                cmd.Parameters.AddWithValue("@tr", disease.TauxRemission);
+                cmd.Parameters.AddWithValue("@jo", currentDay);
+                cmd.Parameters.AddWithValue("@jf", currentDay + 7);
+            });
+    }
+
+    public List<Proces> GetProces() {
+        return GetList("SELECT * FROM Proces ORDER BY JourFermeture ASC", reader => new Proces {
+            IdProces = reader.GetInt32("IdProces"),
+            NomPatient = reader.GetString("NomPatient"),
+            NomMaladie = reader.GetString("NomMaladie"),
+            TauxRemission = reader.GetFloat("TauxRemission"),
+            JourOuverture = reader.GetInt32("JourOuverture"),
+            JourFermeture = reader.GetInt32("JourFermeture"),
+            Statut = reader.GetString("Statut"),
+            MontantPenalite = reader.GetDecimal("MontantPenalite")
+        });
+    }
+
+    public void ResolveExpiredProces(int currentDay, decimal hospitalBudget, Action<string, decimal> onLoss) {
+        var expired = GetList(
+            "SELECT * FROM Proces WHERE Statut = 'En cours' AND JourFermeture <= @d",
+            reader => new Proces {
+                IdProces = reader.GetInt32("IdProces"),
+                NomPatient = reader.GetString("NomPatient"),
+                NomMaladie = reader.GetString("NomMaladie"),
+                TauxRemission = reader.GetFloat("TauxRemission"),
+                JourOuverture = reader.GetInt32("JourOuverture"),
+                JourFermeture = reader.GetInt32("JourFermeture"),
+                Statut = reader.GetString("Statut"),
+                MontantPenalite = 0
+            },
+            cmd => cmd.Parameters.AddWithValue("@d", currentDay));
+
+        if (expired.Count == 0) return;
+
+        int numLawyers = GetActivePersonnelCountByRole("Avocat");
+        int numActive = Math.Max(1, expired.Count);
+
+        foreach (var p in expired) {
+            double lossPct = p.TauxRemission / (0.5 * Math.Max(0.01, (double)numLawyers / numActive));
+            lossPct = Math.Min(100.0, lossPct);
+
+            double lossRoll = new Random().NextDouble() * 100.0;
+            if (lossRoll <= lossPct) {
+                decimal penalty = hospitalBudget * ((decimal)p.TauxRemission / 100m);
+                ExecuteCommand(
+                    "UPDATE Proces SET Statut = 'Perdu', MontantPenalite = @m WHERE IdProces = @id",
+                    cmd => {
+                        cmd.Parameters.AddWithValue("@m", penalty);
+                        cmd.Parameters.AddWithValue("@id", p.IdProces);
+                    });
+                AddBudget(-penalty, $"Perte procès : {p.NomPatient} ({p.NomMaladie})", currentDay, "Procès Perdu");
+                CreateFactureHopital("Procès Perdu", penalty, $"Condamnation judiciaire suite au décès de {p.NomPatient}. Maladie : {p.NomMaladie}. Taux de rémission était {p.TauxRemission:F1}%.");
+                onLoss($"Procès perdu : {p.NomPatient}", penalty);
+            } else {
+                ExecuteCommand(
+                    "UPDATE Proces SET Statut = 'Gagné' WHERE IdProces = @id",
+                    cmd => cmd.Parameters.AddWithValue("@id", p.IdProces));
+            }
         }
     }
 

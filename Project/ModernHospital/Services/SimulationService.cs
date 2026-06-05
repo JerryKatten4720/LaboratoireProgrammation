@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Threading;
 
@@ -11,6 +12,8 @@ public class SimulationService : IDisposable {
     private DateTime _lastDoctorUpdate = DateTime.MinValue;
     private DateTime _lastPatientUpdate = DateTime.MinValue;
     private int _lastSimulatedDay = 1;
+    private int _minutesToNextAutoAdmit = 180;
+    private readonly Dictionary<int, float> _bedCleaningProgress = new();
 
     public DateTime GameTime => _gameTime;
 
@@ -174,6 +177,8 @@ public class SimulationService : IDisposable {
         UpdatePatientsTreatmentStep(minutesPassed);
         UpdateWaitingRoom(minutesPassed, false);
         UpdateMedicamentDeliveries(minutesPassed, false);
+        UpdateCleaningRooms(minutesPassed);
+        UpdateAdminAutoAdmit(minutesPassed);
     }
 
     private void UpdatePatientsTreatmentStep(int minutesPassed) {
@@ -181,6 +186,34 @@ public class SimulationService : IDisposable {
         var activePatients = _db.GetPatientsRaw().Where(p => p.Statut == "En Diagnostic" || p.Statut == "En Traitement").ToList();
         var docs = _db.GetPersonnel().ToDictionary(d => d.IdEmploye, d => d);
         bool changed = false;
+
+        int numActivePatients = Math.Max(1, activePatients.Count);
+        int numAdmins = _db.GetActivePersonnelCountByRole("Agent Administratif");
+        int numBrancardiers = _db.GetActivePersonnelCountByRole("Brancardier");
+        int numBioTechs = _db.GetActivePersonnelCountByRole("Technicien Biomédical");
+        int numMachines = Math.Max(1, _db.GetTotalEquipmentLevel());
+
+        float timeSpeedFactor = 1.0f;
+        if (numAdmins > 0) {
+            timeSpeedFactor *= 1f - (0.05f * numAdmins / numActivePatients);
+        }
+        if (numBrancardiers > 0) {
+            timeSpeedFactor *= 1f - (0.05f * numBrancardiers / numActivePatients);
+        } else {
+            timeSpeedFactor *= 1f + (0.10f * numActivePatients / 1f);
+        }
+        timeSpeedFactor = Math.Max(0.1f, timeSpeedFactor);
+
+        float errorModifier = 1.0f;
+        if (numAdmins == 0) {
+            errorModifier *= 1f + (0.02f * numActivePatients);
+        }
+        if (numBioTechs > 0) {
+            errorModifier *= 1f - (0.08f * numBioTechs / numMachines);
+        } else {
+            errorModifier *= 1f + (0.15f * numMachines);
+        }
+        errorModifier = Math.Max(0.1f, errorModifier);
 
         foreach (var patient in activePatients) {
             bool docOnDuty = false;
@@ -194,7 +227,8 @@ public class SimulationService : IDisposable {
                 patient.TempsSansMedecin += hoursPassed;
             }
 
-            float newTime = patient.TempsTraitementRestant - hoursPassed;
+            float effectiveHours = hoursPassed * timeSpeedFactor;
+            float newTime = patient.TempsTraitementRestant - effectiveHours;
             if (newTime <= 0f) {
                 _db.UpdatePatientTempsSansMedecin(patient.IdPatient, patient.TempsSansMedecin);
                 
@@ -232,10 +266,11 @@ public class SimulationService : IDisposable {
                             var adverseDrugs = allDrugs.Where(d => d.GetIncompatiblesList().Any(i => i.IdCas == disease.IdCas)).ToList();
 
                             Medicament? selectedDrug = null;
-                            int errorChance = disease.RisqueErreurMedicale;
+                            int baseErrorChance = disease.RisqueErreurMedicale;
+                            int effectiveErrorChance = (int)Math.Min(100f, Math.Max(0f, baseErrorChance * errorModifier));
                             int roll = _random.Next(1, 101);
 
-                            if (roll <= errorChance) {
+                            if (roll <= effectiveErrorChance) {
                                 if (adverseDrugs.Count > 0) {
                                     selectedDrug = adverseDrugs[_random.Next(adverseDrugs.Count)];
                                 }
@@ -372,6 +407,59 @@ public class SimulationService : IDisposable {
         }
     }
 
+    private void UpdateCleaningRooms(int minutesPassed) {
+        var dirtyBeds = _db.GetLitsEnNettoyage();
+        if (dirtyBeds.Count == 0) {
+            _bedCleaningProgress.Clear();
+            return;
+        }
+
+        foreach (var id in dirtyBeds) {
+            if (!_bedCleaningProgress.ContainsKey(id))
+                _bedCleaningProgress[id] = 0f;
+        }
+        var stale = _bedCleaningProgress.Keys.Where(k => !dirtyBeds.Contains(k)).ToList();
+        foreach (var k in stale) _bedCleaningProgress.Remove(k);
+
+        int numJanitors = _db.GetActivePersonnelCountByRole("Agent d'entretien");
+        if (numJanitors == 0) return;
+
+        int numDirty = dirtyBeds.Count;
+        for (int i = 0; i < numDirty; i++) {
+            int bedId = dirtyBeds[i];
+            float janitorsHere = numJanitors >= numDirty
+                ? (float)numJanitors / numDirty
+                : (i < numJanitors ? 1f : 0f);
+
+            _bedCleaningProgress[bedId] += minutesPassed * janitorsHere;
+
+            if (_bedCleaningProgress[bedId] >= 60f) {
+                _db.SetBedStatus(bedId, "Libre");
+                _bedCleaningProgress.Remove(bedId);
+                OnEventLog?.Invoke($"🧹 Lit #{bedId} nettoyé et disponible.");
+                OnPatientsChanged?.Invoke();
+            }
+        }
+    }
+
+    private void UpdateAdminAutoAdmit(int minutesPassed) {
+        _minutesToNextAutoAdmit -= minutesPassed;
+        if (_minutesToNextAutoAdmit > 0) return;
+        _minutesToNextAutoAdmit = 180;
+
+        int numAdmins = _db.GetActivePersonnelCountByRole("Agent Administratif");
+        if (numAdmins == 0) return;
+
+        int admitted = 0;
+        for (int i = 0; i < numAdmins; i++) {
+            if (!_db.TryAutoAdmitFromWaitingRoom(_random)) break;
+            admitted++;
+            OnEventLog?.Invoke($"📋 Agent administratif : patient assigné automatiquement depuis la salle d'attente.");
+            OnNotification?.Invoke("Patient assigné par l'administration", "Bleu");
+        }
+        if (admitted > 0) OnPatientsChanged?.Invoke();
+    }
+
     private void UpdateMedicamentDeliveries(int minutesPassed, bool isOffline) {
         var deliveries = _db.GetPendingDeliveries();
         bool changed = false;
@@ -411,28 +499,48 @@ public class SimulationService : IDisposable {
     private void ExecuteDayTransition(int newDay) {
         var personnel = _db.GetPersonnel();
         decimal totalSalaries = 0;
+
+        var lignesSalaires = new List<LigneFacture>();
         foreach (var emp in personnel) {
             totalSalaries += emp.SalaireJour;
+            lignesSalaires.Add(new LigneFacture {
+                TypePrestation = emp.RoleExact ?? emp.Categorie,
+                Description = $"{emp.NomComplet} — {emp.RoleExact ?? emp.Categorie}",
+                Quantite = 1,
+                PrixUnitaire = emp.SalaireJour,
+                SousTotal = emp.SalaireJour
+            });
         }
+
         if (totalSalaries > 0) {
             _db.AddBudget(-totalSalaries, $"Salaires du personnel (Jour {newDay - 1})", newDay - 1, "Paiement Salaire");
-            _db.CreateFactureHopital("Paiement Salaire", totalSalaries, $"Salaires versés au personnel hospitalier pour le Jour {newDay - 1}.");
+            _db.CreateFactureHopital("Paiement Salaire", totalSalaries, $"Salaires versés au personnel hospitalier pour le Jour {newDay - 1}.", lignesSalaires);
         }
 
         var unites = _db.GetUnites();
         decimal totalMaintenance = 0;
+
+        var lignesEntretien = new List<LigneFacture>();
         foreach (var u in unites) {
             totalMaintenance += u.CoutEntretienJour;
+            lignesEntretien.Add(new LigneFacture {
+                TypePrestation = "Entretien",
+                Description = u.Nom,
+                Quantite = 1,
+                PrixUnitaire = u.CoutEntretienJour,
+                SousTotal = u.CoutEntretienJour
+            });
         }
+
         if (totalMaintenance > 0) {
             _db.AddBudget(-totalMaintenance, $"Frais d'entretien des services (Jour {newDay - 1})", newDay - 1, "Frais Entretien");
-            _db.CreateFactureHopital("Frais Entretien", totalMaintenance, $"Frais de maintenance et d'entretien des services hospitaliers pour le Jour {newDay - 1}.");
+            _db.CreateFactureHopital("Frais Entretien", totalMaintenance, $"Frais de maintenance et d'entretien des services hospitaliers pour le Jour {newDay - 1}.", lignesEntretien);
         }
 
         decimal funeralFees = _db.GetAccumulatedFuneralFees();
         if (funeralFees > 0) {
             _db.AddBudget(-funeralFees, $"Services Funéraires (Jour {newDay - 1})", newDay - 1, "Frais Funéraires");
-            _db.CreateFactureHopital("Services Funéraires", funeralFees, $"Frais de services funéraires pour les cadavres qui n'ont pas pu être placés en Chambre froide le Jour {newDay - 1}.");
+            _db.CreateFactureHopital("Frais Funéraires", funeralFees, $"Frais de services funéraires pour les cadavres qui n'ont pas pu être placés en Chambre froide le Jour {newDay - 1}.");
             _db.ResetAccumulatedFuneralFees();
         }
 
@@ -445,6 +553,14 @@ public class SimulationService : IDisposable {
 
         _db.UpdateHospitalTime(newDay, _gameTime.TimeOfDay);
         OnEventLog?.Invoke($"📅 Jour {newDay} : Paie du personnel (-{totalSalaries:N0} $), Frais d'entretien (-{totalMaintenance:N0} $) & Frais logistiques (-{logisticalFees:N0} $)");
+
+        var hosp = _db.GetHospital();
+        if (hosp != null) {
+            _db.ResolveExpiredProces(newDay, hosp.Budget, (nom, montant) => {
+                OnEventLog?.Invoke($"⚖️ Procès perdu ({nom}) : -{montant:N0} $ déduits.");
+                OnNotification?.Invoke($"Procès perdu : {nom}", "Rouge");
+            });
+        }
     }
 
     public void CatchUpSimulation() {
@@ -470,6 +586,8 @@ public class SimulationService : IDisposable {
             UpdatePatientsTreatmentStep(1);
             UpdateWaitingRoom(1, true);
             UpdateMedicamentDeliveries(1, true);
+            UpdateCleaningRooms(1);
+            UpdateAdminAutoAdmit(1);
             CheckDayTransition();
         }
 

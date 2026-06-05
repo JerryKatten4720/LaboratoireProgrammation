@@ -1,21 +1,14 @@
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using LaboratoireProgrammation.Project.ModernOverseerWars.Helpers;
 using LaboratoireProgrammation.Project.ModernOverseerWars.Models;
 
 namespace LaboratoireProgrammation.Project.ModernOverseerWars.Views;
 
-public class ThemeViewModel {
-    public PlayerTheme Theme        { get; init; } = null!;
-    public Color       DisplayColor { get; init; }
-    public static ThemeViewModel From(PlayerTheme t) {
-        var c = (Color)ColorConverter.ConvertFromString(t.Color);
-        return new() { Theme = t, DisplayColor = c };
-    }
-}
-
 public partial class StartMenuWindow : Window {
-
     public PlayerProfile Profile1 { get; } = new() { Index = 0 };
     public PlayerProfile Profile2 { get; } = new() { Index = 1 };
 
@@ -24,76 +17,116 @@ public partial class StartMenuWindow : Window {
 
     public StartMenuWindow() {
         InitializeComponent();
-        var vms = PlayerThemes.All.Select(ThemeViewModel.From).ToList();
-        P1Themes.ItemsSource = vms;
-        P2Themes.ItemsSource = vms;
-        P1Name.TextChanged += (s, e) => UpdatePreviews();
-        P2Name.TextChanged += (s, e) => UpdatePreviews();
+        InitializeThemes();
+        HookEvents();
         UpdatePreviews();
     }
 
-    private void OnP1ThemeClick(object s, System.Windows.Input.MouseButtonEventArgs e) {
-        if (s is FrameworkElement el && el.Tag is ThemeViewModel vm) {
-            int newIdx = PlayerThemes.All.ToList().IndexOf(vm.Theme);
-            if (newIdx == _p2ThemeIdx) return;
-            _p1ThemeIdx = newIdx;
-            UpdatePreviews();
-        }
+    private void InitializeThemes() {
+        var viewModels = PlayerThemes.All.Select(ThemeViewModel.From).ToList();
+        P1Themes.ItemsSource = viewModels;
+        P2Themes.ItemsSource = viewModels;
     }
-    private void OnP2ThemeClick(object s, System.Windows.Input.MouseButtonEventArgs e) {
-        if (s is FrameworkElement el && el.Tag is ThemeViewModel vm) {
-            int newIdx = PlayerThemes.All.ToList().IndexOf(vm.Theme);
-            if (newIdx == _p1ThemeIdx) return;
-            _p2ThemeIdx = newIdx;
-            UpdatePreviews();
-        }
+
+    private void HookEvents() {
+        P1Name.TextChanged += (_, _) => UpdatePreviews();
+        P2Name.TextChanged += (_, _) => UpdatePreviews();
+    }
+
+    private void OnP1ThemeClick(object sender, MouseButtonEventArgs e) {
+        HandleThemeSelection(sender, ref _p1ThemeIdx, _p2ThemeIdx);
+    }
+
+    private void OnP2ThemeClick(object sender, MouseButtonEventArgs e) {
+        HandleThemeSelection(sender, ref _p2ThemeIdx, _p1ThemeIdx);
+    }
+
+    private void HandleThemeSelection(object sender, ref int targetIndex, int otherIndex) {
+        if (sender is not FrameworkElement { Tag: ThemeViewModel vm }) return;
+        
+        int newIdx = PlayerThemes.All.ToList().IndexOf(vm.Theme);
+        
+        if (newIdx == otherIndex) return;
+        
+        targetIndex = newIdx;
+        UpdatePreviews();
     }
 
     private void UpdatePreviews() {
-        var t1 = PlayerThemes.All[_p1ThemeIdx];
-        var t2 = PlayerThemes.All[_p2ThemeIdx];
-        P1Preview.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(t1.BgColor));
-        P1PreviewText.Text   = P1Name.Text;
-        P1PreviewText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(t1.Color));
-        P2Preview.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(t2.BgColor));
-        P2PreviewText.Text   = P2Name.Text;
-        P2PreviewText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(t2.Color));
+        ApplyThemeToPreview(P1Preview, P1PreviewText, P1Name.Text, PlayerThemes.All[_p1ThemeIdx]);
+        ApplyThemeToPreview(P2Preview, P2PreviewText, P2Name.Text, PlayerThemes.All[_p2ThemeIdx]);
 
         RefreshDotSelection(P1Themes, _p1ThemeIdx, _p2ThemeIdx);
         RefreshDotSelection(P2Themes, _p2ThemeIdx, _p1ThemeIdx);
     }
 
-    private static void RefreshDotSelection(ItemsControl list, int selectedIdx, int otherIdx) {
+    private void ApplyThemeToPreview(Border previewBox, TextBlock previewText, string playerName, PlayerTheme theme) {
+        previewBox.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.BgColor));
+        previewText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.Color));
+        previewBox.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(theme.Color));
+        previewText.Text = playerName;
+    }
+
+    private void RefreshDotSelection(ItemsControl list, int selectedIdx, int otherIdx) {
         list.UpdateLayout();
+        
         for (int i = 0; i < list.Items.Count; i++) {
             var container = list.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
             if (container == null) continue;
-            var border = FindChild<Border>(container);
-            if (border == null) continue;
-            var check  = FindChild<TextBlock>(border);
-            if (check  == null) continue;
-            check.Visibility = (i == selectedIdx) ? Visibility.Visible : Visibility.Collapsed;
-            border.BorderThickness = (i == selectedIdx) ? new Thickness(2) : new Thickness(0);
-            border.BorderBrush = new SolidColorBrush(Colors.White);
-            container.Opacity = (i == otherIdx) ? 0.3 : 1.0;
+            
+            var border = UIHelper.FindVisualChild<Border>(container);
+            var check = UIHelper.FindVisualChild<TextBlock>(container);
+            
+            if (border == null || check == null) continue;
+            
+            bool isSelected = i == selectedIdx;
+            bool isTaken = i == otherIdx;
+            
+            check.Visibility = isSelected ? Visibility.Visible : Visibility.Collapsed;
+            border.BorderThickness = isSelected ? new Thickness(3) : new Thickness(1);
+            border.BorderBrush = new SolidColorBrush(isSelected ? Colors.White : Colors.Transparent);
+            container.Opacity = isTaken ? 0.15 : 1.0;
         }
     }
 
-    private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject {
-        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++) {
-            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-            if (child is T t) return t;
-            var result = FindChild<T>(child);
-            if (result != null) return result;
-        }
-        return null;
-    }
-
-    private void OnStart(object s, RoutedEventArgs e) {
-        Profile1.Pseudo = string.IsNullOrWhiteSpace(P1Name.Text) ? "Player 1" : P1Name.Text;
-        Profile1.Theme  = PlayerThemes.All[_p1ThemeIdx];
-        Profile2.Pseudo = string.IsNullOrWhiteSpace(P2Name.Text) ? "Player 2" : P2Name.Text;
-        Profile2.Theme  = PlayerThemes.All[_p2ThemeIdx];
+    private void OnStart(object sender, RoutedEventArgs e) {
+        Profile1.Pseudo = string.IsNullOrWhiteSpace(P1Name.Text) ? "Wanderer" : P1Name.Text;
+        Profile1.Theme = PlayerThemes.All[_p1ThemeIdx];
+        
+        Profile2.Pseudo = string.IsNullOrWhiteSpace(P2Name.Text) ? "Courier" : P2Name.Text;
+        Profile2.Theme = PlayerThemes.All[_p2ThemeIdx];
+        
         DialogResult = true;
+    }
+}
+
+public class ThemeViewModel {
+    public PlayerTheme Theme { get; init; } = null!;
+    public Color DisplayColor { get; init; }
+
+    public static ThemeViewModel From(PlayerTheme t) {
+        return new ThemeViewModel {
+            Theme = t,
+            DisplayColor = (Color)ColorConverter.ConvertFromString(t.Color)
+        };
+    }
+}
+
+public static class UIHelper {
+    public static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++) {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            
+            if (child is T typedChild) {
+                return typedChild;
+            }
+            
+            var result = FindVisualChild<T>(child);
+            if (result != null) {
+                return result;
+            }
+        }
+        
+        return null;
     }
 }

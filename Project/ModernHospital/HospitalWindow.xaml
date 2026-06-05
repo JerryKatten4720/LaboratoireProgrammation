@@ -325,6 +325,7 @@
                             <Button x:Name="BtnReservations" Content="📋  Réservations" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="reservations" />
                             <Button x:Name="BtnSalleAttente" Content="⏳  Salle d'Attente" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="salleattente" />
                             <Button x:Name="BtnAdmin" Content="🛡  Administration" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="admin" />
+                            <Button x:Name="BtnProces" Content="⚖️  Procès" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="proces" />
                         </StackPanel>
 
                         <Border DockPanel.Dock="Bottom" Margin="12,0,12,20">
@@ -1087,6 +1088,60 @@
                                     </Style>
                                 </DataGrid.Resources>
                             </DataGrid>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="PanelProces" Visibility="Collapsed" Margin="28,24,28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="⚖️ Procès" Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI Black" FontSize="28" />
+                            <TextBlock Text="Suivi des procédures judiciaires initiées suite aux décès de patients" Foreground="{StaticResource TextSecondary}" FontSize="13" />
+                        </StackPanel>
+
+                        <Grid Grid.Row="1" Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="{StaticResource BgCard}" CornerRadius="10" BorderBrush="{StaticResource Border}" BorderThickness="1" Padding="16,14" Margin="0,0,8,0">
+                                <StackPanel>
+                                    <TextBlock Text="EN COURS" Foreground="{StaticResource TextDim}" FontFamily="Segoe UI Semibold" FontSize="10" />
+                                    <TextBlock x:Name="TbProcesEnCours" Text="—" Foreground="{StaticResource AccentAmber}" FontFamily="Consolas" FontSize="28" FontWeight="Bold" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Background="{StaticResource BgCard}" CornerRadius="10" BorderBrush="{StaticResource Border}" BorderThickness="1" Padding="16,14" Margin="4,0">
+                                <StackPanel>
+                                    <TextBlock Text="PERDUS" Foreground="{StaticResource TextDim}" FontFamily="Segoe UI Semibold" FontSize="10" />
+                                    <TextBlock x:Name="TbProcesLost" Text="—" Foreground="{StaticResource AccentRed}" FontFamily="Consolas" FontSize="28" FontWeight="Bold" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Background="{StaticResource BgCard}" CornerRadius="10" BorderBrush="{StaticResource Border}" BorderThickness="1" Padding="16,14" Margin="8,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="TOTAL AMENDES" Foreground="{StaticResource TextDim}" FontFamily="Segoe UI Semibold" FontSize="10" />
+                                    <TextBlock x:Name="TbProcesPenalties" Text="— $" Foreground="{StaticResource AccentRed}" FontFamily="Consolas" FontSize="28" FontWeight="Bold" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="12" BorderBrush="{StaticResource Border}" BorderThickness="1" Padding="8">
+                            <ListView x:Name="DgProces">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Patient" Width="160" DisplayMemberBinding="{Binding NomPatient}" />
+                                        <GridViewColumn Header="Maladie" Width="160" DisplayMemberBinding="{Binding NomMaladie}" />
+                                        <GridViewColumn Header="Taux Rémission" Width="120" DisplayMemberBinding="{Binding TauxRemissionAffichage}" />
+                                        <GridViewColumn Header="Jour Ouverture" Width="120" DisplayMemberBinding="{Binding JourOuverture}" />
+                                        <GridViewColumn Header="Jugement (Jour)" Width="120" DisplayMemberBinding="{Binding JourFermeture}" />
+                                        <GridViewColumn Header="Statut" Width="200" DisplayMemberBinding="{Binding StatutAffichage}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
                         </Border>
                     </Grid>
 

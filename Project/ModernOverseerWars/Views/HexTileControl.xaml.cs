@@ -23,8 +23,8 @@ public partial class HexTileControl : UserControl {
 
     public static Color ActivePlayerColor { get; set; } = Color.FromRgb(0x41, 0x52, 0x1F);
 
-    private static readonly Color FogColor      = Color.FromRgb(0x14, 0x12, 0x14);
-    private static readonly Color ExploredColor = Color.FromRgb(0x33, 0x36, 0x3B);
+    private static readonly Color FogColor      = Color.FromRgb(5, 4, 5);
+    private static readonly Color ExploredColor = Color.FromRgb(17, 17, 17);
 
     public event Action<HexTileControl, ControlCard>? CardDropped;
 
@@ -59,10 +59,10 @@ public partial class HexTileControl : UserControl {
         }
 
         (TileIcon.Text, TileLabel.Text) = BoundTile.Type switch {
-            TileType.Player1Vault => ("🏠", "Vault P1"),
-            TileType.Player2Vault => ("💀", "Vault P2"),
-            TileType.Location     => ("🏪", BoundTile.LocationName),
-            _                     => ("·",  "Wasteland"),
+            TileType.Player1Vault => ("[V]", "Vault P1"),
+            TileType.Player2Vault => ("[V]", "Vault P2"),
+            TileType.Location     => ("[L]", BoundTile.LocationName),
+            _                     => ("",  "Wasteland"),
         };
 
         int p1 = BoundTile.Player1Dwellers.Count(d => d.IsAlive);
@@ -90,6 +90,11 @@ public partial class HexTileControl : UserControl {
             DwellersPanel.Children.Add(new Viewbox { Width = 90, Height = 90, Child = card, Margin = new Thickness(0) });
         }
 
+        TileIcon.Foreground = new SolidColorBrush(Colors.White);
+        TileLabel.Foreground = new SolidColorBrush(Colors.White);
+        TileIcon.FontWeight = FontWeights.Bold;
+        TileLabel.FontWeight = FontWeights.Bold;
+        
         UpdateVisual();
         if (BoundTile.HasConflict) {
             HexShape.Stroke = new SolidColorBrush(Color.FromRgb(220, 60, 60));

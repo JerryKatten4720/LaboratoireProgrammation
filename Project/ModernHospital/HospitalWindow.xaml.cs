@@ -84,7 +84,7 @@ public partial class HospitalWindow : Window {
         }
 
         var steps = new List<(string Name, Action Action)> {
-            ("Vérification des transactions...", () => _db.ExecuteCommand("ALTER TABLE Transactions_Financieres MODIFY COLUMN TypeTransaction ENUM('Revenu Patient', 'Paiement Salaire', 'Achat Équipement', 'Embauche', 'Frais Entretien', 'Remboursement Prêt', 'Facturation Patient', 'Dépense Construction', 'Frais Funéraires', 'Achat Médicaments', 'Frais Logistiques') NOT NULL")),
+            ("Vérification des transactions...", () => _db.ExecuteCommand("ALTER TABLE Transactions_Financieres MODIFY COLUMN TypeTransaction ENUM('Revenu Patient', 'Paiement Salaire', 'Achat Équipement', 'Embauche', 'Frais Entretien', 'Remboursement Prêt', 'Facturation Patient', 'Dépense Construction', 'Frais Funéraires', 'Achat Médicaments', 'Frais Logistiques', 'Procès Perdu') NOT NULL")),
             ("Vérification de la structure des chambres (1/3)...", () => _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard', 'Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL")),
             ("Vérification de la structure des chambres (2/3)...", () => _db.ExecuteCommand("UPDATE Chambre SET TypeChambre = 'Standard - Commune' WHERE TypeChambre = 'Standard'")),
             ("Vérification de la structure des chambres (3/3)...", () => _db.ExecuteCommand("ALTER TABLE Chambre MODIFY COLUMN TypeChambre ENUM('Standard - Individuel', 'Standard - Commune', 'Soins Intensifs', 'Isolement', 'Bloc Opératoire') NOT NULL")),
@@ -233,6 +233,57 @@ public partial class HospitalWindow : Window {
                 _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Obstétrique'");
                 _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Général' WHERE Specialite = 'Gynécologie'");
                 _db.ExecuteCommand("UPDATE To_Hire SET Specialite = 'Urgences' WHERE Specialite = 'Soins Intensifs'");
+            }),
+            ("Mise à jour des candidats non-médicaux...", () => {
+                string[] obsoleteRoles = { "Régulateur Flux", "Gestionnaire Dossiers", "Support IT",
+                    "Travailleur Social", "Représentant Patient", "Inteprète", "Interprète",
+                    "Aumônier", "Agent EVS", "Gestionnaire Déchets", "Agent Sécurité", "Spécialiste Codage" };
+                string inClause = string.Join(",", obsoleteRoles.Select(r => $"'{r}'"));
+                try {
+                    _db.ExecuteCommand($"DELETE FROM To_Hire WHERE RoleExact IN ({inClause})");
+                    _db.ExecuteCommand($"DELETE FROM Personnel_Actif WHERE RoleExact IN ({inClause})");
+                } catch { }
+
+                int count = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM To_Hire WHERE RoleExact = 'Agent Administratif'");
+                if (count == 0) {
+                    _db.ExecuteCommand("INSERT INTO To_Hire (Nom, Prenom, Categorie, RoleExact, Specialite, SalaireJour, PrimeEmbauche) VALUES ('Beaumont', 'Claire', 'Administration', 'Agent Administratif', NULL, 300.00, 500.00), ('Dupin', 'Marc', 'Administration', 'Agent Administratif', NULL, 280.00, 450.00), ('Fontaine', 'Lise', 'Administration', 'Agent Administratif', NULL, 320.00, 600.00)");
+                }
+                count = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM To_Hire WHERE RoleExact = 'Agent d\u0027entretien'");
+                if (count == 0) {
+                    _db.ExecuteCommand("INSERT INTO To_Hire (Nom, Prenom, Categorie, RoleExact, Specialite, SalaireJour, PrimeEmbauche) VALUES ('Filch', 'Argus', 'Logistique & Support', 'Agent d\\'entretien', NULL, 200.00, 200.00), ('Muntz', 'Nelson', 'Logistique & Support', 'Agent d\\'entretien', NULL, 210.00, 250.00)");
+                }
+                count = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM To_Hire WHERE RoleExact = 'Brancardier'");
+                if (count == 0) {
+                    _db.ExecuteCommand("INSERT INTO To_Hire (Nom, Prenom, Categorie, RoleExact, Specialite, SalaireJour, PrimeEmbauche) VALUES ('Valjean', 'Jean', 'Logistique & Support', 'Brancardier', 'Transport', 250.00, 300.00), ('Javert', 'Inspecteur', 'Logistique & Support', 'Brancardier', 'Urgences', 280.00, 400.00)");
+                }
+                count = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM To_Hire WHERE RoleExact = 'Technicien Biomédical'");
+                if (count == 0) {
+                    _db.ExecuteCommand("INSERT INTO To_Hire (Nom, Prenom, Categorie, RoleExact, Specialite, SalaireJour, PrimeEmbauche) VALUES ('MacGyver', 'Angus', 'Logistique & Support', 'Technicien Biomédical', 'Maintenance', 600.00, 2500.00), ('Scott', 'Montgomery', 'Logistique & Support', 'Technicien Biomédical', 'Équipement lourd', 580.00, 2000.00)");
+                }
+                count = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM To_Hire WHERE RoleExact = 'Comptable'");
+                if (count == 0) {
+                    _db.ExecuteCommand("INSERT INTO To_Hire (Nom, Prenom, Categorie, RoleExact, Specialite, SalaireJour, PrimeEmbauche) VALUES ('Scrooge', 'Ebenezer', 'Administration', 'Comptable', 'Facturation', 500.00, 1500.00), ('Krabs', 'Eugene', 'Administration', 'Comptable', 'Assurances', 450.00, 1000.00)");
+                }
+                count = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM To_Hire WHERE RoleExact = 'Avocat'");
+                if (count == 0) {
+                    _db.ExecuteCommand("INSERT INTO To_Hire (Nom, Prenom, Categorie, RoleExact, Specialite, SalaireJour, PrimeEmbauche) VALUES ('Murdock', 'Matt', 'Service Juridique', 'Avocat', 'Défense', 700.00, 3000.00), ('Walters', 'Jennifer', 'Service Juridique', 'Avocat', 'Médecine légale', 750.00, 3500.00)");
+                }
+            }),
+            ("Création de la table Procès...", () => {
+                _db.ExecuteCommand(@"
+                    CREATE TABLE IF NOT EXISTS Proces (
+                        IdProces INT AUTO_INCREMENT PRIMARY KEY,
+                        NomPatient VARCHAR(100) NOT NULL,
+                        NomMaladie VARCHAR(100) NOT NULL,
+                        TauxRemission FLOAT NOT NULL,
+                        JourOuverture INT NOT NULL,
+                        JourFermeture INT NOT NULL,
+                        Statut VARCHAR(20) DEFAULT 'En cours',
+                        MontantPenalite DECIMAL(15,2) DEFAULT 0.00
+                    )");
+            }),
+            ("Ajout du détail des factures hôpital...", () => {
+                try { _db.ExecuteCommand("ALTER TABLE Facture_Hopital ADD COLUMN LignesJson MEDIUMTEXT NULL"); } catch {}
             })
         };
 
@@ -304,6 +355,7 @@ public partial class HospitalWindow : Window {
         PanelReservations.Visibility = Visibility.Collapsed;
         PanelSalleAttente.Visibility = Visibility.Collapsed;
         PanelAdmin.Visibility = Visibility.Collapsed;
+        PanelProces.Visibility = Visibility.Collapsed;
 
         switch (tag) {
             case "dashboard":
@@ -355,6 +407,10 @@ public partial class HospitalWindow : Window {
                     var selectedItem = (ComboBoxItem)CbAdminTables.SelectedItem;
                     LoadTableData(selectedItem.Content.ToString() ?? "");
                 }
+                break;
+            case "proces":
+                PanelProces.Visibility = Visibility.Visible;
+                RefreshProces();
                 break;
         }
     }
@@ -1036,7 +1092,8 @@ public partial class HospitalWindow : Window {
             } else if (item.Type == "Hopital") {
                 var hosp = _db.GetHospital();
                 if (hosp != null) {
-                    path = Services.FactureGenerator.ExporterFactureHopitalHtml(item, hosp);
+                    var lignes = _db.GetLignesFactureHopital(item.IdRealFacture);
+                    path = Services.FactureGenerator.ExporterFactureHopitalHtml(item, hosp, lignes.Count > 0 ? lignes : null);
                 }
             }
 
@@ -1280,6 +1337,19 @@ public partial class HospitalWindow : Window {
             };
             timer.Start();
         });
+    }
+
+    private void RefreshProces() {
+        try {
+            var proces = _db.GetProces();
+            DgProces.ItemsSource = proces;
+            TbProcesEnCours.Text = proces.Count(p => p.Statut == "En cours").ToString();
+            TbProcesLost.Text = proces.Count(p => p.Statut == "Perdu").ToString();
+            decimal totalFines = proces.Where(p => p.Statut == "Perdu").Sum(p => p.MontantPenalite);
+            TbProcesPenalties.Text = $"$ {totalFines:N0}";
+        } catch (Exception ex) {
+            SetStatus($"Erreur Procès : {ex.Message}", Color.FromRgb(255, 77, 106));
+        }
     }
 }
 

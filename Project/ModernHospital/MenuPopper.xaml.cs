@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -25,6 +25,15 @@ public partial class MenuPopper : Window {
     public Brush OutlineBrush {
         get => (Brush)GetValue(OutlineBrushProperty);
         set => SetValue(OutlineBrushProperty, value);
+    }
+
+    public static readonly DependencyProperty IsAlertProperty =
+        DependencyProperty.Register(nameof(IsAlert), typeof(bool), typeof(MenuPopper),
+            new PropertyMetadata(false));
+
+    public bool IsAlert {
+        get => (bool)GetValue(IsAlertProperty);
+        set => SetValue(IsAlertProperty, value);
     }
 
     public Action? OnYesConfirmed { get; set; }

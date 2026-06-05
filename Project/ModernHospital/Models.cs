@@ -296,6 +296,7 @@ public static class PatientHelper {
                         db.ReleaseBed(p.IdPatient);
                         db.IncrementAccumulatedFuneralFees();
                     }
+                    db.TryOpenProces(p, hosp!.JourSimulation);
                 } else {
                     db.ReleaseBed(p.IdPatient);
                 }
@@ -402,4 +403,22 @@ public class MedicamentCommande {
     public int Quantite { get; set; }
     public int TempsLivraisonRestant { get; set; }
     public decimal PrixAchat { get; set; }
+}
+
+public class Proces {
+    public int IdProces { get; set; }
+    public string NomPatient { get; set; } = "";
+    public string NomMaladie { get; set; } = "";
+    public float TauxRemission { get; set; }
+    public int JourOuverture { get; set; }
+    public int JourFermeture { get; set; }
+    public string Statut { get; set; } = "En cours";
+    public decimal MontantPenalite { get; set; }
+    public int JoursRestants => System.Math.Max(0, JourFermeture - JourOuverture);
+    public string StatutAffichage => Statut switch {
+        "Perdu" => $"⚖️ Perdu (−{MontantPenalite:N0} $)",
+        "Gagné" => "✅ Gagné",
+        _ => $"⏳ En cours ({JoursRestants}j restants)"
+    };
+    public string TauxRemissionAffichage => $"{TauxRemission:F1} %";
 }
