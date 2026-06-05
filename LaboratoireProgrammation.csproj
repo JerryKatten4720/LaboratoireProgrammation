@@ -271,6 +271,8 @@
         <Resource Include="Assets\images\cursor.png" />
         <None Remove="Assets\images\overseerWars\dwellers\dweller.png" />
         <Resource Include="Assets\images\overseerWars\dwellers\dweller.png" />
+        <None Remove="Assets\videos\house.mp4" />
+        <Resource Include="Assets\videos\house.mp4" />
     </ItemGroup>
 
     <ItemGroup>

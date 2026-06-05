@@ -898,10 +898,11 @@ public class DatabaseManager {
         });
 
         decimal coutEntretien = ExecuteScalar<decimal>("SELECT CoutEntretienJour FROM Unite WHERE IdUnite = @id", cmd => cmd.Parameters.AddWithValue("@id", idUnite));
-        decimal cost = 15000 + coutEntretien + (0.20m * coutEntretien * capaciteLits);
+        string uniteNom = ExecuteScalar<string>("SELECT Nom FROM Unite WHERE IdUnite = @id", cmd => cmd.Parameters.AddWithValue("@id", idUnite)) ?? "";
+        decimal baseCost = LaboratoireProgrammation.Project.ModernHospital.Helpers.ChambrePricingHelper.GetFraisFixesCreation(uniteNom);
+        decimal cost = LaboratoireProgrammation.Project.ModernHospital.Helpers.ChambrePricingHelper.CalculerCoutTotal(coutEntretien, capaciteLits, baseCost);
 
         int jour = ExecuteScalar<int>("SELECT JourSimulation FROM Hopital LIMIT 1");
-        string uniteNom = ExecuteScalar<string>("SELECT Nom FROM Unite WHERE IdUnite = @id", cmd => cmd.Parameters.AddWithValue("@id", idUnite)) ?? "";
 
         AddBudget(-cost, $"Création chambre {numeroChambre} ({uniteNom})", jour, "Dépense Construction");
         CreateFactureHopital("Construction Chambre", cost, $"Construction de la chambre {numeroChambre} dans l'unité {uniteNom} avec une capacité de {capaciteLits} lits.");

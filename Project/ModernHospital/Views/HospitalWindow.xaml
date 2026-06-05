@@ -35,6 +35,7 @@
             <Setter Property="FontFamily" Value="Segoe UI Semibold" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Height" Value="44" />
+            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="Padding" Value="16,0,0,0" />
             <Setter Property="Template">
@@ -323,10 +324,12 @@
                             <Button x:Name="BtnMedicaments" Content="🧪  Médicaments" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="medicaments" />
                             <Button x:Name="BtnFacturation" Content="🧾  Facturation" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="facturation" />
                             <Button x:Name="BtnHitParade" Content="🏆  Hit-Parade" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="hitparade" />
+                            <Button x:Name="BtnHitParade2" Content="🏆  Hit-Parade (House)" Style="{StaticResource NavBtn}" Click="Nav_Click_Hit" />
                             <Button x:Name="BtnReservations" Content="📋  Réservations" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="reservations" />
                             <Button x:Name="BtnSalleAttente" Content="⏳  Salle d'Attente" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="salleattente" />
                             <Button x:Name="BtnAdmin" Content="🛡  Administration" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="admin" />
                             <Button x:Name="BtnProces" Content="⚖️  Procès" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="proces" />
+                            <Button x:Name="BtnTroll" Content="💰️  Blanchissement d'argent" Style="{StaticResource NavBtn}" Click="Nav_Click" Tag="proces" Opacity="0.5"/>
                         </StackPanel>
 
                         <Border DockPanel.Dock="Bottom" Margin="12,0,12,20">
@@ -872,7 +875,7 @@
                         </Border>
                     </Grid>
 
-                    <Grid x:Name="PanelHitParade" Visibility="Collapsed" Margin="28,24,28,24">
+                    <Grid x:Name="PanelHitParade" Visibility="Hidden" Margin="28,24,28,24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -894,6 +897,12 @@
                                 </ListView.View>
                             </ListView>
                         </Border>
+                        
+                        <MediaElement Source="/Assets/videos/house.mp4" 
+                                      LoadedBehavior="Play" 
+                                      UnloadedBehavior="Close" 
+                                      Stretch="Uniform" Opacity="1.0" />
+                    
                     </Grid>
 
                     <Grid x:Name="PanelReservations" Visibility="Collapsed" Margin="28,24,28,24">
@@ -1175,7 +1184,6 @@
                              VerticalAlignment="Center"
                              Background="#0d0d0f"/>
 
-        
         <Grid x:Name="LoadingPanel" Background="#0d0d0f" Panel.ZIndex="1000" Visibility="Visible">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="800">
                 <TextBlock Text="⛨ RUE DE LONDRES MEMORIAL" Foreground="{StaticResource AccentTeal}" FontFamily="Segoe UI Black" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,4" />
@@ -1186,6 +1194,8 @@
                 <TextBlock Text="IT'S LOADING..." Foreground="#5F1620" FontFamily="Segoe UI Black" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,4" Opacity="0.6" />
             </StackPanel>
         </Grid>
+        
+
     </Grid>
     
     <Window.Effect>

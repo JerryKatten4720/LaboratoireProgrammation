@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -1350,6 +1351,10 @@ public partial class HospitalWindow : Window {
         } catch (Exception ex) {
             SetStatus($"Erreur Procès : {ex.Message}", Color.FromRgb(255, 77, 106));
         }
+    }
+
+    private void Nav_Click_Hit(object sender, RoutedEventArgs e) {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://youtu.be/bIOEkv7PibM?t=82") { UseShellExecute = true });
     }
 }
 
