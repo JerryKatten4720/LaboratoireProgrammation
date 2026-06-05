@@ -181,139 +181,179 @@ public class SimulationService : IDisposable {
         UpdateAdminAutoAdmit(minutesPassed);
     }
 
-    private void UpdatePatientsTreatmentStep(int minutesPassed) {
-        float hoursPassed = minutesPassed / 60.0f;
-        var activePatients = _db.GetPatientsRaw().Where(p => p.Statut == "En Diagnostic" || p.Statut == "En Traitement").ToList();
-        var docs = _db.GetPersonnel().ToDictionary(d => d.IdEmploye, d => d);
-        bool changed = false;
+private void UpdatePatientsTreatmentStep(int minutesPassed) {
+    float hoursPassed = minutesPassed / 60.0f;
+    var activePatients = _db.GetPatientsRaw().Where(p => p.Statut == "En Diagnostic" || p.Statut == "En Traitement").ToList();
+    var docs = _db.GetPersonnel().ToDictionary(d => d.IdEmploye, d => d);
+    bool changed = false;
 
-        int numActivePatients = Math.Max(1, activePatients.Count);
-        int numAdmins = _db.GetActivePersonnelCountByRole("Agent Administratif");
-        int numBrancardiers = _db.GetActivePersonnelCountByRole("Brancardier");
-        int numBioTechs = _db.GetActivePersonnelCountByRole("Technicien Biomédical");
-        int numMachines = Math.Max(1, _db.GetTotalEquipmentLevel());
+    float timeSpeedFactor = CalculateTimeSpeedFactor(activePatients.Count);
+    float errorModifier = CalculateErrorModifier(activePatients.Count);
 
-        float timeSpeedFactor = 1.0f;
-        if (numAdmins > 0) {
-            timeSpeedFactor *= 1f - (0.05f * numAdmins / numActivePatients);
-        }
-        if (numBrancardiers > 0) {
-            timeSpeedFactor *= 1f - (0.05f * numBrancardiers / numActivePatients);
-        } else {
-            timeSpeedFactor *= 1f + (0.10f * numActivePatients / 1f);
-        }
-        timeSpeedFactor = Math.Max(0.1f, timeSpeedFactor);
-
-        float errorModifier = 1.0f;
-        if (numAdmins == 0) {
-            errorModifier *= 1f + (0.02f * numActivePatients);
-        }
-        if (numBioTechs > 0) {
-            errorModifier *= 1f - (0.08f * numBioTechs / numMachines);
-        } else {
-            errorModifier *= 1f + (0.15f * numMachines);
-        }
-        errorModifier = Math.Max(0.1f, errorModifier);
-
-        foreach (var patient in activePatients) {
-            bool docOnDuty = false;
-            if (patient.IdMedecinAssigne.HasValue && docs.TryGetValue(patient.IdMedecinAssigne.Value, out var doc)) {
-                if (doc.Statut == "En poste") {
-                    docOnDuty = true;
-                }
-            }
-
-            if (!docOnDuty) {
-                patient.TempsSansMedecin += hoursPassed;
-            }
-
-            float effectiveHours = hoursPassed * timeSpeedFactor;
-            float newTime = patient.TempsTraitementRestant - effectiveHours;
-            if (newTime <= 0f) {
-                _db.UpdatePatientTempsSansMedecin(patient.IdPatient, patient.TempsSansMedecin);
-                
-                var disease = _db.GetCasCliniques().FirstOrDefault(c => c.IdCas == patient.IdMaladie);
-                if (disease != null && disease.CoutLogistique > 0) {
-                    _db.IncrementAccumulatedLogisticalFees(disease.CoutLogistique);
-                }
-
-                string outcome = _db.EvaluateTreatmentOutcome(patient.IdPatient);
-                var fullPatient = _db.GetPatients().FirstOrDefault(p => p.IdPatient == patient.IdPatient);
-                if (fullPatient != null) {
-                    PatientHelper.HandlePatientStatusChange(_db, fullPatient, outcome);
-                    changed = true;
-                    if (outcome == "Guéri") {
-                        OnEventLog?.Invoke($"✨ Patient {fullPatient.Nom} est guéri après son traitement.");
-                        OnNotification?.Invoke($"Patient guéri : {fullPatient.Nom}", "Vert");
-                    } else {
-                        OnEventLog?.Invoke($"☠ Patient {fullPatient.Nom} est décédé.");
-                        OnNotification?.Invoke($"Patient décédé : {fullPatient.Nom}", "Rouge");
-                    }
-                }
-            } else {
-                _db.UpdatePatientTreatmentTimeAndTempsSansMedecin(patient.IdPatient, newTime, patient.TempsSansMedecin);
-                if (patient.Statut == "En Diagnostic" && newTime <= patient.TempsTraitementTotal * 0.8f) {
-                    _db.UpdatePatientStatut(patient.IdPatient, "En Traitement");
-                    patient.Statut = "En Traitement";
-                    changed = true;
-
-                    
-                    try {
-                        var disease = _db.GetCasCliniques().FirstOrDefault(c => c.IdCas == patient.IdMaladie);
-                        if (disease != null && patient.IdMedecinAssigne.HasValue) {
-                            var allDrugs = _db.GetMedicaments();
-                            var targetDrugs = allDrugs.Where(d => d.GetCiblesList().Any(c => c.IdCas == disease.IdCas)).ToList();
-                            var adverseDrugs = allDrugs.Where(d => d.GetIncompatiblesList().Any(i => i.IdCas == disease.IdCas)).ToList();
-
-                            Medicament? selectedDrug = null;
-                            int baseErrorChance = disease.RisqueErreurMedicale;
-                            int effectiveErrorChance = (int)Math.Min(100f, Math.Max(0f, baseErrorChance * errorModifier));
-                            int roll = _random.Next(1, 101);
-
-                            if (roll <= effectiveErrorChance) {
-                                if (adverseDrugs.Count > 0) {
-                                    selectedDrug = adverseDrugs[_random.Next(adverseDrugs.Count)];
-                                }
-                            } else {
-                                if (targetDrugs.Count > 0) {
-                                    selectedDrug = targetDrugs[_random.Next(targetDrugs.Count)];
-                                }
-                            }
-
-                            if (selectedDrug == null) {
-                                if (targetDrugs.Count > 0) {
-                                    selectedDrug = targetDrugs[_random.Next(targetDrugs.Count)];
-                                } else if (adverseDrugs.Count > 0) {
-                                    selectedDrug = adverseDrugs[_random.Next(adverseDrugs.Count)];
-                                }
-                            }
-
-                            if (selectedDrug != null) {
-                                int qte = selectedDrug.GetCiblesList().FirstOrDefault(c => c.IdCas == disease.IdCas)?.Quantite ?? selectedDrug.QuantitePrescriptionDefaut;
-                                _db.AddPrescription(patient.IdPatient, patient.IdMedecinAssigne.Value, selectedDrug.IdMedicament, qte, "1 dose par jour");
-                                OnEventLog?.Invoke($"💊 Le médecin a prescrit {qte}x {selectedDrug.Nom} pour {patient.Nom}.");
-
-                                var updatedDrug = _db.GetMedicamentById(selectedDrug.IdMedicament);
-                                if (updatedDrug != null) {
-                                    if (updatedDrug.StockActuel == 0) {
-                                        OnNotification?.Invoke($"Rupture totale : {updatedDrug.Nom} (0)", "Rouge");
-                                    } else if (updatedDrug.StockActuel < updatedDrug.StockMinimum) {
-                                        OnNotification?.Invoke($"Stock critique : {updatedDrug.Nom} ({updatedDrug.StockActuel})", "Ambre");
-                                    }
-                                }
-                            }
-                        }
-                    } catch (Exception ex) {
-                        OnEventLog?.Invoke($"⚠️ Erreur prescription automatique: {ex.Message}");
-                    }
-                }
-            }
-        }
-
-        if (changed) {
-            OnPatientsChanged?.Invoke();
+    foreach (var patient in activePatients) {
+        if (ProcessSinglePatientTreatment(patient, hoursPassed, timeSpeedFactor, errorModifier, docs)) {
+            changed = true;
         }
     }
+
+    if (changed) {
+        OnPatientsChanged?.Invoke();
+    }
+}
+
+private float CalculateTimeSpeedFactor(int activePatientsCount) {
+    int numAdmins = _db.GetActivePersonnelCountByRole("Agent Administratif");
+    int numBrancardiers = _db.GetActivePersonnelCountByRole("Brancardier");
+    int numActivePatients = Math.Max(1, activePatientsCount);
+
+    float factor = 1.0f;
+    if (numAdmins > 0) {
+        factor *= 1f - (0.05f * numAdmins / numActivePatients);
+    }
+    if (numBrancardiers > 0) {
+        factor *= 1f - (0.05f * numBrancardiers / numActivePatients);
+    } else {
+        factor *= 1f + (0.10f * numActivePatients / 1f);
+    }
+
+    return Math.Max(0.1f, factor);
+}
+
+private float CalculateErrorModifier(int activePatientsCount) {
+    int numAdmins = _db.GetActivePersonnelCountByRole("Agent Administratif");
+    int numBioTechs = _db.GetActivePersonnelCountByRole("Technicien Biomédical");
+    int numMachines = Math.Max(1, _db.GetTotalEquipmentLevel());
+    int numActivePatients = Math.Max(1, activePatientsCount);
+
+    float modifier = 1.0f;
+    if (numAdmins == 0) {
+        modifier *= 1f + (0.02f * numActivePatients);
+    }
+    if (numBioTechs > 0) {
+        modifier *= 1f - (0.08f * numBioTechs / numMachines);
+    } else {
+        modifier *= 1f + (0.15f * numMachines);
+    }
+
+    return Math.Max(0.1f, modifier);
+}
+
+private bool ProcessSinglePatientTreatment(PatientActif patient, float hoursPassed, float timeSpeedFactor, float errorModifier, Dictionary<int, Employe> docs) {
+    bool docOnDuty = false;
+    
+    if (patient.IdMedecinAssigne.HasValue && docs.TryGetValue(patient.IdMedecinAssigne.Value, out var doc)) {
+        if (doc.Statut == "En poste") {
+            docOnDuty = true;
+        }
+    }
+
+    if (!docOnDuty) {
+        patient.TempsSansMedecin += hoursPassed;
+        _db.UpdatePatientTempsSansMedecin(patient.IdPatient, patient.TempsSansMedecin);
+
+        if (patient.TempsSansMedecin > 12.0f) {
+            HandleNeglectedPatientDeath(patient);
+            return true;
+        }
+        return false;
+    }
+
+    float effectiveHours = hoursPassed * timeSpeedFactor;
+    float newTime = patient.TempsTraitementRestant - effectiveHours;
+
+    if (newTime <= 0f) {
+        FinalizeTreatment(patient);
+        return true;
+    }
+
+    _db.UpdatePatientTreatmentTimeAndTempsSansMedecin(patient.IdPatient, newTime, patient.TempsSansMedecin);
+    
+    if (patient.Statut == "En Diagnostic" && newTime <= patient.TempsTraitementTotal * 0.8f) {
+        TransitionToTreatmentPhase(patient, errorModifier);
+        return true;
+    }
+
+    return false;
+}
+
+private void HandleNeglectedPatientDeath(PatientActif patient) {
+    var fullPatient = _db.GetPatients().FirstOrDefault(p => p.IdPatient == patient.IdPatient);
+    if (fullPatient != null) {
+        PatientHelper.HandlePatientStatusChange(_db, fullPatient, "Décédé");
+        OnEventLog?.Invoke($"☠ Patient {fullPatient.Nom} est décédé par manque de soins médicaux (Négligence).");
+        OnNotification?.Invoke($"Décès par négligence : {fullPatient.Nom}", "Rouge");
+    }
+}
+
+private void FinalizeTreatment(PatientActif patient) {
+    _db.UpdatePatientTempsSansMedecin(patient.IdPatient, patient.TempsSansMedecin);
+    
+    var disease = _db.GetCasCliniques().FirstOrDefault(c => c.IdCas == patient.IdMaladie);
+    if (disease != null && disease.CoutLogistique > 0) {
+        _db.IncrementAccumulatedLogisticalFees(disease.CoutLogistique);
+    }
+
+    string outcome = _db.EvaluateTreatmentOutcome(patient.IdPatient);
+    var fullPatient = _db.GetPatients().FirstOrDefault(p => p.IdPatient == patient.IdPatient);
+    
+    if (fullPatient != null) {
+        PatientHelper.HandlePatientStatusChange(_db, fullPatient, outcome);
+        if (outcome == "Guéri") {
+            OnEventLog?.Invoke($"✨ Patient {fullPatient.Nom} est guéri après son traitement.");
+            OnNotification?.Invoke($"Patient guéri : {fullPatient.Nom}", "Vert");
+        } else {
+            OnEventLog?.Invoke($"☠ Patient {fullPatient.Nom} est décédé.");
+            OnNotification?.Invoke($"Patient décédé : {fullPatient.Nom}", "Rouge");
+        }
+    }
+}
+
+private void TransitionToTreatmentPhase(PatientActif patient, float errorModifier) {
+    _db.UpdatePatientStatut(patient.IdPatient, "En Traitement");
+    patient.Statut = "En Traitement";
+
+    try {
+        var disease = _db.GetCasCliniques().FirstOrDefault(c => c.IdCas == patient.IdMaladie);
+        if (disease != null && patient.IdMedecinAssigne.HasValue) {
+            var allDrugs = _db.GetMedicaments();
+            var targetDrugs = allDrugs.Where(d => d.GetCiblesList().Any(c => c.IdCas == disease.IdCas)).ToList();
+            var adverseDrugs = allDrugs.Where(d => d.GetIncompatiblesList().Any(i => i.IdCas == disease.IdCas)).ToList();
+
+            Medicament? selectedDrug = null;
+            int baseErrorChance = disease.RisqueErreurMedicale;
+            int effectiveErrorChance = (int)Math.Min(100f, Math.Max(0f, baseErrorChance * errorModifier));
+            int roll = _random.Next(1, 101);
+
+            if (roll <= effectiveErrorChance && adverseDrugs.Count > 0) {
+                selectedDrug = adverseDrugs[_random.Next(adverseDrugs.Count)];
+            } else if (targetDrugs.Count > 0) {
+                selectedDrug = targetDrugs[_random.Next(targetDrugs.Count)];
+            }
+
+            if (selectedDrug == null) {
+                if (targetDrugs.Count > 0) selectedDrug = targetDrugs[_random.Next(targetDrugs.Count)];
+                else if (adverseDrugs.Count > 0) selectedDrug = adverseDrugs[_random.Next(adverseDrugs.Count)];
+            }
+
+            if (selectedDrug != null) {
+                int qte = selectedDrug.GetCiblesList().FirstOrDefault(c => c.IdCas == disease.IdCas)?.Quantite ?? selectedDrug.QuantitePrescriptionDefaut;
+                _db.AddPrescription(patient.IdPatient, patient.IdMedecinAssigne.Value, selectedDrug.IdMedicament, qte, "1 dose par jour");
+                OnEventLog?.Invoke($"💊 Le médecin a prescrit {qte}x {selectedDrug.Nom} pour {patient.Nom}.");
+
+                var updatedDrug = _db.GetMedicamentById(selectedDrug.IdMedicament);
+                if (updatedDrug != null) {
+                    if (updatedDrug.StockActuel == 0) {
+                        OnNotification?.Invoke($"Rupture totale : {updatedDrug.Nom} (0)", "Rouge");
+                    } else if (updatedDrug.StockActuel < updatedDrug.StockMinimum) {
+                        OnNotification?.Invoke($"Stock critique : {updatedDrug.Nom} ({updatedDrug.StockActuel})", "Ambre");
+                    }
+                }
+            }
+        }
+    } catch (Exception ex) {
+        OnEventLog?.Invoke($"⚠️ Erreur prescription automatique: {ex.Message}");
+    }
+}
 
     private void UpdateWaitingRoom(int minutesPassed, bool isOffline) {
         if (!isOffline) {
@@ -578,22 +618,43 @@ public class SimulationService : IDisposable {
 
         if (simMinutesPassed <= 0) return;
 
+        int maxOfflineMinutes = 4000;
+        simMinutesPassed = Math.Min(simMinutesPassed, maxOfflineMinutes);
+
         OnEventLog?.Invoke($"⏳ Application fermée pendant {simMinutesPassed} minutes simulées. Rattrapage en cours...");
 
-        for (int i = 0; i < simMinutesPassed; i++) {
-            _gameTime = _gameTime.AddMinutes(1);
-            UpdateDoctorsShiftsStep(1);
-            UpdatePatientsTreatmentStep(1);
-            UpdateWaitingRoom(1, true);
-            UpdateMedicamentDeliveries(1, true);
-            UpdateCleaningRooms(1);
-            UpdateAdminAutoAdmit(1);
-            CheckDayTransition();
-        }
+        ProcessOfflineMinutes(simMinutesPassed);
 
         int currentDay = (_gameTime - new DateTime(2026, 1, 1)).Days + 1;
         _db.SaveRealLifeTime(DateTime.Now, currentDay, _gameTime.TimeOfDay);
+    
         OnEventLog?.Invoke($"✅ Rattrapage de la simulation terminé.");
+    }
+    
+    private void ProcessOfflineMinutes(int totalMinutes) {
+        int chunkSize = 10; 
+        int remainingMinutes = totalMinutes;
+
+        while (remainingMinutes > 0) {
+            int step = Math.Min(chunkSize, remainingMinutes);
+        
+            SimulateTimeStep(step);
+        
+            remainingMinutes -= step;
+        }
+    }
+    
+    private void SimulateTimeStep(int minutes) {
+        _gameTime = _gameTime.AddMinutes(minutes);
+    
+        UpdateDoctorsShiftsStep(minutes);
+        UpdatePatientsTreatmentStep(minutes);
+        UpdateWaitingRoom(minutes, true);
+        UpdateMedicamentDeliveries(minutes, true);
+        UpdateCleaningRooms(minutes);
+        UpdateAdminAutoAdmit(minutes);
+    
+        CheckDayTransition();
     }
 
     public void Dispose() {

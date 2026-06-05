@@ -1182,6 +1182,8 @@
                 <TextBlock Text="Chargement de la base de données..." Foreground="{StaticResource TextPrimary}" FontFamily="Segoe UI" FontSize="28" Opacity="0.5" HorizontalAlignment="Center" Margin="0,0,0,24" />
                 <ProgressBar x:Name="PbLoading" Height="8" Background="#1c1c22" Foreground="{StaticResource AccentTeal}" BorderThickness="0" Minimum="0" Maximum="100" Value="0" Margin="0,0,0,12" />
                 <TextBlock x:Name="TbLoadingStep" Text="Initialisation..." Foreground="{StaticResource TextSecondary}" FontSize="22" Opacity="0.5" HorizontalAlignment="Center" />
+                <TextBlock Text="⚠️ DO NOT CLOSE PROGRAM, IT'S NOT FROZEN ⚠️" Foreground="#781D27" FontFamily="Segoe UI Black" FontSize="32" HorizontalAlignment="Center" Margin="0,100,0,4" Opacity="0.6" />
+                <TextBlock Text="IT'S LOADING..." Foreground="#5F1620" FontFamily="Segoe UI Black" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,4" Opacity="0.6" />
             </StackPanel>
         </Grid>
     </Grid>
