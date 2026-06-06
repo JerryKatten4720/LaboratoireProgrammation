@@ -57,6 +57,10 @@ public class Vault {
         Food -= livingDwellers;
         Water -= livingDwellers;
         Electricity -= Rooms.Count;
+        
+        Electricity = Math.Max(0, Electricity);
+        Water = Math.Max(0, Water);
+        Food = Math.Max(0, Food);
 
         if (Water <= 0 || Food <= 0) {
             foreach (var d in Dwellers.Where(d => d.IsAlive)) {

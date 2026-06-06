@@ -650,9 +650,9 @@ public partial class OverseerWarsWindow : Window {
 
     private void RefreshHUD() {
         var vault = _state.ActiveVault;
-        ElecText.Text  = $"{vault.Electricity}";
-        WaterText.Text = $"{vault.Water}";
-        FoodText.Text  = $"{vault.Food}";
+        ElecText.Text  = $"⚡ {vault.Electricity}";
+        WaterText.Text = $"💧 {vault.Water}";
+        FoodText.Text  = $"🍴 {vault.Food}";
         ApText.Text    = $"PA: {vault.ActionPoints}/{vault.MaxActionPoints}";
         TurnText.Text  = $"Turn {_state.TurnNumber}";
     }

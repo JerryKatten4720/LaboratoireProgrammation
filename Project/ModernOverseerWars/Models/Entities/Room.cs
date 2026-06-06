@@ -22,5 +22,18 @@ public class Room {
     public List<Dweller> AssignedDwellers { get; set; } = new();
     public int Level { get; set; } = 1;
     public int BuildCost { get; set; } = GameConfigRepository.Config.RoomBuildCost;
-    public int ProduceValue => AssignedDwellers.Count(d => d.IsAlive) * Level;
+    public int ProduceValue => GetProduceValue(Type, AssignedDwellers);
+
+    public int GetProduceValue(RoomType type, List<Dweller> dwellers) {
+        int production = 0;
+        
+        switch (type) {
+            case RoomType.Garden: foreach (var d in dwellers) { production += d.Special_A / 2; } break;
+            case RoomType.WaterPurifier: foreach (var d in dwellers) { production += d.Special_P / 2; } break;
+            case RoomType.Generator: foreach (var d in dwellers) { production += d.Special_S / 2; } break;
+        }
+
+        return production;
+
+    } 
 }

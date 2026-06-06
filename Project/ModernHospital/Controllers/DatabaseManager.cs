@@ -710,8 +710,10 @@ public class DatabaseManager {
             Nom = reader.GetString("Nom"),
             Specialite = GetStringNullable(reader, "Specialite") ?? "",
             PatientsTraites = reader.GetInt32("PatientsTraites"),
+            TauxGuerisonString = reader.GetInt32("TauxGuerison").ToString() + "%",
             TauxGuerison = reader.GetDecimal("TauxGuerison"),
-            RevenuGenere = reader.GetDecimal("RevenuGenere")
+            RevenuGenere = reader.GetDecimal("RevenuGenere"),
+            RevenuGenereString = reader.GetDecimal("RevenuGenere").ToString() + "$"
         });
         for (int i = 0; i < list.Count; i++) {
             list[i].Rang = i + 1;

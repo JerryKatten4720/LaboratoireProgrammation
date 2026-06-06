@@ -271,6 +271,9 @@ public class HitParadeEntry {
     public int PatientsTraites { get; set; }
     public decimal TauxGuerison { get; set; }
     public decimal RevenuGenere { get; set; }
+    public string TauxGuerisonString { get; set; } = "";
+    public string RevenuGenereString { get; set; } = "";
+    
 }
 
 public static class PatientHelper {

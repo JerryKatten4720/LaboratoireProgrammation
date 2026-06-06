@@ -87,7 +87,7 @@
                     <TextBlock x:Name="ActivePlayerLabel" Text="Player 1's Turn" Style="{StaticResource TerminalText}" FontSize="18" FontWeight="Bold" Margin="0,0,32,0"/>
                     <TextBlock x:Name="ElecText" Text="⚡ 20" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0"/>
                     <TextBlock x:Name="WaterText" Text="💧 20" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0"/>
-                    <TextBlock x:Name="FoodText" Text="🍔 20" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0"/>
+                    <TextBlock x:Name="FoodText" Text="🍴 20" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0"/>
                     <TextBlock x:Name="ApText" Text="PA: 5/5" Style="{StaticResource TerminalText}" FontSize="16" FontWeight="Bold" Margin="32,0,12,0"/>
                     <TextBlock x:Name="TurnText" Text="TURN 1" Style="{StaticResource TerminalText}" FontSize="14" Margin="12,0" Opacity="0.7"/>
                 </StackPanel>
@@ -305,27 +305,4 @@
 
         <Canvas x:Name="DragOverlayCanvas" Grid.RowSpan="4" IsHitTestVisible="False"/>
     </Grid>
-    
-    <Window.Effect>
-        <wrappers:CRT x:Name="VaultShader"
-                      DistortionStrength="0.0"
-                      CurveRadius="0.00"
-                      VignetteStrength="0.6"
-                      ScanlineIntensity="0.55"
-                      ScanlineCount="100.0"
-                      ScanlineSpeed="0.03"
-                      PixelGridIntensity="0.05"
-                      BloomStrength="0.2"
-                      ChromaticAberration="0.04"
-                      TintColor="#0FFF7F00"
-                      Brightness="2.10"
-                      Contrast="1.05"
-                      NoiseIntensity="0.0125"
-                      NoiseScale="0.5"
-                      FlickerIntensity="0.06"
-                      FlickerSpeed="0.2"
-                      PhosphorDecay="0.5"
-                      ScreenResolution="1080,720" />
-    </Window.Effect>
-    
 </Window>

@@ -60,19 +60,19 @@ public class OverseerWarInit {
 
             var zoomAnim = new DoubleAnimation {
                 To = 1.15,
-                Duration = TimeSpan.FromSeconds(4),
+                Duration = TimeSpan.FromSeconds(3),
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
             };
 
             logoScale.BeginAnimation(ScaleTransform.ScaleXProperty, zoomAnim);
             logoScale.BeginAnimation(ScaleTransform.ScaleYProperty, zoomAnim);
 
-            await Task.Delay(3000);
+            await Task.Delay(1500);
             win.BethesdaLogo.Opacity = 0.005;
 
             await Task.Delay(200);
             win.TerminalOutputPanel.Children.Add(inspirationBlock);
-            await Task.Delay(1000);
+            await Task.Delay(600);
             win.VaultShader.Brightness -= 0.2;
             win.VaultShader.BloomStrength -= 0.2;
             win.TerminalOutputPanel.Children.Clear();
@@ -82,7 +82,7 @@ public class OverseerWarInit {
             win.VaultShader.BloomStrength += 0.2;
             win.TerminalOutputPanel.Children.Clear();
             win.TerminalOutputPanel.Children.Add(inspirationBlock);
-            await Task.Delay(1600);
+            await Task.Delay(1000);
 
             win.BethesdaLogo.Visibility = Visibility.Collapsed;
             var screenSize = win.VaultShader.ScreenResolution;
@@ -126,7 +126,7 @@ public class OverseerWarInit {
 
             win.TerminalOutputPanel.Children.Clear();
             win.TerminalOutputPanel.Children.Add(inspirationBlock);
-            await Task.Delay(600);
+            await Task.Delay(400);
 
             win.TerminalOutputPanel.Children.Clear();
             await Task.Delay(100);
@@ -141,7 +141,7 @@ public class OverseerWarInit {
                 new SolidColorBrush(Color.FromArgb(20, 255, 0, 0)), 0);
             win.TerminalOutputPanel.Children.Add(authorBlock1);
             win.TerminalOutputPanel.Children.Add(authorBlock2);
-            await Task.Delay(1950);
+            await Task.Delay(1250);
 
             win.TerminalOutputPanel.Children.Clear();
             win.VaultShader.ChromaticAberration += 1.5;
@@ -165,7 +165,7 @@ public class OverseerWarInit {
                 new SolidColorBrush(Color.FromArgb(20, 255, 0, 0)), 0);
             win.TerminalOutputPanel.Children.Add(authorBlock3);
             win.TerminalOutputPanel.Children.Add(authorBlock4);
-            await Task.Delay(1950);
+            await Task.Delay(1250);
 
             win.TerminalOutputPanel.Children.Clear();
             win.VaultShader.ChromaticAberration += 1.5;
@@ -178,7 +178,7 @@ public class OverseerWarInit {
             win.VaultShader.ScreenResolution = screenSize;
 
             win.TerminalOutputPanel.Children.Clear();
-            await Task.Delay(500);
+            await Task.Delay(40);
 
             if (wasSl) ConsoleBehavior.SpeedLoad = true;
 

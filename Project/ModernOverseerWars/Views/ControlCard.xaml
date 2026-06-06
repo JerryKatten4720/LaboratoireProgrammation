@@ -186,7 +186,7 @@
                                    TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Opacity="0.9"/>
                     </StackPanel>
                     
-                    <TextBlock x:Name="StatsLine" Text="S:3 P:3 E:3 C:3" FontSize="10" FontWeight="Bold" Foreground="#DDDDDD" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="StatsLine" Text="S:3 P:3 E:3 C:3" FontSize="10" FontWeight="Bold" Foreground="#34290E" HorizontalAlignment="Center" Opacity="0.7"/>
                     
                     <Grid Margin="0,4,0,0">
                         <ProgressBar x:Name="HpBar" Style="{StaticResource TerminalHpBar}" Margin="8,0,8,12" Height="14" Minimum="0" Maximum="100" Value="100" Background="#33000000" Foreground="#1BFD02" Opacity="0.9"/>
